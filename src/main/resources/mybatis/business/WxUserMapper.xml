@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.business.mapper.WxUserMapper">
+
+	<resultMap type="WxUser" id="WxUserResult">
+		<result property="openid"        column="openid"         />
+		<result property="name"        column="name"         />
+		<result property="phone"     column="phone"      />
+		<result property="idcard"      column="idcard"       />
+		<result property="number"      column="number"       />
+		<result property="img"      column="img"       />
+		<result property="userid"   column="userid"     />
+		<result property="deptname"   column="deptname"     />
+		<result property="postname"   column="postname"     />
+	</resultMap>
+	
+	<sql id="selectWxUserVo">
+        select openid, name, phone, idcard, number, img, userid
+		from sys_user_wx
+    </sql>
+	
+	<select id="selectWxUserList" parameterType="WxUser" resultMap="WxUserResult">
+		<include refid="selectWxUserVo"/>
+		<where>
+			<if test="name != null and name != ''">
+				AND name like concat('%', #{name}, '%')
+			</if>
+			<if test="phone != null and phone != ''">
+				AND phone like concat('%', #{phone}, '%')
+			</if>
+			<if test="idcard != null and idcard != ''">
+				AND idcard like concat('%', #{idcard}, '%')
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectWxUserByOpenid" parameterType="String" resultMap="WxUserResult">
+	    select u1.openid openid, u1.name name, u1.phone phone, u1.idcard idcard, u1.number number, u1.img img, u1.userid userid, d.dept_name deptname, p.post_name postname
+		from sys_user_wx u1 left join sys_user u2 on u1.userid = u2.user_id
+		left join sys_dept d on u2.dept_id = d.dept_id
+		left join sys_user_post sp on u2.user_id = sp.user_id
+		left join sys_post p on sp.post_id = p.post_id
+		where openid = #{openid}
+	</select>
+
+ 	<update id="updateWxUser" parameterType="WxUser">
+ 		update sys_user_wx
+ 		<set>
+ 			<if test="name != null and name != ''">name = #{name},</if>
+ 			<if test="phone != null and phone != ''">phone = #{phone},</if>
+ 			<if test="idcard != null and idcard != ''">idcard = #{idcard},</if>
+			<if test="img != null and img != ''">img = #{img},</if>
+			<if test="userid != null and userid != ''">userid = #{userid},</if>
+			<if test="number != null and number != ''">number = #{number},</if>
+ 		</set>
+ 		where openid = #{openid}
+	</update>
+ 	
+ 	<insert id="insertWxUser" parameterType="WxUser">
+ 		insert into sys_user_wx(
+			<trim suffixOverrides=",">
+				<if test="openid != null and openid != ''">openid,</if>
+				<if test="name != null and name != ''">name,</if>
+				<if test="phone != null and phone != ''">phone,</if>
+				<if test="idcard != null and idcard != ''">idcard,</if>
+				<if test="img != null and img != ''">img,</if>
+				<if test="userid != null and userid != ''">userid,</if>
+				<if test="number != null and number != ''">number,</if>
+			</trim>
+ 		)values(
+			<trim suffixOverrides=",">
+				<if test="openid != null and openid != ''">#{openid},</if>
+				<if test="name != null and name != ''">#{name},</if>
+				<if test="phone != null and phone != ''">#{phone},</if>
+				<if test="idcard != null and idcard != ''">#{idcard},</if>
+				<if test="img != null and img != ''">#{img},</if>
+				<if test="userid != null and userid != ''">#{userid},</if>
+				<if test="number != null and number != ''">#{number},</if>
+			</trim>
+ 		)
+	</insert>
+
+	<delete id="deleteWxUser" parameterType="WxUser">
+		delete from sys_user_wx where openid = #{openid}
+	</delete>
+
+</mapper> 

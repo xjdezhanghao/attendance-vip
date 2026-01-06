@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.financial.mapper.FinOvertimeDetailMapper">
+    
+    <resultMap type="FinOvertimeDetail" id="FinOvertimeDetailResult">
+        <result property="id"    column="id"    />
+        <result property="userid"    column="userid"    />
+        <result property="userName"    column="user_name"    />
+        <result property="deptid"    column="deptid"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="idcard"    column="idcard"    />
+        <result property="overtime"    column="overtime"    />
+        <result property="overdays"    column="overdays"    />
+        <result property="content"    column="content"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="oid"    column="oid"    />
+        <result property="overtype"    column="overtype"    />
+    </resultMap>
+
+    <sql id="selectFinOvertimeDetailVo">
+        select id, userid, user_name, deptid, dept_name, idcard, overtime, overdays, content, create_by, create_time, oid, overtype from fin_overtime_detail
+    </sql>
+
+    <select id="selectFinOvertimeDetailList" parameterType="FinOvertimeDetail" resultMap="FinOvertimeDetailResult">
+        <include refid="selectFinOvertimeDetailVo"/>
+        <where>  
+            <if test="userid != null "> and userid = #{userid}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="deptid != null "> and deptid = #{deptid}</if>
+            <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="idcard != null  and idcard != ''"> and idcard = #{idcard}</if>
+            <if test="overtime != null "> and overtime = #{overtime}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(overtime,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(overtime,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="oid != null "> and oid = #{oid}</if>
+            <if test="overtype == 'multiple'"> and (overtype = 'three' or overtype = 'two')</if>
+            <if test="overtype == 'single'"> and (overtype = 'one')</if>
+            <if test="overtype == 'one'"> and (overtype = 'one')</if>
+            <if test="overtype == 'two'"> and (overtype = 'two')</if>
+            <if test="overtype == 'three'"> and (overtype = 'three')</if>
+            <if test="overtype == 'night'"> and (overtype = 'night')</if>
+        </where>
+        order by deptid asc, userid asc, overtime asc
+    </select>
+
+    <select id="selectFinOvertimeDetailListSuper" parameterType="FinOvertimeDetail" resultMap="FinOvertimeDetailResult">
+        select max(id) id, userid, max(user_name) user_name, deptid, max(dept_name) dept_name, count(id) overdays,
+        max(idcard) idcard, GROUP_CONCAT(overtime SEPARATOR ';') overtime, GROUP_CONCAT(DISTINCT(content) SEPARATOR ';') content,
+        max(create_by) create_by, max(create_time) create_time, max(oid) oid, max(overtype) overtype
+        from fin_overtime_detail
+        <where>
+            <if test="userid != null "> and userid = #{userid}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="deptid != null "> and deptid = #{deptid}</if>
+            <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="idcard != null  and idcard != ''"> and idcard = #{idcard}</if>
+            <if test="overtime != null "> and overtime = #{overtime}</if>
+            <if test="params.beginTime != null and params.beginTime != ''"><!-- 开始时间检索 -->
+                AND date_format(overtime,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''"><!-- 结束时间检索 -->
+                AND date_format(overtime,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="oid != null "> and oid = #{oid}</if>
+            <if test="overtype == 'multiple'"> and (overtype = 'three' or overtype = 'two')</if>
+            <if test="overtype == 'single'"> and (overtype = 'one')</if>
+            <if test="overtype == 'one'"> and (overtype = 'one')</if>
+            <if test="overtype == 'two'"> and (overtype = 'two')</if>
+            <if test="overtype == 'three'"> and (overtype = 'three')</if>
+            <if test="overtype == 'night'"> and (overtype = 'night')</if>
+        </where>
+        group by deptid, userid
+        order by deptid asc, userid asc, overtime asc
+    </select>
+
+    <select id="selectFinOvertimeDetailById" parameterType="Long" resultMap="FinOvertimeDetailResult">
+        <include refid="selectFinOvertimeDetailVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertFinOvertimeDetail" parameterType="FinOvertimeDetail">
+        insert into fin_overtime_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userid != null">userid,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="deptid != null">deptid,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="idcard != null">idcard,</if>
+            <if test="overtime != null">overtime,</if>
+            <if test="overdays != null">overdays,</if>
+            <if test="content != null">content,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="oid != null">oid,</if>
+            <if test="overtype != null">overtype,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userid != null">#{userid},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="deptid != null">#{deptid},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="idcard != null">#{idcard},</if>
+            <if test="overtime != null">#{overtime},</if>
+            <if test="overdays != null">>#{overdays},</if>
+            <if test="content != null">#{content},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="oid != null">#{oid},</if>
+            <if test="overtype != null">#{overtype},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFinOvertimeDetail" parameterType="FinOvertimeDetail">
+        update fin_overtime_detail
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userid != null">userid = #{userid},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="deptid != null">deptid = #{deptid},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="idcard != null">idcard = #{idcard},</if>
+            <if test="overtime != null">overtime = #{overtime},</if>
+            <if test="overdays != null">overdays = #{overdays},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="oid != null">oid = #{oid},</if>
+            <if test="overtype != null">overtype = #{overtype},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFinOvertimeDetailById" parameterType="Long">
+        delete from fin_overtime_detail where id = #{id}
+    </delete>
+
+    <delete id="deleteFinOvertimeDetailByIds" parameterType="String">
+        delete from fin_overtime_detail where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteFinOvertimeDetailByOids" parameterType="String">
+        delete from fin_overtime_detail where oid in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="batchInsertFinOvertimeDetail" parameterType="list">
+        INSERT INTO fin_overtime_detail
+        <foreach collection="list" item="item" index="index" separator=",">
+            <if test="index == 0">
+                <trim prefix="(" suffix=")" suffixOverrides=",">
+                    <if test="item.id != null">id,</if>
+                    <if test="item.userid != null">userid,</if>
+                    <if test="item.userName != null">user_name,</if>
+                    <if test="item.deptid != null">deptid,</if>
+                    <if test="item.deptName != null">dept_name,</if>
+                    <if test="item.idcard != null">idcard,</if>
+                    <if test="item.overtime != null">overtime,</if>
+                    <if test="item.overdays != null">overdays,</if>
+                    <if test="item.content != null">content,</if>
+                    <if test="item.createBy != null">create_by,</if>
+                    <if test="item.createTime != null">create_time,</if>
+                    <if test="item.oid != null">oid,</if>
+                    <if test="item.overtype != null">overtype,</if>
+                </trim>
+            </if>
+        </foreach>
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="item.id != null">#{item.id},</if>
+                <if test="item.userid != null">#{item.userid},</if>
+                <if test="item.userName != null">#{item.userName},</if>
+                <if test="item.deptid != null">#{item.deptid},</if>
+                <if test="item.deptName != null">#{item.deptName},</if>
+                <if test="item.idcard != null">#{item.idcard},</if>
+                <if test="item.overtime != null">#{item.overtime},</if>
+                <if test="item.overdays != null">#{item.overdays},</if>
+                <if test="item.content != null">#{item.content},</if>
+                <if test="item.createBy != null">#{item.createBy},</if>
+                <if test="item.createTime != null">#{item.createTime},</if>
+                <if test="item.oid != null">#{item.oid},</if>
+                <if test="item.overtype != null">#{item.overtype},</if>
+            </trim>
+        </foreach>
+    </insert>
+
+</mapper>

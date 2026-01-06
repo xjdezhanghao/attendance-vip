@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改扣除详情')" />
+    <th:block th:include="include :: bootstrap-editable-css" />
+    <style type="text/css">
+        #bootstrap-table td, #bootstrap-table th, #bootstrap-table1 td, #bootstrap-table1 th {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            word-break:keep-all;
+        }
+        .fixed-table-container:has(#bootstrap-table){
+            height: 75vh;
+        }
+        .pagination-detail{
+            margin-bottom: 0;
+        }
+        .fixed-columns td, .fixed-columns th {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            word-break:keep-all;
+        }
+    </style>
+</head>
+<body class="white-bg">
+    <div class="main-content">
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="col-sm-12 search-collapse">
+                    <form id="formId">
+                        <div class="select-list">
+                            <ul>
+                                <li>
+                                    <label>用户姓名：</label>
+                                    <input type="text" name="userName" autocomplete="off"/>
+                                </li>
+                               <!-- <li>
+                                    <label>部门名称：</label>
+                                    <input type="text" name="deptName" autocomplete="off"/>
+                                </li>-->
+                                <li>
+                                    <a class="btn btn-primary btn-rounded btn-sm" onclick="thisSearch()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                    <a class="btn btn-warning btn-rounded btn-sm" onclick="thisReset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="col-sm-12 select-table table-striped">
+                    <table id="bootstrap-table"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <!-- JS 脚本 -->
+    <th:block th:include="include :: bootstrap-table-editable-js"/>
+    <th:block th:include="include :: bootstrap-table-fixed-columns-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "financial/deduct";
+
+        var details = [[${details}]];
+
+        var editableFields = ["dkylbx","dkyilbx","dksybx","dkgjj","dkqynj",
+            "bkyl","bkyil","bksy","bkgjj","bkqynj",
+            "dksf","dkglwsf","kgsdjsb","bydkgrsds","kqkkhj"
+        ];
+
+        var options = {
+            data: details,
+            pagination: false,
+            showSearch: false,
+            showRefresh: false,
+            showToggle: false,
+            showColumns: false,
+            modalName: "扣除情况汇总",
+            id: "bootstrap-table",
+            flag: true,
+            clickEdit: true,
+            fixedColumns: true,
+            fixedNumber: 1,
+            height: '70%',
+            onEditableSave: onEditableSave,
+            columns: [
+                {
+                    field: 'id',
+                    title: '主键',
+                    visible: false
+                },
+                {
+                    field: 'userName',
+                    title: '用户姓名'
+                },
+                {
+                    field: 'deptName',
+                    title: '部门名称'
+                },
+                {
+                    field: 'idcard',
+                    title: '身份证号'
+                },
+                {
+                    field: 'dkylbx',
+                    title: '代扣养老保险',
+                    editable: true
+                },
+                {
+                    field: 'dkyilbx',
+                    title: '代扣医疗保险',
+                    editable: true
+                },
+                {
+                    field: 'dksybx',
+                    title: '代扣失业保险',
+                    editable: true
+                },
+                {
+                    field: 'dkgjj',
+                    title: '代扣公积金',
+                    editable: true
+                },
+                {
+                    field: 'dkqynj',
+                    title: '代扣企业年金',
+                    editable: true
+                },
+                {
+                    field: 'bkyl',
+                    title: '补扣养老',
+                    editable: true
+                },
+                {
+                    field: 'bkyil',
+                    title: '补扣医疗',
+                    editable: true
+                },
+                {
+                    field: 'bksy',
+                    title: '补扣失业',
+                    editable: true
+                },
+                {
+                    field: 'bkgjj',
+                    title: '补扣公积金',
+                    editable: true
+                },
+                {
+                    field: 'bkqynj',
+                    title: '补扣企业年金',
+                    editable: true
+                },
+                {
+                    field: 'dksf',
+                    title: '代扣水费',
+                    editable: true
+                },
+                {
+                    field: 'dkglwsf',
+                    title: '代扣管理卫生费',
+                    editable: true
+                },
+                {
+                    field: 'kgsdjsb',
+                    title: '扣公司代缴社保',
+                    editable: true
+                },
+                {
+                    field: 'bydkgrsds',
+                    title: '本月代扣个人所得税',
+                    editable: true
+                },
+                {
+                    field: 'kqkkhj',
+                    title: '考勤扣款合计',
+                    editable: true
+                },
+                {
+                    field: 'kkhj',
+                    title: '扣款合计'
+                },
+            ]
+        };
+        $.table.init(options);
+
+        function thisSearch() {
+            var userName = $("input[name='userName']").val();
+            var result = $.grep(details, function(value) {
+                return value.userName.indexOf(userName) != -1;
+            });
+            $("#bootstrap-table").bootstrapTable("refreshOptions", {data: result});
+            $("#bootstrap-table").bootstrapTable("refresh");
+        }
+
+        function thisReset() {
+            $("input[name='userName']").val("")
+            $("#bootstrap-table").bootstrapTable("refreshOptions", {data: details});
+            $("#bootstrap-table").bootstrapTable("refresh");
+        }
+
+        function onEditableSave (field, row, rowIndex, oldValue, $el) {
+            if(!$.common.standardNumValid(row[field])){
+                $.modal.alertError("请输入正确的数值");
+                row[field] = oldValue;
+                return;
+            }
+
+            var newKkhj = 0;
+            for(var p in row){
+               if(editableFields.indexOf(p)>=0){
+                   var tmp = $.common.toStandardNum(row[p]);
+                   newKkhj += tmp;
+               }
+            }
+            newKkhj = $.common.toStandardNum(newKkhj);
+
+            var params = {};
+            params["id"] = row.id;
+            params[field] = row[field];
+
+            var kkhj = row["kkhj"];
+            if (newKkhj != kkhj){
+                row["kkhj"] = newKkhj;
+                params["kkhj"] = newKkhj;
+            }
+            $.ajax({
+                type: "post",
+                url: prefix + "/edit",
+                data: params,
+                success: function(data) {
+                    console.info(data)
+                },
+                error: function (data) {
+                    console.info(data);
+                    $.modal.alertError("网络连接失败")
+                }
+            })
+        }
+    </script>
+</body>
+</html>

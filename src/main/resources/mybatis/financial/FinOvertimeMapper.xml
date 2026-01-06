@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.financial.mapper.FinOvertimeMapper">
+    
+    <resultMap type="FinOvertime" id="FinOvertimeResult">
+        <result property="id"    column="id"    />
+        <result property="recname"    column="recname"    />
+        <result property="rectime"    column="rectime"    />
+        <result property="rectype"    column="rectype"    />
+        <result property="deptid"    column="deptid"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="filepath"    column="filepath"    />
+        <result property="opstatus"    column="opstatus"    />
+        <result property="maxtime"    column="maxtime"    />
+    </resultMap>
+
+    <sql id="selectFinOvertimeVo">
+        select id, recname, rectime, rectype, deptid, dept_name, create_by, create_time, filepath from fin_overtime
+    </sql>
+
+    <select id="selectFinOvertimeList" parameterType="FinOvertime" resultMap="FinOvertimeResult">
+        select o.id, o.recname, o.rectime, o.rectype, o.deptid, o.dept_name, u.user_name create_by, o.create_time, o.filepath, rls.opstatus, rls.maxtime from fin_overtime o
+        left join sys_dept d on o.deptid = d.dept_id
+        left join sys_user u on o.create_by = u.login_name
+        left join
+        <include refid="com.attendance.project.system.line.mapper.FlowLineMapper.selectRecLineStatus" /> rls on o.id=rls.recid
+        <where>  
+            <if test="recname != null and recname != ''"> and o.recname like concat('%', #{recname}, '%')</if>
+            <if test="rectime != null "> and o.rectime = #{rectime}</if>
+            <if test="rectype != null and rectype != '' "> and o.rectype = #{rectype}</if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                AND date_format(concat(o.rectime,'-01'),'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND date_format(concat(o.rectime,'-01'),'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+            <if test="deptid != null "> and (d.parent_id = #{deptid} or d.parent_id = (select parent_id from sys_dept where dept_id = #{deptid}))</if>
+            <if test="deptName != null  and deptName != ''"> and o.dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="opstatus != null  and opstatus != ''"> and rls.opstatus = #{opstatus}</if>
+            ${params.dataScope}
+        </where>
+        order by o.create_time desc
+    </select>
+    
+    <select id="selectFinOvertimeById" parameterType="Long" resultMap="FinOvertimeResult">
+        <include refid="selectFinOvertimeVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertFinOvertime" parameterType="FinOvertime" keyProperty="id">
+        insert into fin_overtime
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="recname != null">recname,</if>
+            <if test="rectime != null">rectime,</if>
+            <if test="rectype != null">rectype,</if>
+            <if test="deptid != null">deptid,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="filepath != null">filepath,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="recname != null">#{recname},</if>
+            <if test="rectime != null">#{rectime},</if>
+            <if test="rectype != null">#{rectype},</if>
+            <if test="deptid != null">#{deptid},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="filepath != null">#{filepath},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFinOvertime" parameterType="FinOvertime">
+        update fin_overtime
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="recname != null">recname = #{recname},</if>
+            <if test="rectime != null">rectime = #{rectime},</if>
+            <if test="rectype != null">rectype = #{rectype},</if>
+            <if test="deptid != null">deptid = #{deptid},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="filepath != null">filepath = #{filepath},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFinOvertimeById" parameterType="Long">
+        delete from fin_overtime where id = #{id}
+    </delete>
+
+    <delete id="deleteFinOvertimeByIds" parameterType="String">
+        delete from fin_overtime where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改用户参数')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-param-edit" th:object="${userParam}">
+            <input name="id" th:field="*{id}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">用户姓名：</label>
+                <div class="col-sm-8">
+                    <input name="userName" th:field="*{userName}" class="form-control" type="text" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">部门名称：</label>
+                <div class="col-sm-8">
+                    <input name="deptName" th:field="*{deptName}" class="form-control" type="text" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">银行卡号：</label>
+                <div class="col-sm-8">
+                    <input name="yhkh" th:field="*{yhkh}" class="form-control" type="text" maxlength="32">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">职级：</label>
+                <div class="col-sm-8">
+                    <select name="paramRank" th:field="*{paramRank}"  class="form-control" th:with="type=${@dict.getType('fin_dict_rank')}">
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">岗位：</label>
+                <div class="col-sm-8">
+                    <select name="paramPost" th:field="*{paramPost}"  class="form-control" th:with="type=${@dict.getType('fin_dict_post')}">
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">年功工资：</label>
+                <div class="col-sm-8">
+                    <input name="nggz" th:field="*{nggz}" class="form-control" type="text" maxlength="32">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">岗位工资：</label>
+                <div class="col-sm-8">
+                    <input name="gwgz" th:field="*{gwgz}" class="form-control" type="text" maxlength="32">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">独子费：</label>
+                <div class="col-sm-8">
+                    <input name="dzf" th:field="*{dzf}" class="form-control" type="text" maxlength="32">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">是否怀孕：</label>
+                <div class="col-sm-8">
+                    <select name="sfhy" th:field="*{sfhy}"  class="form-control" th:with="type=${@dict.getType('sys_yes_no')}">
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var prefix = ctx + "financial/user";
+        $("#form-param-edit").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/edit", $('#form-param-edit').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

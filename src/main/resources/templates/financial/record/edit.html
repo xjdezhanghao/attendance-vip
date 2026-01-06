@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('工资结转')" />
+    <!-- 在<head>标签内添加CSS样式 -->
+    <style>
+        .table-container {
+            display: flex;
+            flex-wrap: wrap;  /* 添加换行属性 */
+            gap: 20px;
+        }
+
+        .uniform-table {
+            width: 30%;
+            border: 1px solid #ddd;
+            border-collapse: collapse;
+            margin: 0 10px;
+        }
+
+        .uniform-table th, .uniform-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            height: 40px; /* 统一行高 */
+            line-height: 1.4; /* 垂直对齐 */
+        }
+
+        .uniform-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+
+        .uniform-table td:first-child {
+            width: 40%; /* 第一列固定宽度 */
+        }
+
+        .uniform-table td:last-child {
+            width: 60%; /* 第二列固定宽度 */
+        }
+
+        .title-container {
+            text-align: center; /* 水平居中 */
+            margin: 5px 0; /* 上下间距30px */
+        }
+
+        .title-container h3 {
+            background-color: #f8f9fa; /* 浅灰背景 */
+            padding: 3px 6px; /* 内边距 */
+            border-radius: 1px; /* 圆角 */
+            display: inline-block; /* 保持背景宽度与文字一致 */
+            margin: 0 auto; /* 强制居中 */
+        }
+    </style>
+</head>
+<body class="white-bg">
+    <div class="container-div">
+        <div class="row">
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-warning" onclick="exportExcel()">
+                    <i class="fa fa-download"></i> 导出
+                </a>
+            </div>
+            <div class="title-container">
+                <h3>结转</h3>
+            </div>
+            <div id="tableDiv" class="wrapper wrapper-content animated fadeInRight ibox-content">
+
+            </div>
+        </div>
+    </div>
+
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var prefix = ctx + "financial/record";
+        var finSalRecs = [[${finSalRecs}]];
+        var salid = [[${salid}]];
+
+        generateTable('工资', 'sfgz');
+        generateTable('住房补贴', 'zfbt');
+        generateTable('独子费', 'dzf');
+        generateTable('物业补贴', 'wybt');
+
+        function generateTable(name, field) {
+            var tableHtml = '<table class="uniform-table">';
+            tableHtml += '<tr>';
+            tableHtml += '<th colspan="2">' + name + '</th>'; // 合并表头
+            tableHtml += '</tr>';
+
+            for(var i=0; i<finSalRecs.length; i++) {
+                var finSalRec = finSalRecs[i];
+                tableHtml += '<tr>';
+                // 移除rowspan，改为固定列结构
+                tableHtml += '<td>' + finSalRec.deptName + '</td>';
+                tableHtml += '<td>' + finSalRec[field] + '</td>';
+                tableHtml += '</tr>';
+            }
+            tableHtml += '</table>';
+            $('#tableDiv').append(tableHtml);
+        }
+
+        // 在页面加载时包裹所有表格到容器
+        $(document).ready(function() {
+            $('#tableDiv').wrapInner('<div class="table-container"></div>');
+        });
+
+        function exportExcel() {
+            $.modal.confirm("确定导出该条信息吗？", function () {
+                // debugger;
+                $.modal.loading("正在导出数据，请稍候...");
+                $.post(prefix + "/exportForward/" + salid, function (result) {
+                    if (result.code == web_status.SUCCESS) {
+                        window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+                    } else if (result.code == web_status.WARNING) {
+                        $.modal.alertWarning(result.msg)
+                    } else {
+                        $.modal.alertError(result.msg);
+                    }
+                    $.modal.closeLoading();
+                });
+            });
+        }
+    </script>
+</body>
+</html>

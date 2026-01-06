@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<th:block th:include="include :: header('事项列表')" />
+	<th:block th:include="include :: layout-latest-css" />
+	<th:block th:include="include :: ztree-css" />
+	<style type="text/css">
+		.tabs-container .tabs-left>.nav-tabs{
+			width: 15%;
+		}
+		.tabs-container .tabs-left .panel-body {
+			width: 85%;
+			margin-left: 15%;
+		}
+	</style>
+</head>
+<body class="gray-bg">
+
+	<div class="tabs-container">
+
+		<div class="tabs-left">
+			<ul class="nav nav-tabs">
+				<li class="active"><a data-toggle="tab" href="#tab-1"> 待处理事项</a>
+				</li>
+				<li class=""><a data-toggle="tab" href="#tab-2"> 已处理事项</a>
+				</li>
+				<li class=""><a data-toggle="tab" href="#tab-3"> 已发起事项</a>
+				</li>
+			</ul>
+			<div class="tab-content ">
+				<div id="tab-1" class="tab-pane active">
+					<div class="panel-body">
+						<div class="container-div">
+							<div class="row">
+								<div class="col-sm-12 select-table table-striped">
+									<table id="bootstrap-table1"></table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="tab-2" class="tab-pane">
+					<div class="panel-body">
+						<div class="container-div">
+							<div class="row">
+								<div class="col-sm-12 select-table table-striped">
+									<table id="bootstrap-table2"></table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div id="tab-3" class="tab-pane">
+					<div class="panel-body">
+						<div class="container-div">
+							<div class="row">
+								<div class="col-sm-12 select-table table-striped">
+									<table id="bootstrap-table3"></table>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<th:block th:include="include :: footer" />
+	<th:block th:include="include :: layout-latest-js" />
+	<th:block th:include="include :: ztree-js" />
+	<script th:inline="javascript">
+		var prefix = ctx + "system/line";
+		var datas = [[${@dict.getType('sys_line_status')}]];
+
+		var options = {
+			url: prefix + "/matterList/0",
+			updateUrl: prefix + "/matterEdit/{id}",
+			id: "bootstrap-table1",
+			modalName: "事项",
+			showSearch: false,
+			showRefresh: false,
+			showToggle: false,
+			showColumns: false,
+			columns: [{
+				checkbox: true
+			},
+				{
+					field: 'id',
+					title: '主键',
+					visible: false
+				},
+				{
+					field: 'deptName',
+					title: '部门'
+				},
+				{
+					field: 'recType',
+					title: '发起事件'
+				},
+				{
+					field: 'createName',
+					title: '发起人'
+				},
+				{
+					field: 'createTime',
+					title: '发起时间'
+				},
+				{
+					field: 'operateStatus',
+					title: '状态',
+					formatter: function(value, row, index) {
+						return $.table.selectDictLabel(datas, value);
+					}
+				},
+				{
+					title: '操作',
+					align: 'center',
+					formatter: function(value, row, index) {
+						if (row.userId != 1) {
+							var actions = [];
+							actions.push('<a class="btn btn-success btn-xs  href="javascript:void(0)" onclick="editFlowLine(\'' + row.recUrl + '\',\' '+ row.recId + '\')"><i class="fa fa-edit"></i>查看</a> ');
+							return actions.join('');
+						} else {
+							return "";
+						}
+					}
+				}]
+		};
+
+		var options2 = Object.assign({}, options);
+		options2.id = "bootstrap-table2";
+		options2.url = prefix + "/matterList/1";
+
+		var options3 = Object.assign({}, options);
+		options3.id = "bootstrap-table3";
+		options3.url = prefix + "/matterList/9"; //9仅在此处标识由本人发起的申请
+
+		$(function() {
+			$.table.init(options);
+			$.table.init(options2);
+			$.table.init(options3);
+		});
+
+		function editFlowLine(url, recname) {
+			$.modal.openTab(recname, url);
+		}
+	</script>
+</body>
+</html>

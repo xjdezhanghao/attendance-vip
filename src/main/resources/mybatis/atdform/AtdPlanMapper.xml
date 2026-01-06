@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.atdform.atdstatisticform.mapper.AtdPlanMapper">
+    
+    <resultMap type="AtdPlan" id="AtdPlanResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="planDate"    column="plan_date"    />
+        <result property="enable"    column="enable"    />
+        <result property="content"    column="content"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectAtdPlanVo">
+        select id, user_id, user_name, dept_id, dept_name, plan_date, enable, content, remark, create_by, create_time from atd_plan
+    </sql>
+
+    <select id="selectAtdPlanList" parameterType="AtdPlan" resultMap="AtdPlanResult">
+        select p.id, p.user_id, p.user_name, p.dept_id, p.dept_name, p.plan_date, p.enable, p.content, p.remark, p.create_by, p.create_time from atd_plan p
+        left join sys_dept d on p.dept_id = d.dept_id
+        <where>
+            <if test="userId != null "> and p.user_id = #{userId}</if>
+            <if test="userName != null  and userName != ''"> and p.user_name like concat('%', #{userName}, '%')</if>
+            <!--<if test="deptId != null "> and (p.dept_id = #{deptId} or d.parent_id = #{deptId} or d.ancestors like concat('%,',#{deptId},',',d.parent_id))</if>-->
+            <if test="deptName != null  and deptName != ''"> and p.dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="planDate != null  and planDate != ''"> and p.plan_date = #{planDate}</if>
+            <if test="enable != null  and enable != ''"> and p.enable = #{enable}</if>
+            <if test="content != null  and content != ''"> and p.content = #{content}</if>
+            <if test="startDate != null and startDate != ''"><!-- 开始时间检索 -->
+                and date_format(p.plan_date,'%y%m%d') >= date_format(#{startDate},'%y%m%d')
+            </if>
+            <if test="endDate != null and endDate != ''"><!-- 结束时间检索 -->
+                and date_format(p.plan_date,'%y%m%d') &lt;= date_format(#{endDate},'%y%m%d')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectAtdPlanMapList" parameterType="AtdPlan" resultType="Map">
+        SELECT * FROM
+        (SELECT sys_user.user_id, sys_user.user_name, sys_user.number, sys_dept.dept_id, sys_dept.dept_name, sys_dept.order_num
+         FROM sys_user LEFT JOIN sys_dept ON sys_user.dept_id = sys_dept.dept_id
+        WHERE sys_user.del_flag = '0'
+        <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+        <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
+        ORDER BY sys_dept.order_num asc, sys_dept.dept_id asc, IFNULL(sys_user.number, 999),sys_user.user_id asc) A
+        LEFT JOIN
+        (SELECT
+        user_id user_id2, user_name user_name2, dept_id dept_id2, dept_name dept_name2,
+        <foreach item="date" collection="dateList" open="" separator="," close="">MAX(CASE WHEN plan_date = #{date}
+            THEN enable END) AS #{date}
+        </foreach>
+        FROM
+            atd_plan
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <!--<if test="deptId != null "> and dept_id = #{deptId}</if>-->
+            <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="planDate != null  and planDate != ''"> and plan_date = #{planDate}</if>
+            <if test="enable != null  and enable != ''">and enable =#{enable}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="userIdList != null and userIdList.size > 0">
+                and user_id in
+                <foreach item="id" collection="userIdList" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+        GROUP BY
+        user_id,
+        user_name, dept_id, dept_name
+        order by dept_id asc, user_id asc
+        ) B ON A.user_id = B.user_id2
+        ORDER BY A.order_num asc, A.dept_id asc, IFNULL(A.number, 999), A.user_id asc
+    </select>
+
+    <select id="selectAtdPlanById" parameterType="Long" resultMap="AtdPlanResult">
+        <include refid="selectAtdPlanVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertAtdPlan" parameterType="AtdPlan" useGeneratedKeys="true" keyProperty="id">
+        insert into atd_plan
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userId != null">user_id,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="planDate != null">plan_date,</if>
+            <if test="enable != null">enable,</if>
+            <if test="content != null">content,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userId != null">#{userId},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="planDate != null">#{planDate},</if>
+            <if test="enable != null">#{enable},</if>
+            <if test="content != null">#{content},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAtdPlan" parameterType="AtdPlan">
+        update atd_plan
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="planDate != null">plan_date = #{planDate},</if>
+            <if test="enable != null">enable = #{enable},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAtdPlanById" parameterType="Long">
+        delete from atd_plan where id = #{id}
+    </delete>
+
+    <delete id="deleteAtdPlanByIds" parameterType="String">
+        delete from atd_plan where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteAtdPlanByUserDates" parameterType="AtdPlan">
+        delete from atd_plan where user_id = #{userId} and plan_date in
+        <foreach item="date" collection="dateList" open="(" separator="," close=")">
+            #{date}
+        </foreach>
+    </delete>
+
+    <insert id="batchInsertAtdPlan" parameterType="list">
+        INSERT INTO atd_plan
+        <foreach collection="list" item="item" index="index" separator=",">
+            <if test="index == 0">
+                <trim prefix="(" suffix=")" suffixOverrides=",">
+                    <if test="item.userId != null">user_id,</if>
+                    <if test="item.userName != null">user_name,</if>
+                    <if test="item.deptId != null">dept_id,</if>
+                    <if test="item.deptName != null">dept_name,</if>
+                    <if test="item.planDate != null">plan_date,</if>
+                    <if test="item.enable != null">enable,</if>
+                    <if test="item.content != null">content,</if>
+                    <if test="item.remark != null">remark,</if>
+                    <if test="item.createBy != null">create_by,</if>
+                    <if test="item.createTime != null">create_time,</if>
+                </trim>
+            </if>
+        </foreach>
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="item.userId != null">#{item.userId},</if>
+                <if test="item.userName != null">#{item.userName},</if>
+                <if test="item.deptId != null">#{item.deptId},</if>
+                <if test="item.deptName != null">#{item.deptName},</if>
+                <if test="item.planDate != null">#{item.planDate},</if>
+                <if test="item.enable != null">#{item.enable},</if>
+                <if test="item.content != null">#{item.content},</if>
+                <if test="item.remark != null">#{item.remark},</if>
+                <if test="item.createBy != null">#{item.createBy},</if>
+                <if test="item.createTime != null">#{item.createTime},</if>
+            </trim>
+        </foreach>
+    </insert>
+
+    <select id="selectAtdPlanCount" parameterType="AtdPlan" resultType="Integer">
+        select count(id) from atd_plan
+        where user_id = #{userId} and (enable = '1' or enable = '2')
+        <if test="startDate != null and startDate != ''"><!-- 开始时间检索 -->
+            and date_format(plan_date,'%y%m%d') >= date_format(#{startDate},'%y%m%d')
+        </if>
+        <if test="endDate != null and endDate != ''"><!-- 结束时间检索 -->
+            and date_format(plan_date,'%y%m%d') &lt;= date_format(#{endDate},'%y%m%d')
+        </if>
+    </select>
+</mapper>

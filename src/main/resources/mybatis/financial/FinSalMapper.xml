@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.financial.mapper.FinSalMapper">
+    
+    <resultMap type="FinSal" id="FinSalResult">
+        <result property="id"    column="id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="salname"    column="salname"    />
+        <result property="timetag"    column="timetag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="filePath"    column="file_path"    />
+        <result property="content"    column="content"    />
+    </resultMap>
+
+    <sql id="selectFinSalVo">
+        select id, salname, dept_id, dept_name, timetag, create_by, create_time, file_path, content from fin_sal
+    </sql>
+
+    <select id="selectFinSalList" parameterType="FinSal" resultMap="FinSalResult">
+        select s.id id, s.salname salname, s.dept_id dept_id, s.dept_name dept_name, s.timetag timetag, u.user_name create_by, s.create_time create_time, s.file_path file_path, s.content content, rls.opstatus, rls.maxtime from fin_sal s
+        left join sys_dept d on s.dept_id = d.dept_id
+        left join sys_user u on s.create_by = u.login_name
+        left join
+        <include refid="com.attendance.project.system.line.mapper.FlowLineMapper.selectRecLineStatus" /> rls on s.id=rls.recid
+        <where>
+            <if test="salname != null and salname != ''"> and s.salname like concat('%',#{salname},'%')</if>
+            <if test="timetag != null and timetag != ''"> and s.timetag = #{timetag}</if>
+            <if test="createBy != null and createBy != ''"> and s.create_by = #{createBy}</if>
+            <if test="deptName != null and deptName != ''"> and s.dept_name like concat('%',#{deptName},'%')</if>
+            <if test="opstatus != null  and opstatus != ''"> and rls.opstatus = #{opstatus}</if>
+            ${params.dataScope}
+        </where>
+    </select>
+    
+    <select id="selectFinSalById" parameterType="Long" resultMap="FinSalResult">
+        <include refid="selectFinSalVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertFinSal" parameterType="FinSal" useGeneratedKeys="true" keyProperty="id">
+        insert into fin_sal
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="salname != null">salname,</if>
+            <if test="timetag != null">timetag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="filePath != null">file_path,</if>
+            <if test="content != null">content,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="salname != null">#{salname},</if>
+            <if test="timetag != null">#{timetag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="filePath != null">#{filePath},</if>
+            <if test="content != null">#{content},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFinSal" parameterType="FinSal">
+        update fin_sal
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="salname != null">salname = #{salname},</if>
+            <if test="timetag != null">timetag = #{timetag},</if>
+            <if test="filePath != null">file_path = #{filePath},</if>
+            <if test="content != null">content = #{content},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFinSalById" parameterType="Long">
+        delete from fin_sal where id = #{id}
+    </delete>
+
+    <delete id="deleteFinSalByIds" parameterType="String">
+        delete from fin_sal where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

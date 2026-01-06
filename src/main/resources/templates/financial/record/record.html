@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('工资记录列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>工资时间：</label>
+                                <input type="text" name="timetag" placeholder="年-月" autocomplete="off"/>
+                            </li>
+                            <li>
+                                <label>部门名称：</label>
+                                <input type="text" name="deptName" autocomplete="off"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="addRecord()" shiro:hasPermission="fin:rec:add">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('fin:rec:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('fin:rec:remove')}]];
+        var prefix = ctx + "financial/record";
+        var datas = [[${@dict.getType('sys_line_status')}]];
+
+        $(function() {
+            var options = {
+                url: prefix + "/salList",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/removeSal",
+                modalName: "工资记录",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: '主键',
+                    visible: false
+                },
+                {
+                    field: 'deptName',
+                    title: '部门名称'
+                },
+                {
+                    field: 'salname',
+                    title: '工资时间'
+                },
+                {
+                    field: 'createBy',
+                    title: '创建人'
+                },
+                {
+                    field: 'opstatus',
+                    title: '审核状态',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(datas, value);
+                    }
+                },
+                {
+                    field: 'createTime',
+                    title: '创建时间'
+                },
+                /*{
+                    field: 'filePath',
+                    title: '附件',
+                    formatter: function(value, row, index) {
+                        if (value != null && value != undefined && value != ''){
+                            return '有';
+                        } else {
+                            return "无";
+                        }
+                    }
+                },*/
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs ' + editFlag + '" href="javascript:void(0)" onclick="editSal(\'' + row.id + '\',\'' + row.timetag + '\')"><i class="fa fa-edit"></i>编辑</a> ');
+                        actions.push('<a class="btn btn-danger btn-xs ' + removeFlag + '" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+
+        function addRecord() {
+            var tagValue = $("input[name='timetag']").val();
+            var regex = /^\d{4}\-\d{2}$/;
+            if (!$(this).filter(function () {
+                return regex.test(tagValue);
+            }).length) {
+                $.modal.msgWarning("请输入正确的【工资时间】格式");
+                return;
+            }
+
+            $.modal.confirm("确定增加【"+tagValue+"】工资条目吗？", function () {
+                $.ajax({
+                    type: "post",
+                    url: prefix + "/addSal",
+                    data: {
+                        "timetag": tagValue,
+                    },
+                    beforeSend: function () {
+                        $.modal.loading("正在处理中，请稍候...");
+                    },
+                    complete: function (data) {
+                        $.modal.closeLoading();
+                        $.form.reset();
+                    }
+                });
+            });
+        }
+
+        function editSal(id, timetag) {
+            $.modal.openTab(timetag+"工资", prefix+"/rec2/" + id);
+        }
+
+    </script>
+</body>
+</html>

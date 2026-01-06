@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('移动端页面')" />
+    <title>加班审批流程</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #e7f1f9; /* 浅蓝色背景，奠定蓝色基调 */
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #b6d7f2; /* 浅蓝色边框 */
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[readonly], textarea[readonly] {
+            background-color: #f4f4f4; /* 只读输入框的背景色 */
+            border-color: #d0d0d0; /* 只读输入框的边框颜色 */
+        }
+        button {
+            background-color: #4682b4; /* 蓝色按钮 */
+            color: white;
+            margin: 0 20px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 130px;
+        }
+        button:hover {
+            background-color: #3a6d98; /* 按钮悬停时的深蓝色 */
+        }
+        .attachment {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        .attachment a {
+            color: #4682b4; /* 蓝色链接颜色 */
+            text-decoration: none;
+            margin-left: 10px;
+        }
+        .attachment a:hover {
+            text-decoration: underline; /* 鼠标悬停时添加下划线 */
+        }
+        .process-nodes {
+            margin-top: 30px;
+        }
+        .node {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .node-circle-completed {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: #4682b4; /* 蓝色圆形节点 */
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+        }
+        .node-circle-uncompleted {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border:2px solid #4682b4;
+            background-color: white; /* 蓝色圆形节点 */
+            color: #4682b4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+        }
+        .node-text {
+            font-size: 14px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="container">
+    <h2 style="color: #4682b4;">页面跳转</h2> 
+    <div class="button-container">
+        <button type="button" onclick="viewOvertime();">加班</button>
+        <button type="button" onclick="viewKpi()">绩效</button>
+        <button type="button" onclick="viewShift()">倒班</button>
+        <button type="button" onclick="viewAtd()">考勤</button>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:inline="javascript">
+    var prefix = ctx + "financial/mobile";
+    function viewOvertime() {
+        $.modal.openFull("加班审批流程", prefix+"/overtime/edit/" + '2024122609440004');
+    }
+    function viewKpi() {
+        $.modal.openFull("绩效审批流程", prefix+"/kpi/edit/" + '2024121815540505');
+    }
+    function viewAtd() {
+        $.modal.openFull("考勤汇总审批", prefix+"/record/rec2/" + '152');
+    }
+
+    function viewShift() {
+        $.modal.openFull("倒班审批流程", prefix+"/overtime/edit/" + '2025031714203302');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('修改用户参数')" />
+    <th:block th:include="include :: select2-css" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-param-edit" th:object="${userParam}">
+            <input name="id" th:field="*{id}" type="hidden">
+            <input name="userId" th:field="*{userId}" type="hidden">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">用户姓名：</label>
+                <div class="col-sm-8">
+                    <input name="userName" th:field="*{userName}" class="form-control" type="text" readonly>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">部门名称：</label>
+                <div class="col-sm-8">
+                    <input name="deptName" th:field="*{deptName}" class="form-control" type="text" readonly>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">职级类型：</label>
+                <div class="col-sm-8">
+                    <select name="paramRank" th:field="*{paramRank}"  class="form-control" th:with="type=${@dict.getType('perf_rank_type')}">
+                        <option value="">请选择</option>
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">岗位类型：</label>
+                <div class="col-sm-8">
+                    <select name="paramPost" th:field="*{paramPost}"  class="form-control" th:with="type=${@dict.getType('perf_post_type')}">
+                        <option value="">请选择</option>
+                        <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">岗位：</label>
+                <div class="col-sm-8">
+                    <select id="post" class="form-control select2-multiple" multiple>
+                        <option th:each="post:${posts}" th:value="${post.postId}" th:text="${post.postName}" th:selected="${post.flag}" th:disabled="${post.status == '1'}"></option>
+                    </select>
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: select2-js" />
+    <script th:inline="javascript">
+        var prefix = ctx + "performance/user";
+        $("#form-param-edit").validate({
+            focusCleanup: true
+        });
+        // 初始化select2组件
+        $(function() {
+            $('#post').select2({
+                placeholder: "请选择岗位",
+                allowClear: true
+            });
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                var data = $("#form-param-edit").serializeArray();
+                var postIds = $.form.selectSelects("post");
+                data.push({"name": "postIds", "value": postIds});
+                $.operate.save(prefix + "/edit", data);
+            }
+        }
+    </script>
+</body>
+</html>

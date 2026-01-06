@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.financial.mapper.FinDeductDetailMapper">
+    
+    <resultMap type="FinDeductDetail" id="FinDeductDetailResult">
+        <result property="id"    column="id"    />
+        <result property="userid"    column="userid"    />
+        <result property="userName"    column="user_name"    />
+        <result property="deptid"    column="deptid"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="dkylbx"    column="dkylbx"    />
+        <result property="dkyilbx"    column="dkyilbx"    />
+        <result property="dksybx"    column="dksybx"    />
+        <result property="dkgjj"    column="dkgjj"    />
+        <result property="dkqynj"    column="dkqynj"    />
+        <result property="bkyl"    column="bkyl"    />
+        <result property="bkyil"    column="bkyil"    />
+        <result property="bksy"    column="bksy"    />
+        <result property="bkgjj"    column="bkgjj"    />
+        <result property="bkqynj"    column="bkqynj"    />
+        <result property="dksf"    column="dksf"    />
+        <result property="dkglwsf"    column="dkglwsf"    />
+        <result property="kgsdjsb"    column="kgsdjsb"    />
+        <result property="bydkgrsds"    column="bydkgrsds"    />
+        <result property="kqkkhj"    column="kqkkhj"    />
+        <result property="kkhj"    column="kkhj"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="pid"    column="pid"    />
+    </resultMap>
+
+    <sql id="selectFinDeductDetailVo">
+        select d.id, d.userid, d.user_name, d.deptid, d.dept_name, d.dkylbx, d.dkyilbx, d.dksybx, d.dkgjj, d.dkqynj, d.bkyl, d.bkyil, d.bksy, d.bkgjj, d.bkqynj, d.dksf, d.dkglwsf, d.kgsdjsb, d.bydkgrsds, d.kqkkhj, d.kkhj, d.create_by, d.create_time, d.pid, u.idcard from fin_deduct_detail d
+        left join sys_user u on d.userid = u.user_id
+    </sql>
+
+    <select id="selectFinDeductDetailList" parameterType="FinDeductDetail" resultMap="FinDeductDetailResult">
+        <include refid="selectFinDeductDetailVo"/>
+        <where>  
+            <if test="userid != null "> and d.userid = #{userid}</if>
+            <if test="userName != null  and userName != ''"> and d.user_name like concat('%', #{userName}, '%')</if>
+            <if test="deptid != null "> and d.deptid = #{deptid}</if>
+            <if test="deptName != null  and deptName != ''"> and d.dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="dkylbx != null  and dkylbx != ''"> and d.dkylbx = #{dkylbx}</if>
+            <if test="dkyilbx != null  and dkyilbx != ''"> and d.dkyilbx = #{dkyilbx}</if>
+            <if test="dksybx != null  and dksybx != ''"> and d.dksybx = #{dksybx}</if>
+            <if test="dkgjj != null  and dkgjj != ''"> and d.dkgjj = #{dkgjj}</if>
+            <if test="dkqynj != null  and dkqynj != ''"> and d.dkqynj = #{dkqynj}</if>
+            <if test="bkyl != null  and bkyl != ''"> and d.bkyl = #{bkyl}</if>
+            <if test="bkyil != null  and bkyil != ''"> and d.bkyil = #{bkyil}</if>
+            <if test="bksy != null  and bksy != ''"> and d.bksy = #{bksy}</if>
+            <if test="bkgjj != null  and bkgjj != ''"> and d.bkgjj = #{bkgjj}</if>
+            <if test="bkqynj != null  and bkqynj != ''"> and d.bkqynj = #{bkqynj}</if>
+            <if test="dksf != null  and dksf != ''"> and d.dksf = #{dksf}</if>
+            <if test="dkglwsf != null  and dkglwsf != ''"> and d.dkglwsf = #{dkglwsf}</if>
+            <if test="kgsdjsb != null  and kgsdjsb != ''"> and d.kgsdjsb = #{kgsdjsb}</if>
+            <if test="bydkgrsds != null  and bydkgrsds != ''"> and d.bydkgrsds = #{bydkgrsds}</if>
+            <if test="kqkkhj != null  and kqkkhj != ''"> and d.kqkkhj = #{kqkkhj}</if>
+            <if test="kkhj != null  and kkhj != ''"> and d.kkhj = #{kkhj}</if>
+            <if test="pid != null "> and d.pid = #{pid}</if>
+            <if test="idcard != null "> and u.idcard = #{idcard}</if>
+        </where>
+    </select>
+    
+    <select id="selectFinDeductDetailById" parameterType="Long" resultMap="FinDeductDetailResult">
+        <include refid="selectFinDeductDetailVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertFinDeductDetail" parameterType="FinDeductDetail" useGeneratedKeys="true" keyProperty="id">
+        insert into fin_deduct_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userid != null">userid,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="deptid != null">deptid,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="dkylbx != null">dkylbx,</if>
+            <if test="dkyilbx != null">dkyilbx,</if>
+            <if test="dksybx != null">dksybx,</if>
+            <if test="dkgjj != null">dkgjj,</if>
+            <if test="dkqynj != null">dkqynj,</if>
+            <if test="bkyl != null">bkyl,</if>
+            <if test="bkyil != null">bkyil,</if>
+            <if test="bksy != null">bksy,</if>
+            <if test="bkgjj != null">bkgjj,</if>
+            <if test="bkqynj != null">bkqynj,</if>
+            <if test="dksf != null">dksf,</if>
+            <if test="dkglwsf != null">dkglwsf,</if>
+            <if test="kgsdjsb != null">kgsdjsb,</if>
+            <if test="bydkgrsds != null">bydkgrsds,</if>
+            <if test="kqkkhj != null">kqkkhj,</if>
+            <if test="kkhj != null">kkhj,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="pid != null">pid,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userid != null">#{userid},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="deptid != null">#{deptid},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="dkylbx != null">#{dkylbx},</if>
+            <if test="dkyilbx != null">#{dkyilbx},</if>
+            <if test="dksybx != null">#{dksybx},</if>
+            <if test="dkgjj != null">#{dkgjj},</if>
+            <if test="dkqynj != null">#{dkqynj},</if>
+            <if test="bkyl != null">#{bkyl},</if>
+            <if test="bkyil != null">#{bkyil},</if>
+            <if test="bksy != null">#{bksy},</if>
+            <if test="bkgjj != null">#{bkgjj},</if>
+            <if test="bkqynj != null">#{bkqynj},</if>
+            <if test="dksf != null">#{dksf},</if>
+            <if test="dkglwsf != null">#{dkglwsf},</if>
+            <if test="kgsdjsb != null">#{kgsdjsb},</if>
+            <if test="bydkgrsds != null">#{bydkgrsds},</if>
+            <if test="kqkkhj != null">#{kqkkhj},</if>
+            <if test="kkhj != null">#{kkhj},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="pid != null">#{pid},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFinDeductDetail" parameterType="FinDeductDetail">
+        update fin_deduct_detail
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userid != null">userid = #{userid},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="deptid != null">deptid = #{deptid},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="dkylbx != null">dkylbx = #{dkylbx},</if>
+            <if test="dkyilbx != null">dkyilbx = #{dkyilbx},</if>
+            <if test="dksybx != null">dksybx = #{dksybx},</if>
+            <if test="dkgjj != null">dkgjj = #{dkgjj},</if>
+            <if test="dkqynj != null">dkqynj = #{dkqynj},</if>
+            <if test="bkyl != null">bkyl = #{bkyl},</if>
+            <if test="bkyil != null">bkyil = #{bkyil},</if>
+            <if test="bksy != null">bksy = #{bksy},</if>
+            <if test="bkgjj != null">bkgjj = #{bkgjj},</if>
+            <if test="bkqynj != null">bkqynj = #{bkqynj},</if>
+            <if test="dksf != null">dksf = #{dksf},</if>
+            <if test="dkglwsf != null">dkglwsf = #{dkglwsf},</if>
+            <if test="kgsdjsb != null">kgsdjsb = #{kgsdjsb},</if>
+            <if test="bydkgrsds != null">bydkgrsds = #{bydkgrsds},</if>
+            <if test="kqkkhj != null">kqkkhj = #{kqkkhj},</if>
+            <if test="kkhj != null">kkhj = #{kkhj},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="pid != null">pid = #{pid},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFinDeductDetailById" parameterType="Long">
+        delete from fin_deduct_detail where id = #{id}
+    </delete>
+
+    <delete id="deleteFinDeductDetailByIds" parameterType="String">
+        delete from fin_deduct_detail where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteFinDeductDetailByPids" parameterType="String">
+        delete from fin_deduct_detail where pid in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="batchInsertFinDeductDetail" parameterType="list">
+        INSERT INTO fin_deduct_detail
+        <foreach collection="list" item="item" index="index" separator=",">
+            <if test="index == 0">
+                <trim prefix="(" suffix=")" suffixOverrides=",">
+                    <if test="item.userid != null">userid,</if>
+                    <if test="item.userName != null">user_name,</if>
+                    <if test="item.deptid != null">deptid,</if>
+                    <if test="item.deptName != null">dept_name,</if>
+                    <if test="item.dkylbx != null">dkylbx,</if>
+                    <if test="item.dkyilbx != null">dkyilbx,</if>
+                    <if test="item.dksybx != null">dksybx,</if>
+                    <if test="item.dkgjj != null">dkgjj,</if>
+                    <if test="item.dkqynj != null">dkqynj,</if>
+                    <if test="item.bkyl != null">bkyl,</if>
+                    <if test="item.bkyil != null">bkyil,</if>
+                    <if test="item.bksy != null">bksy,</if>
+                    <if test="item.bkgjj != null">bkgjj,</if>
+                    <if test="item.bkqynj != null">bkqynj,</if>
+                    <if test="item.dksf != null">dksf,</if>
+                    <if test="item.dkglwsf != null">dkglwsf,</if>
+                    <if test="item.kgsdjsb != null">kgsdjsb,</if>
+                    <if test="item.bydkgrsds != null">bydkgrsds,</if>
+                    <if test="item.kqkkhj != null">kqkkhj,</if>
+                    <if test="item.kkhj != null">kkhj,</if>
+                    <if test="item.createBy != null">create_by,</if>
+                    <if test="item.createTime != null">create_time,</if>
+                    <if test="item.pid != null">pid,</if>
+                </trim>
+            </if>
+        </foreach>
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="item.userid != null">#{item.userid},</if>
+                <if test="item.userName != null">#{item.userName},</if>
+                <if test="item.deptid != null">#{item.deptid},</if>
+                <if test="item.deptName != null">#{item.deptName},</if>
+                <if test="item.dkylbx != null">#{item.dkylbx},</if>
+                <if test="item.dkyilbx != null">#{item.dkyilbx},</if>
+                <if test="item.dksybx != null">#{item.dksybx},</if>
+                <if test="item.dkgjj != null">#{item.dkgjj},</if>
+                <if test="item.dkqynj != null">#{item.dkqynj},</if>
+                <if test="item.bkyl != null">#{item.bkyl},</if>
+                <if test="item.bkyil != null">#{item.bkyil},</if>
+                <if test="item.bksy != null">#{item.bksy},</if>
+                <if test="item.bkgjj != null">#{item.bkgjj},</if>
+                <if test="item.bkqynj != null">#{item.bkqynj},</if>
+                <if test="item.dksf != null">#{item.dksf},</if>
+                <if test="item.dkglwsf != null">#{item.dkglwsf},</if>
+                <if test="item.kgsdjsb != null">#{item.kgsdjsb},</if>
+                <if test="item.bydkgrsds != null">#{item.bydkgrsds},</if>
+                <if test="item.kqkkhj != null">#{item.kqkkhj},</if>
+                <if test="item.kkhj != null">#{item.kkhj},</if>
+                <if test="item.createBy != null">#{item.createBy},</if>
+                <if test="item.createTime != null">#{item.createTime},</if>
+                <if test="item.pid != null">#{item.pid},</if>
+            </trim>
+        </foreach>
+    </insert>
+</mapper>

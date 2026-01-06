@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('项目看板')" />
+    <link rel="stylesheet" th:href="@{/gantt-6.0.4/codebase/dhtmlxgantt.css}">
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>部门名称：</label>
+                                <input type="text" name="deptName"/>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.treeTable.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-sm-12 select-table table-striped">
+                <div id="gantt_here" style="height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+     <script th:src="@{/gantt-6.0.4/codebase/dhtmlxgantt.js}"></script>
+     <script th:src="@{/gantt-6.0.4/codebase/locale/locale_cn.js}"></script>
+     <script th:src="@{/gantt-6.0.4/codebase/ext/dhtmlxgantt_marker.js}"></script>
+     <script th:src="@{/gantt-6.0.4/codebase/ext/dhtmlxgantt_tooltip.js}"></script>
+     <script th:src="@{/gantt-6.0.4/codebase/ext/dhtmlxgantt_undo.js}"></script>
+     <script th:src="@{/gantt-6.0.4/codebase/api.js}"></script>
+
+     <script th:inline="javascript">
+        var prefix = ctx + "engineer/boardList";
+
+        $(function() {
+            gantt.init("gantt_here");
+        });
+
+        gantt.attachEvent("onAfterTaskAdd",function(id,item){
+            var formatFunc = gantt.date.date_to_str("%d-%m-%Y");
+            var start_date = formatFunc(item.start_date);
+            var end_date = formatFunc(item.end_date);
+            //item.start_date=start_date;
+            //item.end_date=end_date;
+            /*$.ajax({
+                type:"post",
+                url:"../doAdd?start_date="+start_date+"&end_date="+end_date,
+                data:item,
+                success:function (res) {
+                    if(res==1) {
+                        alert("添加成功！");
+                        return false;//toastr.success("添加成功！");
+
+                    }else {
+                        alert("添加失败！");//toastr.success("添加成功！");
+
+                    }
+                }
+
+            })*/
+            console.info(start_date);
+        });
+
+        // 更新 任务项目 mysql
+        gantt.attachEvent("onAfterTaskUpdate",function(id,item){
+            var formatFunc = gantt.date.date_to_str("%d-%m-%Y");
+            var start_date = formatFunc(item.start_date);
+            var end_date = formatFunc(item.end_date);
+            // item.start_date=start_date;
+            // item.end_date=end_date;
+            console.info(111)
+/*            $.ajax({
+                type:"post",
+                url:"../doUpdate?start_date="+start_date+"&end_date="+end_date,
+                data:item,
+                success:function (res) {
+                    if(res==1) {
+                        alert("更新成功！");
+                        return false;//toastr.success("添加成功！");
+
+                    }else {
+                        alert("更新失败！");//toastr.success("添加成功！");
+
+                    }
+                }
+            })*/
+        });
+        // 删除 任务项目 mysql
+        gantt.attachEvent("onAfterTaskDelete",function(id,item){
+            console.info(222)
+            /*$.ajax({
+                type:"get",
+                url:"../doDelete?id="+id,
+                data:{},
+                success:function (res) {
+                    if(res==1) {
+                        alert("删除成功！");
+                        return false;//toastr.success("添加成功！");
+
+                    }else {
+                        alert("删除失败！");//toastr.success("添加成功！");
+
+                    }
+                }
+
+            })*/
+        });
+    </script>
+</body>
+</html>

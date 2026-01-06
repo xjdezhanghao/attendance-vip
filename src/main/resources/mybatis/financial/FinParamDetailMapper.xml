@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.financial.mapper.FinParamDetailMapper">
+    
+    <resultMap type="FinParamDetail" id="FinParamDetailResult">
+        <result property="id"    column="id"    />
+        <result property="detailName"    column="detail_name"    />
+        <result property="detailCode"    column="detail_code"    />
+        <result property="detailKey"    column="detail_key"    />
+        <result property="detailValue"    column="detail_value"    />
+        <result property="detailType"    column="detail_type"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="pid"    column="pid"    />
+    </resultMap>
+
+    <sql id="selectFinParamDetailVo">
+        select id, detail_name, detail_code, detail_key, detail_value, detail_type, dept_id, dept_name, create_by, create_time, pid from fin_param_detail
+    </sql>
+
+    <select id="selectFinParamDetailList" parameterType="FinParamDetail" resultMap="FinParamDetailResult">
+        <include refid="selectFinParamDetailVo"/>
+        <where>  
+            <if test="detailName != null  and detailName != ''"> and detail_name like concat('%', #{detailName}, '%')</if>
+            <if test="detailCode != null  and detailCode != ''"> and detail_code = #{detailCode}</if>
+            <if test="detailKey != null  and detailKey != ''"> and detail_key = #{detailKey}</if>
+            <if test="detailValue != null  and detailValue != ''"> and detail_value = #{detailValue}</if>
+            <if test="detailType != null  and detailType != ''"> and detail_type = #{detailType}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="pid != null "> and pid = #{pid}</if>
+        </where>
+        order by dept_id asc, detail_type asc, detail_code asc, detail_key asc
+    </select>
+
+    <select id="selectFinParamDetailByCodeKey" parameterType="FinParamDetail" resultType="String">
+        select detail_value from fin_param_detail
+        <where>
+            <if test="detailCode != null  and detailCode != ''"> and detail_code = #{detailCode}</if>
+            <if test="detailKey != null  and detailKey != ''"> and detail_key = #{detailKey}</if>
+            <if test="pid != null "> and pid = #{pid}</if>
+        </where>
+    </select>
+
+    <select id="selectFinParamDetailById" parameterType="Long" resultMap="FinParamDetailResult">
+        <include refid="selectFinParamDetailVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertFinParamDetail" parameterType="FinParamDetail" useGeneratedKeys="true" keyProperty="id">
+        insert into fin_param_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="detailName != null">detail_name,</if>
+            <if test="detailCode != null">detail_code,</if>
+            <if test="detailKey != null">detail_key,</if>
+            <if test="detailValue != null">detail_value,</if>
+            <if test="detailType != null">detail_type,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="pid != null">pid,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="detailName != null">#{detailName},</if>
+            <if test="detailCode != null">#{detailCode},</if>
+            <if test="detailKey != null">#{detailKey},</if>
+            <if test="detailValue != null">#{detailValue},</if>
+            <if test="detailType != null">#{detailType},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="pid != null">#{pid},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFinParamDetail" parameterType="FinParamDetail">
+        update fin_param_detail
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="detailName != null">detail_name = #{detailName},</if>
+            <if test="detailCode != null">detail_code = #{detailCode},</if>
+            <if test="detailKey != null">detail_key = #{detailKey},</if>
+            <if test="detailValue != null">detail_value = #{detailValue},</if>
+            <if test="detailType != null">detail_type = #{detailType},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="pid != null">pid = #{pid},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFinParamDetailById" parameterType="Long">
+        delete from fin_param_detail where id = #{id}
+    </delete>
+
+    <delete id="deleteFinParamDetailByIds" parameterType="String">
+        delete from fin_param_detail where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

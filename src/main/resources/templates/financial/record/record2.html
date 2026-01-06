@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('工资记录列表')" />
+    <style type="text/css">
+        #bootstrap-table td, #bootstrap-table th, #bootstrap-table1 td, #bootstrap-table1 th {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            word-break:keep-all;
+        }
+        .fixed-table-container:has(#bootstrap-table){
+            height: 70vh;
+        }
+        .pagination-detail{
+            margin-bottom: 0;
+        }
+        .fixed-columns td, .fixed-columns th {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            word-break:keep-all;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>用户姓名：</label>
+                                <input type="text" name="userName" autocomplete="off"/>
+                            </li>
+                            <li>
+                                <label>部门名称：</label>
+                                <input type="text" name="deptName" autocomplete="off"/>
+                            </li>
+
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="fin:rec:export">
+                    <i class="fa fa-download"></i> 导出
+                </a>
+                <!--<a class="btn btn-warning" onclick="uploadFile()">
+                    <i class="fa fa-upload"></i> 上传
+                </a>-->
+                <!--<a id="fileBtn" th:if="${hasFile}" class="btn btn-primary" onclick="downloadFile()">
+                    <i class="fa fa-download"></i> 附件
+                </a>-->
+                <a id="fileBtn" class="btn btn-primary" onclick="calcOverview()">
+                    <i class="fa fa-refresh"></i> 统计
+                </a>
+                <a id="forwardBtn" class="btn btn-danger" onclick="carrayForward()">
+                    <i class="fa fa-exchange"></i> 结转
+                </a>
+                <a id="wordBtn" style="display: none" class="btn btn-warning" onclick="exportWord()">
+                    <i class="fa fa-download"></i> 清单
+                </a>
+            </div>
+            <span style="padding:10px" id="overview" th:text="${content}"></span>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+     <div class="row">
+         <div class="col-sm-offset-5 col-sm-10">
+             <button id="backBtn" style="display: none" type="button" class="btn btn-sm btn-danger" onclick="backHandler()"><i class="fa fa-reply"></i>退 回</button>
+             <button id="submitBtn" style="display: none" type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>提 交</button>&nbsp;
+             <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+             <button id="recLinesBtn" style="display: none" type="button" class="btn btn-sm btn-warning" onclick="viewRecLine()"><i class="fa fa-ellipsis-h"></i>查看流程 </button>
+         </div>
+     </div>
+     <!-- 导入区域 -->
+     <script id="importTpl" type="text/template">
+         <form enctype="multipart/form-data" class="mt20 mb10">
+             <div class="col-xs-offset-1">
+                 <input type="file" id="file" name="file"/>
+                 <div class="mt10 pt5">
+                     <!--<input type="checkbox" id="updateSupport" name="updateSupport" title="如果登录账户已经存在，更新这条数据。"> 是否更新已经存在的用户数据
+                     &nbsp;-->
+                     <!--<a href="javascript:downloadThisTemplate();" class="btn btn-default btn-xs"><i class="fa fa-file-excel-o"></i> 下载模板</a>-->
+                 </div>
+                 <font color="red" class="pull-left mt10">
+                     提示：仅允许导入规定格式的“xls”或“xlsx”模板文件！
+                 </font>
+             </div>
+         </form>
+     </script>
+    <th:block th:include="include :: footer" />
+     <!-- CSS 样式 -->
+     <th:block th:include="include :: bootstrap-editable-css"/>
+     <!-- JS 脚本 -->
+     <th:block th:include="include :: bootstrap-table-editable-js"/>
+     <th:block th:include="include :: bootstrap-table-fixed-columns-js" />
+    <script th:inline="javascript">
+        var editFlag = [[${@permission.hasPermi('system:rec:edit')}]];
+        var removeFlag = [[${@permission.hasPermi('system:rec:remove')}]];
+        var prefix = ctx + "financial/record";
+        var salid = [[${salid}]];
+        //var hasFile = [[${hasFile}]];
+        var content = [[${content}]];
+
+        var sal = [[${sal}]];
+        //流程操作标识
+        var canOperate = [[${canOperate}]];
+        //退回权限（高级别操作权限）
+        var canBack = [[${canBack}]];
+        //流程操作记录
+        var recLines = [[${recLines}]];
+        //终极节点标识（无需选择审批人）
+        var hasFinal = [[${hasFinal}]];
+        var canEdit = [[${canEdit}]];
+
+        //当前用户是否可操作
+        if (canOperate) {
+            $("#submitBtn").show();
+        }
+        if (canOperate && canBack){
+            $("#backBtn").show();
+            $("#submitBtn").html("<i class='fa fa-check'></i>通 过");
+        }
+        if (recLines.length > 0){
+            $("#recLinesBtn").show();
+            $("#wordBtn").show();
+        }
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/add",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export/"+salid,
+                importUrl: prefix + "/uploadFile/"+salid,
+                modalName: "工资记录详情",
+                pagination: false,
+                flag: true,
+                clickEdit: true,
+                fixedColumns: true,
+                fixedNumber: 1,
+                height: '70%',
+                contentType: 'application/json',
+                queryParams: function (params) {
+                    return {
+                        salid: salid,
+                        userName: $("input[name='userName']").val(),
+                        deptName: $("input[name='deptName']").val(),
+                    };
+                },
+                clickEdit: true,
+                onEditableSave: onEditableSave,
+                columns: [
+                   /* {
+                    checkbox: true
+                },*/
+/*                {
+                    field: 'id',
+                    title: '主键',
+                    visible: false
+                },
+                {
+                    field: 'userid',
+                    title: '用户id'
+                },*/
+                {
+                    field: 'userName',
+                    title: '用户姓名'
+                },
+                {
+                    field: 'idcard',
+                    title: '身份证号'
+                },
+                {
+                    field: 'yhkh',
+                    title: '银行卡号'
+                },
+/*                {
+                    field: 'deptid',
+                    title: '部门id'
+                },*/
+                {
+                    field: 'deptName',
+                    title: '部门名称'
+                },
+/*
+                {
+                    field: 'rankCode',
+                    title: '职级编码'
+                },
+                {
+                    field: 'rankText',
+                    title: '职级文本'
+                },
+                {
+                    field: 'rankValue',
+                    title: '职级数值'
+                },
+                {
+                    field: 'postCode',
+                    title: '岗位编码'
+                },
+                {
+                    field: 'postText',
+                    title: '岗位文本'
+                },*/
+                {
+                    field: 'nggz',
+                    title: '年功工资'
+                },
+                {
+                    field: 'yxqxed',
+                    title: '生产一线倾斜额度'
+                },
+                {
+                    field: 'postValue',
+                    title: '岗位工资'
+                },
+                {
+                    field: 'zfbt',
+                    title: '住房补贴'
+                },
+                {
+                    field: 'dzf',
+                    title: '独子费'
+                },
+                {
+                    field: 'gwxy',
+                    title: '岗位效益'
+                },
+                {
+                    field: 'zfbtxy',
+                    title: '住房补贴效益'
+                },
+                {
+                    field: 'gdjj',
+                    title: '固定奖金'
+                },
+                {
+                    field: 'zwbt',
+                    title: '职务补贴'
+                },
+                {
+                    field: 'grxyze',
+                    title: '个人效益工资总额'
+                },
+                {
+                    field: 'kqdj',
+                    title: '考勤等级',
+                    formatter: function (value, row, index) {
+                        if (value == 'B'){
+                            return '<span style="color: orange">'+value+'</span>'
+                        } else if (value == 'C'){
+                            return '<span style="color: red">'+value+'</span>'
+                        } else {
+                            return value;
+                        }
+                    }
+                },
+                {
+                    field: 'rankCode',
+                    title: '部门绩效等级'
+                },
+                {
+                    field: 'bmjljx',
+                    title: '部门奖励绩效'
+                },
+                {
+                    field: 'grjljx',
+                    title: '个人奖励绩效'
+                },
+                {
+                    field: 'grkfjx',
+                    title: '个人扣发绩效'
+                },
+                {
+                    field: 'sfxygz',
+                    title: '实发效益绩效'
+                },
+                {
+                    field: 'jxgz2',
+                    title: '绩效工资2'
+                },
+                {
+                    field: 'yfxj',
+                    title: '应发小计'
+                },
+                {
+                    field: 'wybt',
+                    title: '物业补贴'
+                },
+                {
+                    field: 'bzbt',
+                    title: '公里补助、加班、x光机、补贴等',
+                    editable: canEdit,
+                },
+                {
+                    field: 'wptxbz',
+                    title: '外派通讯补助',
+                    editable: canEdit,
+                },
+                {
+                    field: 'gsjl',
+                    title: '公司奖励',
+                    editable: canEdit,
+                },
+                {
+                    field: 'fsjwf',
+                    title: '防暑降温费',
+                    editable: canEdit,
+                },
+                {
+                    field: 'qnf',
+                    title: '取暖费',
+                    editable: canEdit,
+                },
+                {
+                    field: 'bf',
+                    title: '补发',
+                    editable: canEdit,
+                },
+                {
+                    field: 'yfhj',
+                    title: '应发合计'
+                },
+                {
+                    field: 'dkylbx',
+                    title: '代扣养老保险'
+                },
+                {
+                    field: 'dkyibx',
+                    title: '代扣医疗保险'
+                },
+                {
+                    field: 'dksybx',
+                    title: '代扣失业保险'
+                },
+                {
+                    field: 'dkgjj',
+                    title: '代扣公积金'
+                },
+                {
+                    field: 'dkqynj',
+                    title: '代扣企业年金'
+                },
+                {
+                    field: 'dksds',
+                    title: '本月代扣个人所得税'
+                },
+                {
+                    field: 'kqkk',
+                    title: '考勤扣款合计',
+                    editable: canEdit,
+                },
+                {
+                    field: 'kkhj',
+                    title: '扣款合计'
+                },
+                {
+                    field: 'sfgzze',
+                    title: '实发工资总额'
+                },
+                {
+                    field: 'sfgz',
+                    title: '本月实发工资'
+                },
+                {
+                    field: 'gzrys',
+                    title: '工作日延时'
+                },
+                {
+                    field: 'shxts',
+                    title: '双薪天数'
+                },
+                {
+                    field: 'sxts',
+                    title: '三薪天数'
+                },
+                {
+                    field: 'ybts',
+                    title: '夜班天数'
+                },
+                {
+                    field: 'sfhy',
+                    title: '是否怀孕'
+                },
+                {
+                    field: 'bkyl',
+                    title: '补扣养老',
+                    editable: canEdit,
+                },
+                {
+                    field: 'bkyil',
+                    title: '补扣医疗',
+                    editable: canEdit,
+                },
+                {
+                    field: 'bksy',
+                    title: '补扣失业',
+                    editable: canEdit,
+                },
+                {
+                    field: 'bkgjj',
+                    title: '补扣公积金',
+                    editable: canEdit,
+                },
+                {
+                    field: 'bkqynj',
+                    title: '补扣企业年金',
+                    editable: canEdit,
+                },
+                {
+                    field: 'dksf',
+                    title: '代扣水费',
+                    editable: canEdit,
+                },
+                {
+                    field: 'dkglwsf',
+                    title: '补扣',
+                    editable: canEdit,
+                },
+                {
+                    field: 'kgsdjsb',
+                    title: '扣公司代缴社保',
+                    editable: canEdit,
+                },
+                {
+                    field: 'kqcd',
+                    title: '迟到次数'
+                },
+                {
+                    field: 'kqzt',
+                    title: '早退次数'
+                },
+                ],
+                uploadComplete: function (res) {
+                    uploadComplete(res);
+                }
+            };
+            $.table.init(options);
+
+        });
+
+
+        function onEditableSave (field, row, rowIndex, oldValue, $element) {
+            var recid = row.id;
+            var tdValue = row[field];//获取修改后单元格的值
+            tdValue = tdValue.trim()
+            if (tdValue == oldValue) return;
+
+            var params = {};
+
+            if (field == 'kqdj'){
+                tdValue = tdValue.toUpperCase();
+                //$element.text(tdValue);
+                var patten = new RegExp(/^$|^[ABC]$/);
+                if(!patten.test(tdValue)){
+                    $.modal.alertError("只能输入ABC三个字母之一");
+                    //$element.text(oldValue);
+                    return;
+                }
+            } else {
+                var patten = new RegExp(/^$|^[\-\+]?\d+(\.\d+)?$/);
+                //$element.text(tdValue);
+                if(!patten.test(tdValue)){
+                    $.modal.alertError("请输入正确的数值");
+                    //$element.text(oldValue);
+                    row[field] = oldValue;
+                    return;
+                }
+                var oldTmp = 0.0;
+                if (patten.test(oldValue)) {
+                    if (oldValue.trim() != ""){
+                        oldTmp = parseFloat(oldValue).toFixed(4)
+                    }
+                };
+                var newTmp = 0.0;
+                if (tdValue.trim() != "") {
+                    newTmp = parseFloat(tdValue).toFixed(4);
+                }
+                var inter = parseFloat(newTmp - oldTmp).toFixed(4);
+
+                //调增项目
+                if (field == 'bzbt' || field == 'wptxbz' || field == 'gsjl' ||
+                    field == 'fsjwf' || field == 'qnf' || field == 'bf') {
+                    //应发合计
+                    var oldYfhj = parseFloat(row['yfhj']).toFixed(4);
+                    var newYfhj = (parseFloat(oldYfhj)+parseFloat(inter)).toFixed(2);
+                    //实发
+                    var oldSfgz = parseFloat(row['sfgz']).toFixed(4);
+                    var newSfgz = (parseFloat(oldSfgz)+parseFloat(inter)).toFixed(2);
+                    //改值
+                    row['yfhj'] = newYfhj;
+                    row['sfgz'] = newSfgz;
+                    params['yfhj'] = newYfhj;
+                    params['sfgz'] = newSfgz;
+                }
+                //调减项目
+                if (field == 'dksds' || field == 'kqkk' || field == 'bkyl' ||
+                    field == 'bkyil' || field == 'bksy' || field == 'bkgjj' ||
+                    field == 'bkqynj' || field == 'dksf' || field == 'dkglwsf' ||
+                    field == 'kgsdjsb') {
+                    //应发合计
+                    var oldYfhj = parseFloat(row['yfhj']).toFixed(4);
+                    var newYfhj = (parseFloat(oldYfhj)-parseFloat(inter)).toFixed(2);
+                    //实发
+                    var oldSfgz = parseFloat(row['sfgz']).toFixed(4);
+                    var newSfgz = (parseFloat(oldSfgz)-parseFloat(inter)).toFixed(2);
+                    //改值
+                    row['yfhj'] = newYfhj;
+                    row['sfgz'] = newSfgz;
+                    params['yfhj'] = newYfhj;
+                    params['sfgz'] = newSfgz;
+                }
+
+            }
+
+            params["id"] = recid;
+            params[field] = tdValue;
+            $.ajax({
+                type: "post",
+                url: prefix + "/edit",
+                data: params,
+                success: function(data) {
+                    //console.info(data)
+                },
+                error: function (data) {
+                    //console.info(data);
+                    $.modal.alertError("网络连接失败")
+                }
+            })
+        }
+
+        //上传附件
+        function uploadFile(){
+            $.table.importExcel();
+        }
+        function downloadFile() {
+            window.location.href = prefix + "/downloadFile/" + salid;
+        }
+        function uploadComplete(res) {
+            if(res.responseJSON.code == 0){
+                //$("#fileBtn").show();
+                window.location.reload();
+            }
+        }
+
+        //流程
+        //提交审核
+        function submitHandler(index, layero){
+            //选择流程
+            if (recLines != null && recLines.length > 0){
+                //已存在流程
+                doSubmitFlow();
+            } else {
+                //发起申请，流程首节点
+                var options = {
+                    title: '选择流程',
+                    //url: prefix + "/parent",
+                    url: ctx + "system/line/radio",
+                    callBack: doSubmitFlow
+                };
+                $.modal.openOptions(options);
+            }
+        }
+
+        //选择流程
+        function doSubmitFlow(index, layero) {
+            var nodeIndex = 0;
+            var flowid = 0;
+            //获取流程id及当前步骤序号
+            if (recLines != null && recLines.length > 0){
+                //已存在流程
+                flowid = recLines[0].lineId;
+                nodeIndex = recLines[recLines.length-1].lineIndex+1;
+            } else {
+                var rows = layero.find("iframe")[0].contentWindow.getSelections();
+                if (rows.length == 0) {
+                    $.modal.alertWarning("请至少选择一条记录");
+                    return;
+                }
+                $.modal.close(index);
+                var rowArr = rows.split(",");
+                flowid = rowArr[0];
+            }
+
+            //终节点操作
+            if (hasFinal){
+                $.modal.confirm("确认通过吗?", function() {
+                    //传入参数自定义
+                    doSubmitFlow2(nodeIndex, flowid);
+                });
+                return;;
+            }
+
+            var options = {
+                title: '选择用户',
+                url: ctx + "system/line/radio/"+flowid+"/"+nodeIndex+"",
+                callBack: doSubmitFlow2
+            };
+            $.modal.openOptions(options);
+
+        }
+
+        //选择用户
+        function doSubmitFlow2(index, layero){
+            //公共流程参数封装
+            var param = {};
+            param["operateStatus"] = "0";//默认新发起流程，待审核状态0
+            if (recLines != null && recLines.length > 0){
+                //已有审核流程
+                param["id"] = recLines[recLines.length-1].id;//当前审核记录id
+                param["operateStatus"] = "1";//通过状态
+            }
+            param["recId"] = sal.id;
+            param["recType"] = "工资统计审批";
+            //当前页面用作审核页面
+            param["recUrl"] = window.location.pathname;
+
+            //自定义传入参数：步骤序号 index。流程id layero
+            if (!hasFinal){
+                //非终极流程，需选择用户
+                var rows = layero.find("iframe")[0].contentWindow.getSelections();
+                if (rows.length == 0) {
+                    $.modal.alertWarning("请至少选择一条记录");
+                    return;
+                }
+                $.modal.close(index);
+
+                var rowArr = rows.split(",");
+                var loginName = rowArr[0];
+                var lineid = rowArr[1];
+                var nodeIndex = rowArr[2];
+                //下环节操作者
+                param["operateBy"] = loginName;
+                param["lineId"] = lineid;
+                param["lineIndex"] = nodeIndex;
+            } else {
+                //最终环节临时参数
+                param["lineId"] = layero;
+                param["lineIndex"] = index;
+            }
+            $.ajax({
+                url: ctx + "system/line/addRecLine",
+                type: 'post',
+                data: param,
+                dataType: "json",
+                success: function (res){
+                    canOperate = res["canOperate"];
+                    if (!canOperate) {
+                        $("#submitBtn").hide();
+                        $("#backBtn").hide();
+                    };
+                    recLines = res["recLines"];
+                    if (recLines.length > 0){
+                        $("#recLinesBtn").show();
+                    }
+                    $.modal.msgWarning("提交成功");
+                }
+            })
+        }
+
+        // 退回操作
+        function backHandler() {
+            layer.prompt({title: '是否退回（退回说明可选填）', formType: 2}, function(text, index){
+                layer.close(index);
+                if (text != null) text = text.trim();
+
+                var param = {};
+                param["operateStatus"] = "2";
+                param["operateBy"] = recLines[0].createBy;
+                param["recId"] = sal.id;
+                param["id"] = recLines[recLines.length-1].id;
+                param["lineId"] = recLines[recLines.length-1].lineId;
+                param["lineIndex"] = -1;
+                param["recType"] = "工资统计审批";
+                param["recUrl"] = window.location.pathname;
+                param["operateContent"] = text;
+
+                $.ajax({
+                    url: ctx + "system/line/addRecLine",
+                    type: 'post',
+                    data: param,
+                    dataType: "json",
+                    success: function (res){
+                        canOperate = res["canOperate"];
+                        if (!canOperate) {
+                            $("#submitBtn").hide();
+                            $("#backBtn").hide();
+                        };
+                        recLines = res["recLines"];
+                        if (recLines.length > 0){
+                            $("#recLinesBtn").show();
+                        }
+                        $.modal.msgWarning("提交成功");
+                    }
+                })
+            });
+        }
+
+        function viewRecLine() {
+            var options = {
+                title: '查看流程',
+                //url: prefix + "/parent",
+                url: ctx + "system/line/timeline/"+sal.id,
+                yes: function () {
+                    return true;
+                }
+            };
+            $.modal.openOptions(options);
+        }
+
+        function calcOverview() {
+            $.modal.confirm("是否重新生成统计行？", function () {
+                $.ajax({
+                    url: prefix + "/updateOverview/"+sal.id,
+                    type: 'post',
+                    data: {},
+                    dataType: "json",
+                    success: function (res){
+                        window.location.reload();
+                    }
+                })
+            })
+        }
+
+        function carrayForward() {
+            $.modal.openFull(sal.timetag + "工资结转", prefix+"/forward/" + sal.id);
+        }
+
+        function exportWord() {
+            $.modal.confirm("确定导出该条信息的清单吗？", function () {
+                // debugger;
+                $.modal.loading("正在导出数据，请稍候...");
+                $.post(prefix + "/exportWord/" + salid, function (result) {
+                    if (result.code == web_status.SUCCESS) {
+                        window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+                    } else if (result.code == web_status.WARNING) {
+                        $.modal.alertWarning(result.msg)
+                    } else {
+                        $.modal.alertError(result.msg);
+                    }
+                    $.modal.closeLoading();
+                });
+            });
+        }
+    </script>
+</body>
+</html>

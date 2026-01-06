@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.financial.mapper.FinParamMapper">
+    
+    <resultMap type="FinParam" id="FinParamResult">
+        <result property="id"    column="id"    />
+        <result property="paramName"    column="param_name"    />
+        <result property="deptid"    column="deptid"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectFinParamVo">
+        select id, param_name, deptid, dept_name, create_by, create_time from fin_param
+    </sql>
+
+    <select id="selectFinParamList" parameterType="FinParam" resultMap="FinParamResult">
+        <include refid="selectFinParamVo"/>
+        <where>  
+            <if test="paramName != null  and paramName != ''"> and param_name like concat('%', #{paramName}, '%')</if>
+            <if test="deptid != null "> and (deptid = #{deptid} or deptid = (select parent_id from sys_dept where dept_id = #{deptid}))</if>
+            <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectFinParamById" parameterType="Long" resultMap="FinParamResult">
+        <include refid="selectFinParamVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertFinParam" parameterType="FinParam" useGeneratedKeys="true" keyProperty="id">
+        insert into fin_param
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="paramName != null">param_name,</if>
+            <if test="deptid != null">deptid,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="paramName != null">#{paramName},</if>
+            <if test="deptid != null">#{deptid},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFinParam" parameterType="FinParam">
+        update fin_param
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="paramName != null">param_name = #{paramName},</if>
+            <if test="deptid != null">deptid = #{deptid},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFinParamById" parameterType="Long">
+        delete from fin_param where id = #{id}
+    </delete>
+
+    <delete id="deleteFinParamByIds" parameterType="String">
+        delete from fin_param where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

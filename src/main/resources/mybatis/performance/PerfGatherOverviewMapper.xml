@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.performance.mapper.PerfGatherOverviewMapper">
+    
+    <resultMap type="PerfGatherOverview" id="PerfGatherOverviewResult">
+        <result property="overviewId"    column="overview_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="gatherMonth"    column="gather_month"    />
+        <result property="totalScore"    column="total_score"    />
+        <result property="gatherStatus"    column="gather_status"    />
+        <result property="gatherId"    column="gather_id"    />
+        <result property="auditId"    column="audit_id"    />
+        <result property="auditTime"    column="audit_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <!-- 关联表字段 -->
+        <result property="userName"      column="user_name" />
+        <result property="deptName"      column="dept_name" />
+        <result property="paramRank"     column="param_rank" />
+        <result property="paramPost"     column="param_post" />
+        <result property="postName"      column="post_name" />
+    </resultMap>
+
+    <sql id="selectPerfGatherOverviewVo">
+        select pgo.overview_id, pgo.dept_id, pgo.user_id, pgo.project_id, pgo.gather_month, pgo.total_score, pgo.gather_status, pgo.gather_id,
+               pgo.audit_id, pgo.audit_time, pgo.create_by, pgo.create_time, pgo.update_by, pgo.update_time, pgo.remark,
+               vp.post_name post_name, d.dept_name dept_name
+               from perf_gather_overview pgo
+                   left join perf_ind_project pip on pgo.project_id = pip.project_id
+                   left join sys_dept d on pgo.dept_id = d.dept_id
+                   left join vip_post vp on pip.post_id = vp.post_id
+    </sql>
+
+    <sql id="selectPerfGatherOverviewVoList">
+        select pgo.user_id, pgo.dept_id, pgo.gather_month,
+               pgo.total_score, pgo.create_time,
+               u.user_name, d.dept_name, eparam.param_rank, eparam.param_post,
+               group_concat(vp.post_name separator '、') as post_name
+        from (
+                 select dept_id, user_id, gather_month, sum(total_score) total_score, create_time from perf_gather_overview
+                 group by user_id, dept_id, gather_month, create_time
+             ) pgo
+                 left join sys_user u on pgo.user_id = u.user_id
+                 left join sys_dept d on pgo.dept_id = d.dept_id
+                 left join vip_employee_param eparam on pgo.user_id = eparam.user_id
+                 left join vip_employee_post epost on pgo.user_id = epost.user_id
+                 left join vip_post vp on epost.post_id = vp.post_id
+    </sql>
+
+    <select id="selectPerfGatherOverviewList" parameterType="PerfGatherOverview" resultMap="PerfGatherOverviewResult">
+        <include refid="selectPerfGatherOverviewVoList"/>
+        <where>
+            <if test="deptId != null "> and pgo.dept_id = #{deptId}</if>
+            <if test="userId != null "> and pgo.user_id = #{userId}</if>
+            <if test="projectId != null "> and pgo.project_id = #{projectId}</if>
+            <if test="gatherMonth != null  and gatherMonth != ''"> and pgo.gather_month = #{gatherMonth}</if>
+            <if test="totalScore != null "> and pgo.total_score = #{totalScore}</if>
+            <if test="gatherStatus != null "> and pgo.gather_status = #{gatherStatus}</if>
+            <if test="gatherId != null "> and pgo.gather_id = #{gatherId}</if>
+            <if test="auditId != null "> and pgo.audit_id = #{auditId}</if>
+            <if test="auditTime != null "> and pgo.audit_time = #{auditTime}</if>
+            <if test="userName != null and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
+            <if test="deptName != null and deptName != ''"> and d.dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="paramRank != null and paramRank != ''"> and eparam.param_rank = #{paramRank}</if>
+            <if test="paramPost != null and paramPost != ''"> and eparam.param_post = #{paramPost}</if>
+            <if test="postName != null and postName != ''"> and vp.post_name like concat('%', #{postName}, '%')</if>
+            ${params.dataScope}
+        </where>
+        group by pgo.user_id, pgo.gather_month, pgo.dept_id, pgo.total_score, pgo.create_time,
+            u.user_name, d.dept_name, eparam.param_rank, eparam.param_post
+        order by pgo.user_id asc, u.number asc, pgo.dept_id asc, pgo.create_time desc
+    </select>
+
+    <select id="selectPerfGatherOverviewListAll" parameterType="PerfGatherOverview" resultMap="PerfGatherOverviewResult">
+        <include refid="selectPerfGatherOverviewVo"/>
+        <where>
+            <if test="deptId != null "> and pgo.dept_id = #{deptId}</if>
+            <if test="userId != null "> and pgo.user_id = #{userId}</if>
+            <if test="projectId != null "> and pgo.project_id = #{projectId}</if>
+            <if test="gatherMonth != null  and gatherMonth != ''"> and pgo.gather_month = #{gatherMonth}</if>
+            <if test="totalScore != null "> and pgo.total_score = #{totalScore}</if>
+            <if test="gatherStatus != null "> and pgo.gather_status = #{gatherStatus}</if>
+            <if test="gatherId != null "> and pgo.gather_id = #{gatherId}</if>
+            <if test="auditId != null "> and pgo.audit_id = #{auditId}</if>
+            <if test="auditTime != null "> and pgo.audit_time = #{auditTime}</if>
+            <if test="userName != null and userName != ''"> and pgo.user_name like concat('%', #{userName}, '%')</if>
+            <if test="deptName != null and deptName != ''"> and pgo.dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="paramRank != null and paramRank != ''"> and pgo.param_rank = #{paramRank}</if>
+            <if test="paramPost != null and paramPost != ''"> and pgo.param_post = #{paramPost}</if>
+            <if test="postName != null and postName != ''"> and pgo.post_name like concat('%', #{postName}, '%')</if>
+        </where>
+        order by dept_id asc
+    </select>
+
+    <select id="selectPerfGatherOverviewByOverviewId" parameterType="Long" resultMap="PerfGatherOverviewResult">
+        <include refid="selectPerfGatherOverviewVo"/>
+        where overview_id = #{overviewId}
+    </select>
+        
+    <insert id="insertPerfGatherOverview" parameterType="PerfGatherOverview" useGeneratedKeys="true" keyProperty="overviewId">
+        insert into perf_gather_overview
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deptId != null">dept_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="projectId != null">project_id,</if>
+            <if test="gatherMonth != null and gatherMonth != ''">gather_month,</if>
+            <if test="totalScore != null">total_score,</if>
+            <if test="gatherStatus != null">gather_status,</if>
+            <if test="gatherId != null">gather_id,</if>
+            <if test="auditId != null">audit_id,</if>
+            <if test="auditTime != null">audit_time,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deptId != null">#{deptId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="projectId != null">#{projectId},</if>
+            <if test="gatherMonth != null and gatherMonth != ''">#{gatherMonth},</if>
+            <if test="totalScore != null">#{totalScore},</if>
+            <if test="gatherStatus != null">#{gatherStatus},</if>
+            <if test="gatherId != null">#{gatherId},</if>
+            <if test="auditId != null">#{auditId},</if>
+            <if test="auditTime != null">#{auditTime},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePerfGatherOverview" parameterType="PerfGatherOverview">
+        update perf_gather_overview
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="gatherMonth != null and gatherMonth != ''">gather_month = #{gatherMonth},</if>
+            <if test="totalScore != null">total_score = #{totalScore},</if>
+            <if test="gatherStatus != null">gather_status = #{gatherStatus},</if>
+            <if test="gatherId != null">gather_id = #{gatherId},</if>
+            <if test="auditId != null">audit_id = #{auditId},</if>
+            <if test="auditTime != null">audit_time = #{auditTime},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where overview_id = #{overviewId}
+    </update>
+
+    <delete id="deletePerfGatherOverviewByOverviewId" parameterType="Long">
+        delete from perf_gather_overview where overview_id = #{overviewId}
+    </delete>
+
+    <delete id="deletePerfGatherOverviewByOverviewIds" parameterType="String">
+        delete from perf_gather_overview where overview_id in 
+        <foreach item="overviewId" collection="array" open="(" separator="," close=")">
+            #{overviewId}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.business.mapper.AtdRecordMapper">
+
+	<resultMap type="AtdRecord" id="AtdRecordResult">
+		<id property="id"        column="id"/>
+		<result property="userid"        column="userid"         />
+		<result property="atdtime"        column="atdtime"         />
+		<result property="atddesc"     column="atddesc"      />
+		<result property="atdfile"      column="atdfile"       />
+		<result property="atdloc"      column="atdloc"       />
+		<result property="atdtag"   column="atdtag"     />
+		<result property="createTime"   column="create_time"     />
+		<result property="username"   column="username"     />
+		<result property="deptname"   column="deptname"     />
+		<result property="chidao"   column="chidao"     />
+		<result property="zaotui"   column="zaotui"     />
+		<result property="buqian"   column="buqian"     />
+		<result property="chuqin"   column="chuqin"     />
+	</resultMap>
+	
+	<sql id="selectAtdRecordVo">
+        select id, userid, atdtime, atddesc, atdfile, atdloc, atdtag, atdstatus, create_time
+		from atd_record
+    </sql>
+	
+	<select id="selectAtdRecordList" parameterType="AtdRecord" resultMap="AtdRecordResult">
+		<include refid="selectAtdRecordVo"/>
+		<where>
+			<if test="userid != null and userid != ''">
+				AND userid = #{userid}
+			</if>
+			<if test="atdtime != null">
+				AND atdtime = #{atdtime}
+			</if>
+			<if test="selyear != null and selyear != ''">
+				AND YEAR(atdtime) = #{selyear}
+			</if>
+			<if test="selmonth != null and selmonth != ''">
+				AND MONTH(atdtime) = #{selmonth}
+			</if>
+			<if test="seldate != null and seldate != ''">
+				AND DAY(atdtime) = #{seldate}
+			</if>
+			<if test="atdtag != null and atdtag != ''">
+				AND atdtag = #{atdtag}
+			</if>
+			<if test="atddesc != null and atddesc != ''">
+				AND atddesc = #{atddesc}
+			</if>
+			<if test="atdstatus != null and atddesc != ''">
+				AND atdstatus = #{atdstatus}
+			</if>
+			<if test="startDate != null">
+				AND atdtime >= #{startDate}
+			</if>
+			<if test="endDate != null">
+				AND atdtime &lt;= #{endDate}
+			</if>
+		</where>
+	</select>
+
+ 	<update id="updateAtdRecord" parameterType="AtdRecord">
+ 		update atd_record
+ 		<set>
+ 			<if test="atddesc != null">atddesc = #{atddesc},</if>
+			<if test="atdstatus != null and atdstatus != ''">atdstatus = #{atdstatus},</if>
+			<if test="atdstatus == ''">atdstatus = NULL,</if>
+			<if test="createTime != null">create_time = #{createTime},</if>
+ 		</set>
+ 		where id = #{id}
+	</update>
+ 	
+ 	<insert id="insertAtdRecord" parameterType="AtdRecord" useGeneratedKeys="true" keyProperty="id">
+ 		insert into atd_record(
+		<if test="userid != null and userid != 0">userid,</if>
+		<if test="atdtime != null">atdtime,</if>
+		<if test="atddesc != null and atddesc != ''">atddesc,</if>
+		<if test="atdfile != null and atdfile != ''">atdfile,</if>
+		<if test="atdloc != null and atdloc != ''">atdloc,</if>
+		<if test="atdtag != null and atdtag != ''">atdtag,</if>
+		<if test="atdstatus != null and atdstatus != ''">atdstatus,</if>
+	    create_time
+ 		)values(
+		<if test="userid != null and userid != 0">#{userid},</if>
+		<if test="atdtime != null">#{atdtime},</if>
+		<if test="atddesc != null and atddesc != ''">#{atddesc},</if>
+		<if test="atdfile != null and atdfile != ''">#{atdfile},</if>
+		<if test="atdloc != null and atdloc != ''">#{atdloc},</if>
+		<if test="atdtag != null and atdtag != ''">#{atdtag},</if>
+		<if test="atdstatus != null and atdstatus != ''">#{atdstatus},</if>
+		#{createTime}
+ 		)
+	</insert>
+
+	<select id="getStatisticAtdRecord" parameterType="AtdRecord" resultMap="AtdRecordResult">
+		select u.user_name username, d.dept_name deptname, u.user_id userid, w.img img, chidao, zaotui, buqian, chuqin from
+		sys_user u left join sys_dept d on  u.dept_id = d.dept_id
+		left join sys_user_wx w on u.user_id = w.userid
+		left join
+		(select userid, count(atdstatus='1' or null) chidao,
+		count(atdstatus='2' or null) zaotui, count(atdtag='3' or null) buqian,
+		count(atdtag='1' or null)chuqin from atd_record
+		where atdtime >= #{startDate} and atdtime &lt;=#{endDate} group by userid) atd
+		on u.user_id = atd.userid
+		<where>
+			1=1 and u.del_flag = '0'
+			<if test="username != '' and username != null">
+				and (user_name like concat('%',#{username},'%') or
+				dept_name like concat('%',#{username},'%'))
+			</if>
+		</where>
+		${params.dataScope}
+	</select>
+
+	<delete id="deleteAtdRecordByAtd" parameterType="AtdRecord">
+		delete from atd_record where id = #{id}
+	</delete>
+
+</mapper> 

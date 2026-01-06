@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <th:block th:include="include :: header('新增工资记录')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <form class="form-horizontal m" id="form-rec-add">
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">用户id：</label>
+                <div class="col-sm-8">
+                    <input name="userid" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">用户姓名：</label>
+                <div class="col-sm-8">
+                    <input name="userName" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">部门id：</label>
+                <div class="col-sm-8">
+                    <input name="deptid" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">部门名称：</label>
+                <div class="col-sm-8">
+                    <input name="deptName" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">职级编码：</label>
+                <div class="col-sm-8">
+                    <input name="rankCode" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">职级文本：</label>
+                <div class="col-sm-8">
+                    <input name="rankText" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">职级数值：</label>
+                <div class="col-sm-8">
+                    <input name="rankValue" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">岗位编码：</label>
+                <div class="col-sm-8">
+                    <input name="postCode" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">岗位文本：</label>
+                <div class="col-sm-8">
+                    <input name="postText" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">岗位数值：</label>
+                <div class="col-sm-8">
+                    <input name="postValue" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">年功工资：</label>
+                <div class="col-sm-8">
+                    <input name="nggz" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">生产一线倾斜额度：</label>
+                <div class="col-sm-8">
+                    <input name="yxqxed" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">住房补贴：</label>
+                <div class="col-sm-8">
+                    <input name="zfbt" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">独子费：</label>
+                <div class="col-sm-8">
+                    <input name="dzf" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">岗位效益：</label>
+                <div class="col-sm-8">
+                    <input name="gwxy" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">住房补贴效益：</label>
+                <div class="col-sm-8">
+                    <input name="zfbtxy" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">固定奖金：</label>
+                <div class="col-sm-8">
+                    <input name="gdjj" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">职务补贴：</label>
+                <div class="col-sm-8">
+                    <input name="zwbt" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">个人效益工资总额：</label>
+                <div class="col-sm-8">
+                    <input name="grxyze" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">部门奖励绩效：</label>
+                <div class="col-sm-8">
+                    <input name="bmjljx" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">个人奖励绩效：</label>
+                <div class="col-sm-8">
+                    <input name="grjljx" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">个人扣发绩效：</label>
+                <div class="col-sm-8">
+                    <input name="grkfjx" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">实发效益绩效：</label>
+                <div class="col-sm-8">
+                    <input name="sfxygz" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">绩效工资2：</label>
+                <div class="col-sm-8">
+                    <input name="jxgz2" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">应发小计：</label>
+                <div class="col-sm-8">
+                    <input name="yfxj" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">物业补贴：</label>
+                <div class="col-sm-8">
+                    <input name="wybt" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">补发：</label>
+                <div class="col-sm-8">
+                    <input name="bf" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">公里补助、加班、x光机、补贴等：</label>
+                <div class="col-sm-8">
+                    <input name="bzbt" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">外派通讯补助：</label>
+                <div class="col-sm-8">
+                    <input name="wptxbz" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">公司奖励：</label>
+                <div class="col-sm-8">
+                    <input name="gsjl" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">取暖费：</label>
+                <div class="col-sm-8">
+                    <input name="qnf" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">应发合计：</label>
+                <div class="col-sm-8">
+                    <input name="yfhj" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">代扣养老保险：</label>
+                <div class="col-sm-8">
+                    <input name="dkylbx" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">代扣医疗保险：</label>
+                <div class="col-sm-8">
+                    <input name="dkyibx" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">代扣公积金：</label>
+                <div class="col-sm-8">
+                    <input name="dkgjj" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">本月代扣个人所得税：</label>
+                <div class="col-sm-8">
+                    <input name="dksds" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">考勤扣款合计：</label>
+                <div class="col-sm-8">
+                    <input name="kqkk" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">扣款合计：</label>
+                <div class="col-sm-8">
+                    <input name="kkhj" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">实发工资总额：</label>
+                <div class="col-sm-8">
+                    <input name="sfgzze" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">本月实发工资：</label>
+                <div class="col-sm-8">
+                    <input name="sfgz" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">工作日延时：</label>
+                <div class="col-sm-8">
+                    <input name="gzrys" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">双薪天数：</label>
+                <div class="col-sm-8">
+                    <input name="shxts" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">三薪天数：</label>
+                <div class="col-sm-8">
+                    <input name="sxts" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">夜班天数：</label>
+                <div class="col-sm-8">
+                    <input name="ybts" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">防暑降温费：</label>
+                <div class="col-sm-8">
+                    <input name="fsjwf" class="form-control" type="text">
+                </div>
+            </div>
+            <div class="form-group">    
+                <label class="col-sm-3 control-label">是否怀孕：</label>
+                <div class="col-sm-8">
+                    <input name="sfhy" class="form-control" type="text">
+                </div>
+            </div>
+        </form>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var prefix = ctx + "financial/record"
+        $("#form-rec-add").validate({
+            focusCleanup: true
+        });
+
+        function submitHandler() {
+            if ($.validate.form()) {
+                $.operate.save(prefix + "/add", $('#form-rec-add').serialize());
+            }
+        }
+    </script>
+</body>
+</html>

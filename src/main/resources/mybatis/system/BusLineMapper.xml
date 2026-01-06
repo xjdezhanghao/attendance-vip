@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.system.line.mapper.BusLineMapper">
+    
+    <resultMap type="BusLine" id="BusLineResult">
+        <result property="id"    column="id"    />
+        <result property="busName"    column="bus_name"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="postCode"    column="post_code"    />
+    </resultMap>
+
+    <sql id="selectBusLineVo">
+        select id, bus_name, line_id, post_code from sys_bus_line
+    </sql>
+
+    <select id="selectBusLineList" parameterType="BusLine" resultMap="BusLineResult">
+        <include refid="selectBusLineVo"/>
+        <where>  
+            <if test="busName != null  and busName != ''"> and bus_name like concat('%', #{busName}, '%')</if>
+            <if test="lineId != null "> and line_id = #{lineId}</if>
+            <if test="postCode != null  and postCode != ''"> and post_code = #{postCode}</if>
+            <if test="ids != null  and ids != ''"> and up.user_id in
+                <foreach item="id" collection="ids" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+    <select id="selectFlowLineList" parameterType="BusLine" resultMap="com.attendance.project.system.line.mapper.FlowLineMapper.FlowLineResult">
+        select id, flowname, flownode, flowcode, create_by, create_time from sys_flow_line
+        where id in (
+            select DISTINCT(line_id) from sys_bus_line
+            <where>
+                <if test="busName != null  and busName != ''"> and bus_name like concat('%', #{busName}, '%')</if>
+                <if test="lineId != null "> and line_id = #{lineId}</if>
+                <if test="postCode != null  and postCode != ''"> and post_code = #{postCode}</if>
+                <if test="postCodes != null  and postCodes != ''"> and post_code in
+                    <foreach item="postCode" collection="postCodes" open="(" separator="," close=")">
+                        #{postCode}
+                    </foreach>
+                </if>
+            </where>
+        )
+    </select>
+
+    <select id="selectBusLineById" parameterType="Long" resultMap="BusLineResult">
+        <include refid="selectBusLineVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertBusLine" parameterType="BusLine">
+        insert into sys_bus_line
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="busName != null">bus_name,</if>
+            <if test="lineId != null">line_id,</if>
+            <if test="postCode != null">post_code,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="busName != null">#{busName},</if>
+            <if test="lineId != null">#{lineId},</if>
+            <if test="postCode != null">#{postCode},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBusLine" parameterType="BusLine">
+        update sys_bus_line
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="busName != null">bus_name = #{busName},</if>
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="postCode != null">post_code = #{postCode},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBusLineById" parameterType="Long">
+        delete from sys_bus_line where id = #{id}
+    </delete>
+
+    <delete id="deleteBusLineByIds" parameterType="String">
+        delete from sys_bus_line where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

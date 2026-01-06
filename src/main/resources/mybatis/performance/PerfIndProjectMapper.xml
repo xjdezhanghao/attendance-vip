@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.performance.mapper.PerfIndProjectMapper">
+    
+    <resultMap type="PerfIndProject" id="PerfIndProjectResult">
+        <result property="projectId"    column="project_id"    />
+        <result property="projectName"    column="project_name"    />
+        <result property="deptLevel"    column="dept_level"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="postId"    column="post_id"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="deptName"    column="dept_name"    />
+    </resultMap>
+
+    <sql id="selectPerfIndProjectVo">
+        select p.project_id, p.project_name, p.dept_level, p.dept_id, p.post_id, p.status, p.create_by, p.create_time, p.update_by, p.update_time, d.dept_name from perf_ind_project p left join sys_dept d on p.dept_id = d.dept_id
+    </sql>
+
+    <select id="selectPerfIndProjectList" parameterType="PerfIndProject" resultMap="PerfIndProjectResult">
+        <include refid="selectPerfIndProjectVo"/>
+        <where>  
+            <if test="projectName != null  and projectName != ''"> and p.project_name like concat('%', #{projectName}, '%')</if>
+            <if test="deptLevel != null "> and p.dept_level = #{deptLevel}</if>
+            <if test="deptId != null "> and p.dept_id = #{deptId}</if>
+            <if test="postId != null "> and p.post_id = #{postId}</if>
+            <if test="status != null  and status != ''"> and p.status = #{status}</if>
+            <if test="deptName != null  and deptName != ''"> and d.dept_name like concat('%', #{deptName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectPerfIndProjectByProjectId" parameterType="Long" resultMap="PerfIndProjectResult">
+        <include refid="selectPerfIndProjectVo"/>
+        where p.project_id = #{projectId}
+    </select>
+        
+    <insert id="insertPerfIndProject" parameterType="PerfIndProject" useGeneratedKeys="true" keyProperty="projectId">
+        insert into perf_ind_project
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="projectName != null and projectName != ''">project_name,</if>
+            <if test="deptLevel != null">dept_level,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="postId != null">post_id,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="projectName != null and projectName != ''">#{projectName},</if>
+            <if test="deptLevel != null">#{deptLevel},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="postId != null">#{postId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePerfIndProject" parameterType="PerfIndProject">
+        update perf_ind_project
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="projectName != null and projectName != ''">project_name = #{projectName},</if>
+            <if test="deptLevel != null">dept_level = #{deptLevel},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="postId != null">post_id = #{postId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where project_id = #{projectId}
+    </update>
+
+    <delete id="deletePerfIndProjectByProjectId" parameterType="Long">
+        delete from perf_ind_project where project_id = #{projectId}
+    </delete>
+
+    <delete id="deletePerfIndProjectByProjectIds" parameterType="String">
+        delete from perf_ind_project where project_id in 
+        <foreach item="projectId" collection="array" open="(" separator="," close=")">
+            #{projectId}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.performance.mapper.PerfGatherFileMapper">
+    
+    <resultMap type="PerfGatherFile" id="PerfGatherFileResult">
+        <result property="fileId"    column="file_id"    />
+        <result property="gatherItemId"    column="gather_item_id"    />
+        <result property="sort"    column="sort"    />
+        <result property="fileUrl"    column="file_url"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectPerfGatherFileVo">
+        select file_id, gather_item_id, sort, file_url, create_time from perf_gather_file
+    </sql>
+
+    <select id="selectPerfGatherFileList" parameterType="PerfGatherFile" resultMap="PerfGatherFileResult">
+        <include refid="selectPerfGatherFileVo"/>
+        <where>  
+            <if test="gatherItemId != null "> and gather_item_id = #{gatherItemId}</if>
+            <if test="sort != null "> and sort = #{sort}</if>
+            <if test="fileUrl != null  and fileUrl != ''"> and file_url = #{fileUrl}</if>
+        </where>
+    </select>
+    
+    <select id="selectPerfGatherFileByFileId" parameterType="Long" resultMap="PerfGatherFileResult">
+        <include refid="selectPerfGatherFileVo"/>
+        where file_id = #{fileId}
+    </select>
+        
+    <insert id="insertPerfGatherFile" parameterType="PerfGatherFile" useGeneratedKeys="true" keyProperty="fileId">
+        insert into perf_gather_file
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="gatherItemId != null">gather_item_id,</if>
+            <if test="sort != null">sort,</if>
+            <if test="fileUrl != null">file_url,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="gatherItemId != null">#{gatherItemId},</if>
+            <if test="sort != null">#{sort},</if>
+            <if test="fileUrl != null">#{fileUrl},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePerfGatherFile" parameterType="PerfGatherFile">
+        update perf_gather_file
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="gatherItemId != null">gather_item_id = #{gatherItemId},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="fileUrl != null">file_url = #{fileUrl},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where file_id = #{fileId}
+    </update>
+
+    <delete id="deletePerfGatherFileByFileId" parameterType="Long">
+        delete from perf_gather_file where file_id = #{fileId}
+    </delete>
+
+    <delete id="deletePerfGatherFileByFileIds" parameterType="String">
+        delete from perf_gather_file where file_id in 
+        <foreach item="fileId" collection="array" open="(" separator="," close=")">
+            #{fileId}
+        </foreach>
+    </delete>
+
+</mapper>

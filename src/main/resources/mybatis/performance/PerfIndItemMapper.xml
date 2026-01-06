@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.performance.mapper.PerfIndItemMapper">
+    
+    <resultMap type="PerfIndItem" id="PerfIndItemResult">
+        <result property="itemId"    column="item_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="itemName"    column="item_name"    />
+        <result property="ruleDesc"    column="rule_desc"    />
+        <result property="isRelated"    column="is_related"    />
+        <result property="dataSource"    column="data_source"    />
+        <result property="scoreMin"    column="score_min"    />
+        <result property="scoreMax"    column="score_max"    />
+        <result property="sort"    column="sort"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectPerfIndItemVo">
+        select item_id, project_id, category_id, item_name, rule_desc, is_related, data_source, score_min, score_max, sort, remark, create_by, create_time from perf_ind_item
+    </sql>
+
+    <select id="selectPerfIndItemList" parameterType="PerfIndItem" resultMap="PerfIndItemResult">
+        <include refid="selectPerfIndItemVo"/>
+        <where>
+            <if test="projectId != null "> and project_id = #{projectId}</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+            <if test="itemName != null  and itemName != ''"> and item_name like concat('%', #{itemName}, '%')</if>
+            <if test="ruleDesc != null  and ruleDesc != ''"> and rule_desc = #{ruleDesc}</if>
+            <if test="isRelated != null  and isRelated != ''"> and is_related = #{isRelated}</if>
+            <if test="dataSource != null  and dataSource != ''"> and data_source = #{dataSource}</if>
+            <if test="scoreMin != null "> and score_min = #{scoreMin}</if>
+            <if test="scoreMax != null "> and score_max = #{scoreMax}</if>
+            <if test="sort != null "> and sort = #{sort}</if>
+        </where>
+    </select>
+    
+    <select id="selectPerfIndItemByItemId" parameterType="Long" resultMap="PerfIndItemResult">
+        <include refid="selectPerfIndItemVo"/>
+        where item_id = #{itemId}
+    </select>
+        
+    <insert id="insertPerfIndItem" parameterType="PerfIndItem" useGeneratedKeys="true" keyProperty="itemId">
+        insert into perf_ind_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="projectId != null">project_id,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="itemName != null and itemName != ''">item_name,</if>
+            <if test="ruleDesc != null">rule_desc,</if>
+            <if test="isRelated != null">is_related,</if>
+            <if test="dataSource != null">data_source,</if>
+            <if test="scoreMin != null">score_min,</if>
+            <if test="scoreMax != null">score_max,</if>
+            <if test="sort != null">sort,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="projectId != null">#{projectId},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="itemName != null and itemName != ''">#{itemName},</if>
+            <if test="ruleDesc != null">#{ruleDesc},</if>
+            <if test="isRelated != null">#{isRelated},</if>
+            <if test="dataSource != null">#{dataSource},</if>
+            <if test="scoreMin != null">#{scoreMin},</if>
+            <if test="scoreMax != null">#{scoreMax},</if>
+            <if test="sort != null">#{sort},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePerfIndItem" parameterType="PerfIndItem">
+        update perf_ind_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="projectId != null">project_id = #{projectId},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="itemName != null and itemName != ''">item_name = #{itemName},</if>
+            <if test="ruleDesc != null">rule_desc = #{ruleDesc},</if>
+            <if test="isRelated != null">is_related = #{isRelated},</if>
+            <if test="dataSource != null">data_source = #{dataSource},</if>
+            <if test="scoreMin != null">score_min = #{scoreMin},</if>
+            <if test="scoreMax != null">score_max = #{scoreMax},</if>
+            <if test="sort != null">sort = #{sort},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where item_id = #{itemId}
+    </update>
+
+    <delete id="deletePerfIndItemByItemId" parameterType="Long">
+        delete from perf_ind_item where item_id = #{itemId}
+    </delete>
+
+    <delete id="deletePerfIndItemByItemIds" parameterType="String">
+        delete from perf_ind_item where item_id in 
+        <foreach item="itemId" collection="array" open="(" separator="," close=")">
+            #{itemId}
+        </foreach>
+    </delete>
+
+    <delete id="deletePerfIndItemByCategoryId" parameterType="Long">
+        delete from perf_ind_item where category_id = #{categoryId}
+    </delete>
+
+    <delete id="deletePerfIndItemByProjectId" parameterType="Long">
+        delete from perf_ind_item where project_id = #{projectId}
+    </delete>
+
+</mapper>

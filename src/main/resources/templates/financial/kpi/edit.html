@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('绩效详情列表')" />
+    <th:block th:include="include :: bootstrap-editable-css" />
+</head>
+<body class="gray-bg">
+    <div class="main-content">
+        <form id="form-add" class="form-horizontal">
+            <h4 class="form-header h4">绩效统计表</h4>
+            <div class="row">
+                <div class="col-sm-5">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">名称：</label>
+                        <div class="col-sm-8">
+                            <input name="recname" class="form-control" type="text" maxlength="30" readonly="" th:field="*{finKpi.recname}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-5">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">部门：</label>
+                        <div class="col-sm-8">
+                            <input name="deptName" class="form-control" type="text" maxlength="30" readonly="" th:field="*{finKpi.deptName}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-5">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">申请人：</label>
+                        <div class="col-sm-8">
+                            <input name="createBy" class="form-control" type="text" maxlength="30" readonly="" th:field="*{finKpi.createBy}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-5">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">申请时间：</label>
+                        <div class="col-sm-8">
+                            <input name="createTime" class="form-control" type="text" maxlength="30" readonly="" th:value="${#dates.format(finKpi.createTime, 'yyyy-MM-dd HH:mm:ss')}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="form-header h4">绩效统计情况</h4>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="col-sm-12 select-table table-striped">
+                        <table id="bootstrap-table"></table>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-offset-5 col-sm-10">
+            <button id="backBtn" style="display: none" type="button" class="btn btn-sm btn-danger" onclick="backHandler()"><i class="fa fa-reply"></i>退 回</button>
+            <button id="submitBtn" style="display: none" type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>提 交</button>&nbsp;
+            <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+            <button id="recLinesBtn" style="display: none" type="button" class="btn btn-sm btn-warning" onclick="viewRecLine()"><i class="fa fa-ellipsis-h"></i>查看流程 </button>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <!-- JS 脚本 -->
+    <th:block th:include="include :: bootstrap-table-editable-js"/>
+    <script th:inline="javascript">
+
+        var prefix = ctx + "financial/kpi";
+
+        var finKpi = [[${finKpi}]];
+        var details = [[${details}]];
+        //流程操作标识
+        var canOperate = [[${canOperate}]];
+        //退回权限（高级别操作权限）
+        var canBack = [[${canBack}]];
+        //流程操作记录
+        var recLines = [[${recLines}]];
+        //终极节点标识（无需选择审批人）
+        var hasFinal = [[${hasFinal}]];
+
+        var canEdit = [[${canEdit}]];
+
+        //当前用户是否可操作
+        if (canOperate) {
+            $("#submitBtn").show();
+        }
+        if (canOperate && canBack){
+            $("#backBtn").show();
+            $("#submitBtn").html("<i class='fa fa-check'></i>通 过");
+        }
+        if (recLines.length > 0){
+            $("#recLinesBtn").show();
+        }
+
+        $(function() {
+            var options = {
+                data: details,
+                pagination: false,
+                showSearch: false,
+                showRefresh: false,
+                showToggle: false,
+                showColumns: false,
+                modalName: "绩效统计表",
+                id: "bootstrap-table",
+                flag: true,
+                clickEdit: true,
+                onEditableSave: onEditableSave,
+                columns: [
+                {
+                    field: 'id',
+                    title: '主键',
+                    visible: false
+                },
+                {
+                    field: 'userName',
+                    align: 'center',
+                    title: '姓名',
+                    width: 10,
+                    widthUnit: '%'
+                },
+                {
+                    field: 'deptName',
+                    align: 'center',
+                    title: '部门',
+                    width: 16,
+                    widthUnit: '%'
+                },
+                {
+                    field: 'jxdj',
+                    title: '绩效等级',
+                    editable: canEdit,
+                },
+                {
+                    field: 'jljx',
+                    title: '奖励绩效',
+                    editable: canEdit,
+                },
+                {
+                    field: 'kfjx',
+                    title: '扣发绩效',
+                    editable: canEdit,
+                },
+                {
+                    field: 'khzf',
+                    title: '考核总分',
+                    editable: canEdit,
+                },
+                {
+                    field: 'jlf',
+                    title: '奖励分',
+                    editable: canEdit,
+                },
+                {
+                    field: 'kff',
+                    title: '扣罚分',
+                    editable: canEdit,
+                },
+                {
+                    field: 'content',
+                    title: '奖惩事由',
+                    editable: canEdit,
+                },
+                /*{
+                    field: 'fjzb',
+                    title: '否决指标',
+                }*/]
+            };
+            $.table.init(options);
+        });
+
+        //提交审核
+        function submitHandler(index, layero){
+            //选择流程
+            if (recLines != null && recLines.length > 0){
+                //已存在流程
+                doSubmitFlow();
+            } else {
+                //发起申请，流程首节点
+                var options = {
+                    title: '选择流程',
+                    //url: prefix + "/parent",
+                    url: ctx + "system/line/radio",
+                    callBack: doSubmitFlow
+                };
+                $.modal.openOptions(options);
+            }
+        }
+
+        //选择流程
+        function doSubmitFlow(index, layero) {
+            var nodeIndex = 0;
+            var flowid = 0;
+            //获取流程id及当前步骤序号
+            if (recLines != null && recLines.length > 0){
+                //已存在流程
+                flowid = recLines[0].lineId;
+                nodeIndex = recLines[recLines.length-1].lineIndex+1;
+            } else {
+                var rows = layero.find("iframe")[0].contentWindow.getSelections();
+                if (rows.length == 0) {
+                    $.modal.alertWarning("请至少选择一条记录");
+                    return;
+                }
+                $.modal.close(index);
+                var rowArr = rows.split(",");
+                flowid = rowArr[0];
+            }
+
+            //终节点操作
+            if (hasFinal){
+                $.modal.confirm("确认通过吗?", function() {
+                    //传入参数自定义
+                    doSubmitFlow2(nodeIndex, flowid);
+                });
+                return;;
+            }
+
+            var options = {
+                title: '选择用户',
+                url: ctx + "system/line/radio/"+flowid+"/"+nodeIndex+"",
+                callBack: doSubmitFlow2
+            };
+            $.modal.openOptions(options);
+
+        }
+
+        //选择用户
+        function doSubmitFlow2(index, layero){
+            //公共流程参数封装
+            var param = {};
+            param["operateStatus"] = "0";//默认新发起流程，待审核状态0
+            if (recLines != null && recLines.length > 0){
+                //已有审核流程
+                param["id"] = recLines[recLines.length-1].id;//当前审核记录id
+                param["operateStatus"] = "1";//通过状态
+            }
+            param["recId"] = finKpi.id;
+            param["recType"] = "绩效考核统计";
+            //当前页面用作审核页面
+            param["recUrl"] = window.location.pathname;
+
+            //自定义传入参数：步骤序号 index。流程id layero
+            if (!hasFinal){
+                //非终极流程，需选择用户
+                var rows = layero.find("iframe")[0].contentWindow.getSelections();
+                if (rows.length == 0) {
+                    $.modal.alertWarning("请至少选择一条记录");
+                    return;
+                }
+                $.modal.close(index);
+
+                var rowArr = rows.split(",");
+                var loginName = rowArr[0];
+                var lineid = rowArr[1];
+                var nodeIndex = rowArr[2];
+                //下环节操作者
+                param["operateBy"] = loginName;
+                param["lineId"] = lineid;
+                param["lineIndex"] = nodeIndex;
+            } else {
+                //最终环节临时参数
+                param["lineId"] = layero;
+                param["lineIndex"] = index;
+            }
+            $.ajax({
+                url: ctx + "system/line/addRecLine",
+                type: 'post',
+                data: param,
+                dataType: "json",
+                success: function (res){
+                    canOperate = res["canOperate"];
+                    if (!canOperate) {
+                        $("#submitBtn").hide();
+                        $("#backBtn").hide();
+                    };
+                    recLines = res["recLines"];
+                    if (recLines.length > 0){
+                        $("#recLinesBtn").show();
+                    }
+                    $.modal.msgWarning("提交成功");
+                }
+            })
+        }
+
+        // 退回操作
+        function backHandler() {
+            layer.prompt({title: '是否退回（退回说明可选填）', formType: 2}, function(text, index){
+                layer.close(index);
+                if (text != null) text = text.trim();
+
+                var param = {};
+                param["operateStatus"] = "2";
+                param["operateBy"] = recLines[0].createBy;
+                param["recId"] = finKpi.id;
+                param["id"] = recLines[recLines.length-1].id;
+                param["lineId"] = recLines[recLines.length-1].lineId;
+                param["lineIndex"] = -1;
+                param["recType"] = "绩效考核统计";
+                param["recUrl"] = window.location.pathname;
+                param["operateContent"] = text;
+
+                $.ajax({
+                    url: ctx + "system/line/addRecLine",
+                    type: 'post',
+                    data: param,
+                    dataType: "json",
+                    success: function (res){
+                        canOperate = res["canOperate"];
+                        if (!canOperate) {
+                            $("#submitBtn").hide();
+                            $("#backBtn").hide();
+                        };
+                        recLines = res["recLines"];
+                        if (recLines.length > 0){
+                            $("#recLinesBtn").show();
+                        }
+                        $.modal.msgWarning("提交成功");
+                    }
+                })
+            });
+        }
+
+        function viewRecLine() {
+            var options = {
+                title: '查看流程',
+                //url: prefix + "/parent",
+                url: ctx + "system/line/timeline/"+finKpi.id,
+                yes: function () {
+                    return true;
+                }
+            };
+            $.modal.openOptions(options);
+        }
+
+        function onEditableSave (field, row, rowIndex, oldValue, $el) {
+            if (field == "jxdj"){
+                var tmp = row[field].toUpperCase();
+                if (tmp != 'A' && tmp != 'B' && tmp != 'C' && tmp != 'D') {
+                    row[field] = oldValue;
+                    $.modal.alertError("请输入ABCD中的字母");
+                    return;
+                }
+                row[field] = tmp;
+            }
+
+            var params = {};
+            params["id"] = row.id;
+            params[field] = row[field];
+            $.ajax({
+                type: "post",
+                url: prefix + "/edit",
+                data: params,
+                success: function(data) {
+                    console.info(data)
+                },
+                error: function (data) {
+                    console.info(data);
+                    $.modal.alertError("网络连接失败")
+                }
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('加班申请表详情')" />
+    <th:block th:include="include :: bootstrap-editable-css" />
+    <style type="text/css">
+
+    </style>
+</head>
+<body class="gray-bg">
+     <div class="main-content">
+         <form id="form-add" class="form-horizontal">
+             <h4 class="form-header h4">加班申请表</h4>
+             <div class="row">
+                 <div class="col-sm-5">
+                     <div class="form-group">
+                         <label class="col-sm-4 control-label is-required">名称：</label>
+                         <div class="col-sm-8">
+                             <input name="recname" class="form-control" type="text" maxlength="30" readonly="" th:field="*{finOvertime.recname}">
+                         </div>
+                     </div>
+                 </div>
+                 <div class="col-sm-5">
+                     <div class="form-group">
+                         <label class="col-sm-4 control-label is-required">部门：</label>
+                         <div class="col-sm-8">
+                             <input name="deptName" class="form-control" type="text" maxlength="30" readonly="" th:field="*{finOvertime.deptName}">
+                         </div>
+                     </div>
+                 </div>
+             </div>
+             <div class="row">
+                 <div class="col-sm-5">
+                     <div class="form-group">
+                         <label class="col-sm-4 control-label is-required">申请人：</label>
+                         <div class="col-sm-8">
+                             <input name="createBy" class="form-control" type="text" maxlength="30" readonly="" th:field="*{finOvertime.createBy}">
+                         </div>
+                     </div>
+                 </div>
+                 <div class="col-sm-5">
+                     <div class="form-group">
+                         <label class="col-sm-4 control-label is-required">申请时间：</label>
+                         <div class="col-sm-8">
+                             <input name="createTime" class="form-control" type="text" maxlength="30" readonly="" th:value="${#dates.format(finOvertime.createTime, 'yyyy-MM-dd HH:mm:ss')}">
+                         </div>
+                     </div>
+                 </div>
+             </div>
+
+             <h4 th:if="${multiple}" class="form-header h4">法定节假日加班</h4>
+             <div th:if="${multiple}" class="row">
+                 <div class="col-sm-12">
+                     <div class="col-sm-12 select-table table-striped">
+                         <table id="bootstrap-table"></table>
+                     </div>
+                 </div>
+             </div>
+
+             <h4 th:if="${single}" class="form-header h4">非法定节假日加班</h4>
+             <div th:if="${single}" class="row">
+                 <div class="col-sm-12">
+                     <div class="col-sm-12 select-table table-striped">
+                         <table id="bootstrap-table2"></table>
+                     </div>
+                 </div>
+             </div>
+
+             <h4 th:if="${night}" class="form-header h4">倒班、值班情况</h4>
+             <div th:if="${night}" class="row">
+                 <div class="col-sm-12">
+                     <div class="col-sm-12 select-table table-striped">
+                         <table id="bootstrap-table3"></table>
+                     </div>
+                 </div>
+             </div>
+         </form>
+     </div>
+
+     <div class="row">
+         <div class="col-sm-offset-5 col-sm-10">
+             <button id="backBtn" style="display: none" type="button" class="btn btn-sm btn-danger" onclick="backHandler()"><i class="fa fa-reply"></i>退 回</button>
+             <button id="submitBtn" style="display: none" type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>提 交</button>&nbsp;
+             <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+             <button id="recLinesBtn" style="display: none" type="button" class="btn btn-sm btn-warning" onclick="viewRecLine()"><i class="fa fa-ellipsis-h"></i>查看流程 </button>
+         </div>
+     </div>
+
+    <th:block th:include="include :: footer" />
+     <!-- JS 脚本 -->
+    <th:block th:include="include :: bootstrap-table-editable-js"/>
+    <script th:inline="javascript">
+
+        var prefix = ctx + "financial/overtime";
+        var single = [[${single}]];
+        var multiple = [[${multiple}]];
+        var night = [[${night}]];
+        var finOvertime = [[${finOvertime}]];
+        //流程操作标识
+        var canOperate = [[${canOperate}]];
+        //退回权限（高级别操作权限）
+        var canBack = [[${canBack}]];
+        //流程操作记录
+        var recLines = [[${recLines}]];
+        //终极节点标识（无需选择审批人）
+        var hasFinal = [[${hasFinal}]];
+        var canEdit = [[${canEdit}]];
+        var seeDays = [[${seeDays}]];
+
+        //当前用户是否可操作
+        if (canOperate) {
+            $("#submitBtn").show();
+        }
+        if (canOperate && canBack){
+            $("#backBtn").show();
+            $("#submitBtn").html("<i class='fa fa-check'></i>通 过");
+        }
+        if (recLines.length > 0){
+            $("#recLinesBtn").show();
+        }
+        
+        $(function() {
+            var options = {
+                data: multiple,
+                pagination: false,
+                showSearch: false,
+                showRefresh: false,
+                showToggle: false,
+                showColumns: false,
+                modalName: "法定节假日",
+                id: "bootstrap-table",
+                flag: true,
+                clickEdit: true,
+                onEditableSave: onEditableSave,
+                columns: [
+                    {
+                        field: 'userName',
+                        align: 'center',
+                        title: '姓名',
+                    },
+                    {
+                        field: 'deptName',
+                        align: 'center',
+                        title: '部门',
+                    },
+                    {
+                        field: 'overtime',
+                        align: 'center',
+                        title: '加班日期',
+                        editable: canEdit,
+                        widthUnit: '%',
+                        width: 25,
+                        validate : function(value) {
+                            if (value.length > 10) {return '加班日期不能超过10个字符';}
+                            if (value.length == 0) {return '加班日期不能为空';}
+                        }
+                    },
+                    {
+                        field: 'overtype',
+                        align: 'center',
+                        title: '加班类型',
+                        editable : {
+                            type : 'select',
+                            title : '类型',
+                            disabled: !canEdit,
+                            source : [{value : "one", text : "普通"}, {value : "two", text : "双倍"}, {value : "three", text : "三倍"}]
+                        },
+                        visible: !seeDays
+                    },
+                    {
+                        field: 'overdays',
+                        align: 'center',
+                        title: '天数',
+                        visible: seeDays
+                    },
+                    {
+                        field: 'content',
+                        align: 'center',
+                        title: '加班事由',
+                        editable: canEdit,
+                        widthUnit: '%',
+                        width: 45
+                    },
+                    /*{
+                        field: 'idcard',
+                        align: 'center',
+                        title: '身份证',
+                        width: 16,
+                        widthUnit: '%',
+                        editable: canEdit
+                    }*/
+                ]
+            };
+
+            if (multiple != null && multiple.length > 0){
+                $.table.init(options);
+            }
+
+            if (single != null && single.length > 0) {
+                var options2 = Object.assign({}, options);
+                options2.id = "bootstrap-table2";
+                options2.data = single;
+                options2.modalName = "非法定节假日";
+                $.table.init(options2);
+            }
+
+            if (night != null && night.length > 0){
+                var options3 = Object.assign({}, options);
+                options3.id = "bootstrap-table3";
+                options3.data = night;
+                options3.modalName = "倒班、值班情况";
+                options3.columns = [
+                    {
+                        field: 'userName',
+                        align: 'center',
+                        title: '姓名',
+                    },
+                    {
+                        field: 'deptName',
+                        align: 'center',
+                        title: '部门',
+                    },
+                    {
+                        field: 'overdays',
+                        align: 'center',
+                        title: '天数',
+                        editable: canEdit
+                    },
+                    {
+                        field: 'content',
+                        align: 'center',
+                        title: '加班事由',
+                        editable: canEdit,
+                        widthUnit: '%',
+                        width: 45
+                    },
+                    /*{
+                        field: 'idcard',
+                        align: 'center',
+                        title: '身份证',
+                        editable: canEdit
+                    }*/
+                ];
+                $.table.init(options3);
+            }
+        });
+
+        //提交审核
+        function submitHandler(index, layero){
+            //选择流程
+            if (recLines != null && recLines.length > 0){
+                //已存在流程
+                doSubmitFlow();
+            } else {
+                //发起申请，流程首节点
+                var options = {
+                    title: '选择流程',
+                    //url: prefix + "/parent",
+                    url: ctx + "system/line/radio",
+                    callBack: doSubmitFlow
+                };
+                $.modal.openOptions(options);
+            }
+        }
+
+        //选择流程
+        function doSubmitFlow(index, layero) {
+            var nodeIndex = 0;
+            var flowid = 0;
+            //获取流程id及当前步骤序号
+            if (recLines != null && recLines.length > 0){
+                //已存在流程
+                flowid = recLines[0].lineId;
+                nodeIndex = recLines[recLines.length-1].lineIndex+1;
+            } else {
+                var rows = layero.find("iframe")[0].contentWindow.getSelections();
+                if (rows.length == 0) {
+                    $.modal.alertWarning("请至少选择一条记录");
+                    return;
+                }
+                $.modal.close(index);
+                var rowArr = rows.split(",");
+                flowid = rowArr[0];
+            }
+
+            //终节点操作
+            if (hasFinal){
+                $.modal.confirm("确认通过吗?", function() {
+                    //传入参数自定义
+                    doSubmitFlow2(nodeIndex, flowid);
+                });
+                return;;
+            }
+
+            var options = {
+                title: '选择用户',
+                url: ctx + "system/line/radio/"+flowid+"/"+nodeIndex,
+                callBack: doSubmitFlow2
+            };
+            $.modal.openOptions(options);
+
+        }
+
+        //选择用户
+        function doSubmitFlow2(index, layero){
+            //公共流程参数封装
+            var param = {};
+            param["operateStatus"] = "0";//默认新发起流程，待审核状态0
+            if (recLines != null && recLines.length > 0){
+                //已有审核流程
+                param["id"] = recLines[recLines.length-1].id;//当前审核记录id
+                param["operateStatus"] = "1";//通过状态
+            }
+            param["recId"] = finOvertime.id;
+            param["recType"] = "加班值班汇总审批";
+            if (night != null && night.length > 0) param["recType"] = "季度倒班汇总审批";
+            //当前页面用作审核页面
+            param["recUrl"] = window.location.pathname;
+
+            //自定义传入参数：步骤序号 index。流程id layero
+            if (!hasFinal){
+                //非终极流程，需选择用户
+                var rows = layero.find("iframe")[0].contentWindow.getSelections();
+                if (rows.length == 0) {
+                    $.modal.alertWarning("请至少选择一条记录");
+                    return;
+                }
+                $.modal.close(index);
+
+                var rowArr = rows.split(",");
+                var loginName = rowArr[0];
+                var lineid = rowArr[1];
+                var nodeIndex = rowArr[2];
+                //下环节操作者
+                param["operateBy"] = loginName;
+                param["lineId"] = lineid;
+                param["lineIndex"] = nodeIndex;
+            } else {
+                //最终环节临时参数
+                param["lineId"] = layero;
+                param["lineIndex"] = index;
+            }
+            $.ajax({
+                url: ctx + "system/line/addRecLine",
+                type: 'post',
+                data: param,
+                dataType: "json",
+                success: function (res){
+                    canOperate = res["canOperate"];
+                    if (!canOperate) {
+                        $("#submitBtn").hide();
+                        $("#backBtn").hide();
+                    };
+                    recLines = res["recLines"];
+                    if (recLines.length > 0){
+                        $("#recLinesBtn").show();
+                    }
+                    $.modal.msgWarning("提交成功");
+                }
+            })
+        }
+
+        // 退回操作
+        function backHandler() {
+            layer.prompt({title: '是否退回（退回说明可选填）', formType: 2}, function(text, index){
+                layer.close(index);
+                if (text != null) text = text.trim();
+
+                var param = {};
+                param["operateStatus"] = "2";
+                param["operateBy"] = recLines[0].createBy;
+                param["recId"] = finOvertime.id;
+                param["id"] = recLines[recLines.length-1].id;
+                param["lineId"] = recLines[recLines.length-1].lineId;
+                param["lineIndex"] = -1;
+                param["recType"] = "加班值班汇总审批";
+                if (finOvertime.recType == 2){
+                    param["recType"] = "季度倒班汇总审批";
+                }
+                param["recUrl"] = window.location.pathname;
+                param["operateContent"] = text;
+
+                $.ajax({
+                    url: ctx + "system/line/addRecLine",
+                    type: 'post',
+                    data: param,
+                    dataType: "json",
+                    success: function (res){
+                        canOperate = res["canOperate"];
+                        if (!canOperate) {
+                            $("#submitBtn").hide();
+                            $("#backBtn").hide();
+                        };
+                        recLines = res["recLines"];
+                        if (recLines.length > 0){
+                            $("#recLinesBtn").show();
+                        }
+                        $.modal.msgWarning("提交成功");
+                    }
+                })
+            });
+        }
+        
+        function viewRecLine() {
+            var options = {
+                title: '查看流程',
+                //url: prefix + "/parent",
+                url: ctx + "system/line/timeline/"+finOvertime.id,
+                yes: function () {
+                    return true;
+                }
+            };
+            $.modal.openOptions(options);
+        }
+
+        function onEditableSave (field, row, rowIndex, oldValue, $el) {
+            if (field == "overtime"){
+                if(!$.common.dateformatValid(row[field])){
+                    $.modal.alertError("请输入正确的日期");
+                    row[field] = oldValue;
+                    return;
+                }
+            }
+            if (field == "overdays"){
+                if(!$.common.numValid(row[field])){
+                    $.modal.alertError("请输入正确的天数");
+                    row[field] = oldValue;
+                    return;
+                }
+            }
+            var params = {};
+            params["id"] = row.id;
+            params[field] = row[field];
+            $.ajax({
+                type: "post",
+                url: prefix + "/edit",
+                data: params,
+                success: function(data) {
+                    console.info(data)
+                },
+                error: function (data) {
+                    console.info(data);
+                    $.modal.alertError("网络连接失败")
+                }
+            });
+        }
+    </script>
+</body>
+</html>

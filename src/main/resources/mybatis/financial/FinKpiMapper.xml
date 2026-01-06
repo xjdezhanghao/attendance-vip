@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.financial.mapper.FinKpiMapper">
+    
+    <resultMap type="FinKpi" id="FinKpiResult">
+        <result property="id"    column="id"    />
+        <result property="recname"    column="recname"    />
+        <result property="rectime"    column="rectime"    />
+        <result property="rectype"    column="rectype"    />
+        <result property="deptid"    column="deptid"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="filepath"    column="filepath"    />
+    </resultMap>
+
+    <sql id="selectFinKpiVo">
+        select id, recname, rectime, rectype, deptid, dept_name, create_by, create_time, filepath from fin_kpi
+    </sql>
+
+    <select id="selectFinKpiList" parameterType="FinKpi" resultMap="FinKpiResult">
+        select k.id, k.recname, k.rectime, k.rectype, k.deptid, k.dept_name, u.user_name create_by, k.create_time, k.filepath, rls.opstatus, rls.maxtime from fin_kpi k
+        left join sys_dept d on k.deptid = d.dept_id
+        left join sys_user u on k.create_by = u.login_name
+        left join
+        <include refid="com.attendance.project.system.line.mapper.FlowLineMapper.selectRecLineStatus" /> rls on k.id=rls.recid
+        <where>  
+            <if test="recname != null  and recname != ''"> and k.recname like concat('%', #{recname}, '%')</if>
+            <if test="rectime != null "> and k.rectime = #{rectime}</if>
+            <if test="rectype != null  and rectype != ''"> and k.rectype = #{rectype}</if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                AND date_format(k.rectime,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND date_format(k.rectime,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+            <if test="deptid != null "> and (d.parent_id = #{deptid} or d.parent_id = (select parent_id from sys_dept where dept_id = #{deptid}))</if>
+            <if test="deptName != null  and deptName != ''"> and k.dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="opstatus != null  and opstatus != ''"> and rls.opstatus = #{opstatus}</if>
+            ${params.dataScope}
+        </where>
+        order by k.create_time desc
+    </select>
+    
+    <select id="selectFinKpiById" parameterType="Long" resultMap="FinKpiResult">
+        <include refid="selectFinKpiVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertFinKpi" parameterType="FinKpi">
+        insert into fin_kpi
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="recname != null">recname,</if>
+            <if test="rectime != null">rectime,</if>
+            <if test="rectype != null">rectype,</if>
+            <if test="deptid != null">deptid,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="filepath != null">filepath,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="recname != null">#{recname},</if>
+            <if test="rectime != null">#{rectime},</if>
+            <if test="rectype != null">#{rectype},</if>
+            <if test="deptid != null">#{deptid},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="filepath != null">#{filepath},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFinKpi" parameterType="FinKpi">
+        update fin_kpi
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="recname != null">recname = #{recname},</if>
+            <if test="rectime != null">rectime = #{rectime},</if>
+            <if test="rectype != null">rectype = #{rectype},</if>
+            <if test="deptid != null">deptid = #{deptid},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="filepath != null">filepath = #{filepath},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFinKpiById" parameterType="Long">
+        delete from fin_kpi where id = #{id}
+    </delete>
+
+    <delete id="deleteFinKpiByIds" parameterType="String">
+        delete from fin_kpi where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

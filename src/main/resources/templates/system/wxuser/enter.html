@@ -1,0 +1,219 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>山东机场AI应用</title>
+    <style type="text/css">
+
+        /* 全局样式 */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        /* 头部样式 */
+        .header {
+            background-color: rgb(175,195,250);
+            color: #333;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 24px;
+            letter-spacing: 2px;
+            font-weight: bold;
+            font-family: "Microsoft YaHei"
+        }
+
+        /* 应用容器布局 */
+        .app-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 40px;
+            flex-wrap: wrap;
+        }
+
+        /* 每个应用卡片 */
+        .app-card {
+            width: 150px;
+            height: 200px; /* 增加高度以容纳标题和图片 */
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            position: relative;
+            transition: transform 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        /* 应用名称 */
+        .app-title {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            color: #333;
+        }
+
+        /* 图片容器 */
+        .app-image {
+            flex-grow: 1;
+            /*background-size: cover;*/
+            background-size: 100% auto;
+            background-repeat: no-repeat;
+            background-position: center;
+            border-radius: 10px;
+            position: relative; /* 为 tooltip 提供定位基准 */
+        }
+
+        .big-image{
+            background-size: 80% auto;
+        }
+
+        /* 智能检索卡片背景图 */
+        .app-card.zhishiku .app-image {
+            background-image: url('/img/ai/zhishiku.png');
+        }
+
+        /* 合同审核卡片背景图 */
+        .app-card.hetong .app-image {
+            background-image: url('/img/ai/hetong.jpg');
+        }
+
+        .tooltip {
+            opacity: 0;
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            right: 0;
+            background-color: rgba(175, 195, 250, 0.9);
+            color: white;
+            text-align: center;
+            padding: 6px 0;
+            transition: opacity 0.3s ease;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .app-card:hover .tooltip {
+            opacity: 1;
+        }
+
+        .app-card:hover {
+            transform: scale(1.05);
+        }
+
+        .footer-info {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px; /* 加宽 */
+            max-width: 90%;
+            background-color: #ffffff;
+            color: #333;
+            padding: 15px 20px;
+            font-size: 16px;
+            border-top: 1px solid #ddd;
+            z-index: 1000;
+            box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1);
+            text-align: left;
+        }
+
+        .footer-info .title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .footer-info .desc {
+            margin-top: 4px;
+            white-space: pre-line; /* 保留换行符，但允许浏览器自动换行 */
+        }.
+    </style>
+</head>
+<body>
+<div class="header">山东机场AI应用</div>
+
+<div class="app-container">
+    <div class="app-card zhishiku" onclick="navigateTo('zhishiku')">
+        <div class="app-title">智能助手</div>
+        <div class="app-image big-image">
+            <div class="tooltip">点击进入</div>
+        </div>
+    </div>
+    <div class="app-card hetong" onclick="navigateTo('hetong')">
+        <div class="app-title">合同审核</div>
+        <div class="app-image">
+            <div class="tooltip">点击进入</div>
+        </div>
+    </div>
+</div>
+
+<!-- 底部信息展示区域 -->
+<div id="footer-info" class="footer-info">
+    <div class="title">欢迎使用山东机场AI应用</div>
+    <div class="desc">应用持续更新中，如有问题或需求请联系82161进行反馈，感谢您的支持</div>
+</div>
+
+<script>
+    // 获取所有应用卡片和底部信息元素
+    const appCards = document.querySelectorAll('.app-card');
+    const footerInfo = document.getElementById('footer-info');
+    // 默认提示信息
+    const defaultText = '欢迎使用山东机场AI应用'
+    // 每个卡片的自定义数据信息（支持多行描述）
+    const cardDescriptions = {
+        zhishiku: {
+            title: '智能助手',
+            desc: '1.根据集团知识库提供智能问答及文件检索服务\n'
+                + '2.集团知识库持续更新中\n'
+        },
+        hetong: {
+            title: '合同审核',
+            desc: '1.自动对合同进行审核并提出改进建议\n'
+                + '2.目前最大支持1万5千字左右的合同'
+        }
+    };
+
+    // 初始化卡片事件监听
+    appCards.forEach(card => {
+        const key = card.classList.item(1); // 获取应用类型，如 "zhishiku"
+        const infoDiv = document.getElementById('footer-info');
+        const titleEl = infoDiv.querySelector('.title');
+        const descEl = infoDiv.querySelector('.desc') || (() => {
+            const el = document.createElement('div');
+            el.className = 'desc';
+            infoDiv.appendChild(el);
+            return el;
+        })();
+
+        card.addEventListener('mouseenter', () => {
+            if (cardDescriptions[key]) {
+                titleEl.textContent = cardDescriptions[key].title;
+                descEl.textContent = cardDescriptions[key].desc;
+            }
+        });
+
+        card.addEventListener('mouseleave', () => {
+            titleEl.textContent = '欢迎使用山东机场AI应用';
+            descEl.textContent = '应用持续更新中，如有问题或需求请联系82161进行反馈，感谢您的支持';
+        });
+    });
+
+    function navigateTo(title) {
+        let url = '';
+        if (title === "zhishiku") {
+            url = "http://192.168.144.125:30001/ui/chat/1229f6fd020570f5";
+        } else if (title === "hetong") {
+            url = "http://192.168.144.125:30001/ui/chat/a57c79aedcd17bd4";
+        }
+        window.open(url, '_blank'); // 在新标签页打开
+    }
+</script>
+</body>
+</html>

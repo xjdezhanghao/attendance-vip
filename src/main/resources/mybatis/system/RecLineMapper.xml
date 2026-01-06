@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.system.line.mapper.RecLineMapper">
+    
+    <resultMap type="RecLine" id="RecLineResult">
+        <result property="id"    column="id"    />
+        <result property="lineId"    column="line_id"    />
+        <result property="recId"    column="rec_id"    />
+        <result property="recType"    column="rec_type"    />
+        <result property="recUrl"    column="rec_url"    />
+        <result property="lineIndex"    column="line_index"    />
+        <result property="lineNode"    column="line_node"    />
+        <result property="operateBy"    column="operate_by"    />
+        <result property="operateTime"    column="operate_time"    />
+        <result property="operateStatus"    column="operate_status"    />
+        <result property="operateContent"    column="operate_content"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createName"    column="create_name"    />
+        <result property="operateName"    column="operate_name"    />
+        <result property="deptName"    column="dept_name"    />
+    </resultMap>
+
+    <sql id="selectRecLineVo">
+        select id, line_id, rec_id, rec_type, rec_url, line_index, line_node, operate_by, operate_time, operate_status, operate_content, create_by, create_time from sys_rec_line
+    </sql>
+
+    <select id="selectRecLineList" parameterType="RecLine" resultMap="RecLineResult">
+        select rl.id, rl.line_id, rl.rec_id, rl.rec_type, rl.rec_url, rl.line_index, rl.line_node, rl.operate_by, rl.operate_time, rl.operate_status, rl.operate_content, rl.create_by, rl.create_time,
+        u.user_name create_name, u2.user_name operate_name, d.dept_name
+        from sys_rec_line rl
+        left join sys_user u on rl.create_by = u.login_name
+        left join sys_user u2 on rl.operate_by = u2.login_name
+        left join sys_dept d on u.dept_id = d.dept_id
+        <where>  
+            <if test="lineId != null "> and rl.line_id = #{lineId}</if>
+            <if test="recId != null "> and rl.rec_id = #{recId}</if>
+            <if test="recType != null  and recType != ''"> and rl.rec_type = #{recType}</if>
+            <if test="lineIndex != null "> and rl.line_index = #{lineIndex}</if>
+            <if test="lineNode != null  and lineNode != ''"> and rl.line_node = #{lineNode}</if>
+            <if test="operateBy != null  and operateBy != ''"> and rl.operate_by = #{operateBy}</if>
+            <if test="operateTime != null "> and rl.operate_time = #{operateTime}</if>
+            <if test="operateStatus != null  and operateStatus != '' and operateStatus != 9"> and rl.operate_status = #{operateStatus}</if>
+            <if test="operateContent != null  and operateContent != ''"> and rl.operate_content = #{operateContent}</if>
+            <if test="operateStatus == 9 and createBy != null  and createBy != ''"> and rl.create_by = #{createBy}</if>
+        </where>
+        <choose>
+            <when test="remark == 'matter'">
+                order by create_time desc
+            </when>
+            <otherwise>
+                order by create_time asc
+            </otherwise>
+        </choose>
+    </select>
+    
+    <select id="selectRecLineById" parameterType="Long" resultMap="RecLineResult">
+        <include refid="selectRecLineVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertRecLine" parameterType="RecLine" useGeneratedKeys="true" keyProperty="id">
+        insert into sys_rec_line
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="lineId != null">line_id,</if>
+            <if test="recId != null">rec_id,</if>
+            <if test="recType != null">rec_type,</if>
+            <if test="recUrl != null">rec_url,</if>
+            <if test="lineIndex != null">line_index,</if>
+            <if test="lineNode != null">line_node,</if>
+            <if test="operateBy != null">operate_by,</if>
+            <if test="operateTime != null">operate_time,</if>
+            <if test="operateStatus != null">operate_status,</if>
+            <if test="operateContent != null">operate_content,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="lineId != null">#{lineId},</if>
+            <if test="recId != null">#{recId},</if>
+            <if test="recType != null">#{recType},</if>
+            <if test="recUrl != null">#{recUrl},</if>
+            <if test="lineIndex != null">#{lineIndex},</if>
+            <if test="lineNode != null">#{lineNode},</if>
+            <if test="operateBy != null">#{operateBy},</if>
+            <if test="operateTime != null">#{operateTime},</if>
+            <if test="operateStatus != null">#{operateStatus},</if>
+            <if test="operateContent != null">#{operateContent},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRecLine" parameterType="RecLine">
+        update sys_rec_line
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="lineId != null">line_id = #{lineId},</if>
+            <if test="recId != null">rec_id = #{recId},</if>
+            <if test="recType != null">rec_type = #{recType},</if>
+            <if test="lineIndex != null">line_index = #{lineIndex},</if>
+            <if test="lineNode != null">line_node = #{lineNode},</if>
+            <if test="operateBy != null">operate_by = #{operateBy},</if>
+            <if test="operateTime != null">operate_time = #{operateTime},</if>
+            <if test="operateStatus != null">operate_status = #{operateStatus},</if>
+            <if test="operateContent != null">operate_content = #{operateContent},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteRecLineById" parameterType="Long">
+        delete from sys_rec_line where id = #{id}
+    </delete>
+
+    <delete id="deleteRecLineByIds" parameterType="String">
+        delete from sys_rec_line where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteRecLineByRecId" parameterType="Long">
+        delete from sys_rec_line where rec_id = #{id}
+    </delete>
+</mapper>

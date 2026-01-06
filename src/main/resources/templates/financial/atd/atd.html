@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('考勤列表')" />
+</head>
+<body class="gray-bg">
+     <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="formId">
+                    <div class="select-list">
+                        <ul>
+                            <li>
+                                <label>考勤时间：</label>
+                                <input type="text" name="rectime" placeholder="年-月" autocomplete="off"/>
+                            </li>
+                            <!--<li>
+                                <label>记录时间：</label>
+                                <input type="text" class="time-input" placeholder="请选择记录时间" name="rectime"/>
+                            </li>-->
+                           <!-- <li>
+                                <label>部门名称：</label>
+                                <input type="text" name="deptName"/>
+                            </li>-->
+                            <li>
+                                <label>审核状态：</label>
+                                <select name="opstatus" th:with="type=${@dict.getType('sys_line_status')}">
+                                    <option value="">所有</option>
+                                    <option th:each="dict : ${type}" th:text="${dict.dictLabel}" th:value="${dict.dictValue}"></option>
+                                </select>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-success" onclick="addRecord()">
+                    <i class="fa fa-plus"></i> 添加
+                </a>
+            </div>
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+
+        var prefix = ctx + "financial/atd";
+        var datas = [[${@dict.getType('sys_line_status')}]];
+
+        $(function() {
+            var options = {
+                url: prefix + "/list",
+                createUrl: prefix + "/addAtd",
+                updateUrl: prefix + "/edit/{id}",
+                removeUrl: prefix + "/remove",
+                exportUrl: prefix + "/export",
+                modalName: "绩效",
+                columns: [{
+                    checkbox: true
+                },
+                {
+                    field: 'id',
+                    title: '主键',
+                    visible: false
+                },
+                {
+                    field: 'deptName',
+                    title: '部门名称'
+                },
+                {
+                    field: 'recname',
+                    title: '记录名称'
+                },
+                {
+                    field: 'rectime',
+                    title: '记录时间'
+                },
+                {
+                    field: 'opstatus',
+                    title: '审核状态',
+                    formatter: function(value, row, index) {
+                        return $.table.selectDictLabel(datas, value);
+                    }
+                },
+                {
+                    field: 'createTime',
+                    title: '创建时间'
+                },
+                {
+                    field: 'createBy',
+                    title: '创建人'
+                },
+                {
+                    title: '操作',
+                    align: 'center',
+                    formatter: function(value, row, index) {
+                        var actions = [];
+                        actions.push('<a class="btn btn-success btn-xs" href="javascript:void(0)" onclick="editAtd(\'' + row.id + '\',\'' + row.recname + '\')"><i class="fa fa-edit"></i>查看</a> ');
+                        if (row.opstatus == null || row.opstatus == "" || row.opstatus == 0){
+                            actions.push('<a class="btn btn-danger btn-xs" href="javascript:void(0)" onclick="$.operate.remove(\'' + row.id + '\')"><i class="fa fa-remove"></i>删除</a>');
+                        }
+                        return actions.join('');
+                    }
+                }]
+            };
+            $.table.init(options);
+        });
+
+        function addRecord() {
+            var tagValue = $("input[name='rectime']").val();
+            var regex = /^\d{4}\-\d{2}$/;
+            if (!$(this).filter(function () {
+                return regex.test(tagValue);
+            }).length) {
+                $.modal.msgWarning("请输入正确的【考勤时间】格式");
+                return;
+            }
+
+            $.modal.confirm("确定生成【"+tagValue+"】考勤统计吗？", function () {
+                $.ajax({
+                    type: "post",
+                    url: prefix + "/addAtd",
+                    data: {
+                        "rectime": tagValue,
+                    },
+                    beforeSend: function () {
+                        $.modal.loading("正在处理中，请稍候...");
+                    },
+                    complete: function (data) {
+                        $.modal.closeLoading();
+                        $.form.reset();
+                    }
+                });
+            });
+        }
+
+        function editAtd(id, recname) {
+            $.modal.openTab(recname, prefix+"/edit/" + id);
+        }
+
+        function downloadThisTemplate() {
+            window.location.href = ctx + "common/download?fileName=" + encodeURI("绩效统计表.xlsx") + "&delete=" + false;
+        }
+
+    </script>
+</body>
+</html>

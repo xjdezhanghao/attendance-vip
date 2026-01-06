@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.atdform.atdstatisticform.mapper.AtdStatisticFormMapper">
+
+    <resultMap type="com.attendance.project.atdform.atdstatisticform.domain.AtdStatisticForm"
+               id="AtdStatisticFormResult">
+        <result property="id" column="id"/>
+        <result property="userid" column="userid"/>
+        <result property="atdtime" column="atdtime"/>
+        <result property="atddesc" column="atddesc"/>
+        <result property="atddesckj" column="atddesckj"/>
+        <result property="atdfile" column="atdfile"/>
+        <result property="atdloc" column="atdloc"/>
+        <result property="atdtag" column="atdtag"/>
+        <result property="createtime" column="createtime"/>
+        <result property="kjcreateTime" column="create_time"/>
+        <result property="atdstatus" column="atdstatus"/>
+        <result property="atdstatuskj" column="atdstatuskj"/>
+        <result property="starttime" column="starttime"/>
+        <result property="endtime" column="endtime"/>
+        <result property="startDate" column="startDate"/>
+        <result property="endDate" column="endDate"/>
+        <result property="username" column="username"/>
+        <result property="deptname" column="dept_name"/>
+        <result property="kzatddesc" column="kzatddesc"/>
+        <result property="chidao" column="chidao"/>
+        <result property="zaotui" column="zaotui"/>
+        <result property="buqian" column="buqian"/>
+        <result property="chuqin" column="chuqin"/>
+        <result property="time" column="time"/>
+
+    </resultMap>
+
+    <sql id="selectAtdStatisticFormVo">
+        select id, userid, atdtime, atddesc, atddesckj,atdfile, atdloc, atdtag, create_time, atdstatus,atdstatuskj, username, deptname, chidao, zaotui, buqian, chuqin from atd_record_pc
+    </sql>
+    <select id="selectAtdStatisticFormList"
+            parameterType="com.attendance.project.atdform.atdstatisticform.domain.AtdStatisticForm"
+            resultMap="AtdStatisticFormResult">
+        SELECT
+        u.user_name username,
+        a.atdtime,a.atdtag,a.atdstatus,a.atddesc,a.atdstatuskj,a.atddesckj,
+        DATE_FORMAT(
+        a.create_time,
+        '%Y-%m-%d'
+        ) AS time,
+        a.create_time createtime
+        FROM
+        atd_record a,
+        sys_user u
+
+        WHERE
+        a.userid = u.user_id
+        /* AND a.create_time &gt;= '2022-7-1'
+        AND a.create_time &lt;= '2022-7-9'*/
+
+        <!--   <if test="params.beginTime != null and params.beginTime != ''">&lt;!&ndash; 开始时间检索 &ndash;&gt;
+               and date_format(a.create_time,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+           </if>
+           <if test="params.endTime != null and params.endTime != ''">&lt;!&ndash; 结束时间检索 &ndash;&gt;
+               and date_format(a.create_time,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+           </if>-->
+
+        <if test=" starttime!= null and starttime != ''"><!-- 开始时间检索 -->
+            <!--and date_format(a.create_time,'%y%m%d') &gt;= date_format(#{starttime},'%y%m%d')-->
+            and date_format(a.atdtime,'%y%m%d') >= date_format(#{starttime},'%y%m%d')
+        </if>
+        <if test="endtime != null and endtime != ''"><!-- 结束时间检索 -->
+
+            <!--and date_format(a.create_time,'%y%m%d') &lt;= date_format(#{endtime},'%y%m%d')-->
+            and date_format(a.atdtime,'%y%m%d') &lt;= date_format(#{endtime},'%y%m%d')
+        </if>
+
+    </select>
+
+
+    <select id="selectNames" parameterType="com.attendance.project.atdform.atdstatisticform.domain.AtdStatisticForm"
+            resultType="java.lang.String">
+
+        select user_name from sys_user
+        LEFT JOIN sys_dept ON sys_dept.dept_id = sys_user.dept_id
+        <where>
+            sys_user.user_id != 1
+            <if test="deptname != null  and deptname != ''">
+                and sys_dept.dept_name like concat('%', #{deptname}, '%')
+            </if>
+        </where>
+    </select>
+    <select id="selectIds" parameterType="com.attendance.project.atdform.atdstatisticform.domain.AtdStatisticForm"
+            resultType="java.lang.Integer">
+        select user_id from sys_user
+        LEFT JOIN sys_dept ON sys_dept.dept_id = sys_user.dept_id
+        LEFT JOIN sys_dept pd ON sys_dept.parent_id = pd.dept_id
+        <where>
+            sys_user.user_id != 1 and sys_user.del_flag = '0'
+            <if test="deptname != null  and deptname != ''">
+                and (sys_dept.dept_name like concat('%', #{deptname}, '%') or pd.dept_name like concat('%', #{deptname}, '%'))
+            </if>
+            <if test="username != null  and username != ''">
+                and sys_user.user_name like concat('%', #{username}, '%')
+            </if>
+        </where>
+        ${params.dataScope}
+        order by sys_dept.order_num asc, sys_dept.dept_id asc, IFNULL(sys_user.number, 999) asc, sys_user.user_id asc
+    </select>
+    <select id="selectNameById" parameterType="com.attendance.project.atdform.atdstatisticform.domain.AtdStatisticForm"
+            resultType="java.lang.String">
+        select user_name from sys_user
+        <where>
+            sys_user.user_id != 1
+            <if test="userid != null">and user_id = #{userid}</if>
+        </where>
+    </select>
+    <!--    <select id="selectAtdStatisticFormList" parameterType="com.attendance.project.atdform.atdstatisticform.domain." resultMap="AtdStatisticFormResult">
+            <include refid="selectAtdStatisticFormVo"/>
+            <where>
+                <if test="startDate != null "> and startDate = #{startDate}</if>
+                <if test="endDate != null "> and endDate = #{endDate}</if>
+                <if test="deptname != null  and deptname != ''"> and deptname like concat('%', #{deptname}, '%')</if>
+            </where>
+        </select>-->
+
+    <!--    <select id="selectAtdStatisticFormList" parameterType="com.attendance.project.atdform.atdstatisticform.domain.AtdStatisticForm" resultMap="AtdStatisticFormResult">
+
+            select d.dept_name deptname, u.user_name username,
+            <foreach collection="times" index="index" item="times" open="" close="" separator=",">
+            a.`#{times}`
+            </foreach>
+            from
+                (SELECT userid
+            <foreach collection="times" index="index" item="times" open="" close="" separator="">
+                , MAX(case r.atdtime when #{times} then CONCAT(DATE_FORMAT(r.create_time,'%H:%i:%s'), ' ', IFNULL(atddesc,'')) else '' end) as ${times}
+            </foreach>
+                FROM atd_record r WHERE r.userid not in(102, 112) and r.atdtag = '1' GROUP BY r.userid) a
+            left join sys_user u on a.userid = u.user_id
+            left join sys_dept d on u.dept_id = d.dept_id
+            order by a.userid
+        </select>-->
+
+    <select id="selectAtdStatisticFormById" parameterType="Long" resultMap="AtdStatisticFormResult">
+        <include refid="selectAtdStatisticFormVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertAtdStatisticForm"
+            parameterType="com.attendance.project.atdform.atdstatisticform.domain.AtdStatisticForm">
+        insert into atd_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userid != null">userid,</if>
+            <if test="atdtime != null">atdtime,</if>
+            <if test="atdtag != null">atdtag,</if>
+            <if test="kjcreateTime != null">create_time,</if>
+            <if test="atddesc != null">atddesc,</if>
+            <if test="atddesckj != null">atddesckj,</if>
+            <if test="atdstatus != null">atdstatus,</if>
+            <if test="operatetime != null">operatetime,</if>
+            <if test="operatename != null">operatename</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userid != null">#{userid},</if>
+            <if test="atdtime != null">#{atdtime},</if>
+            <if test="atdtag != null">#{atdtag},</if>
+            <if test="kjcreateTime != null">#{kjcreateTime},</if>
+            <if test="atddesc != null">#{atddesc},</if>
+            <if test="atddesckj != null">#{atddesckj},</if>
+            <if test="atdstatus != null">#{atdstatus},</if>
+            <if test="operatetime != null">#{operatetime},</if>
+            <if test="operatename != null">#{operatename}</if>
+        </trim>
+    </insert>
+
+    <update id="updateAtdStatisticForm"
+            parameterType="com.attendance.project.atdform.atdstatisticform.domain.AtdStatisticForm">
+        update atd_record
+        <trim prefix="SET" suffixOverrides=",">
+
+
+            <if test="atddesckj != null">atddesckj = #{atddesckj},</if>
+            <if test="atddesc != null">atddesc = #{atddesc},</if>
+            <!-- <if test="atdstatuskj != null">atdstatuskj = #{atdstatuskj},</if>-->
+
+            <if test="operatetime != null">operatetime = #{operatetime},</if>
+            <if test="operatename != null">operatename = #{operatename},</if>
+
+            <if test="atdstatus != null">atdstatus = #{atdstatus},</if>
+        </trim>
+
+        <where>
+            1=1
+            <if test=" id!= null">and id = #{id}</if>
+
+            <if test=" userid!= null">and userid = #{userid}</if>
+            <if test=" atdtimestring!= null">and date_format(atdtime,'%y%m%d') =
+                date_format(#{atdtimestring},'%y%m%d')
+            </if>
+
+            <if test="atdtag!= null">and atdtag = #{atdtag}</if>
+        </where>
+    </update>
+
+    <delete id="deleteAtdStatisticFormById" parameterType="Long">
+        delete from atd_record where id = #{id}
+    </delete>
+
+    <delete id="deleteAtdStatisticFormByIds" parameterType="String">
+        delete from atd_record where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+    <select id="selectAtdStatistic"
+            parameterType="com.attendance.project.atdform.atdstatisticform.domain.AtdStatisticForm"
+            resultType="com.attendance.project.atdform.atdstatisticform.domain.AtdStatisticForm">
+        select * from atd_record
+        <where>
+            1=1
+            <if test=" userid!= null">and userid = #{userid}</if>
+            <if test=" atdtimestring!= null">and date_format(atdtime,'%y%m%d') =
+                date_format(#{atdtimestring},'%y%m%d')
+            </if>
+
+            <if test="atdtag!= null">and atdtag = #{atdtag}</if>
+        </where>
+    </select>
+</mapper>

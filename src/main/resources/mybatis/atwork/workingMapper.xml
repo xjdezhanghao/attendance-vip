@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.atwork.working.mapper.workingMapper">
+    
+    <resultMap type="com.attendance.project.atwork.working.domain.working" id="workingResult">
+
+        <result property="atdtag"   column="atdtag"     />
+        <result property="createtime"   column="create_time"     />
+        <result property="username"    column="user_name"    />
+        <result property="deptname"    column="dept_name"    />
+        <result property="deptid"    column="dept_id"    />
+        <result property="phone"    column="phonenumber"    />
+    </resultMap>
+    <select id="selectworkingList" parameterType="com.attendance.project.atwork.working.domain.working" resultMap="workingResult">
+        select  u.user_name  , d.dept_name , u.phonenumber ,d.dept_id  from
+        (select a.* from atd_record a
+        inner join (select userid , max(create_time) create_time
+        from atd_record where atdtime like concat(CURDATE(), '%') group by userid) b
+        on a.userid = b.userid and a.create_time = b.create_time where a.atdtime like concat(CURDATE(), '%')
+        order by a.userid) c
+        left join  sys_user u on u.user_id = c.userid
+        left join sys_dept d on  u.dept_id = d.dept_id
+        <where>
+            1=1 AND u.del_flag = '0'
+            <if test="username != null and username != ''">
+                AND u.user_name like concat('%', #{username}, '%')
+            </if>
+            <if test="deptname != null and deptname != ''">
+                AND d.dept_name like concat('%', #{deptname}, '%')
+            </if>
+            and (c.atdtag ="1" or c.atddesc = '倒班')
+
+        </where>
+        order by d.dept_id asc
+    </select>
+
+</mapper>

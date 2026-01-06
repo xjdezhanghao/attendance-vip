@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="include :: header('配置小项')" />
+</head>
+<body class="white-bg">
+    <div class="wrapper wrapper-content animated fadeInRight ibox-content">
+        <div class="form-group">
+            <button type="button" class="btn btn-primary btn-sm" onclick="addItem()">
+                <i class="fa fa-plus"></i> 新增小项
+            </button>
+        </div>
+        
+        <div class="form-group">
+            <table class="table table-bordered" id="item-table">
+                <thead>
+                    <tr>
+                        <th width="5%"></th>
+                        <th width="18%">小项名称</th>
+                        <th width="32%">描述规则</th>
+                        <th width="10%">关联数据</th>
+                        <th width="10%">最小分值</th>
+                        <th width="10%">最大分值</th>
+                        <th width="15%">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="item-tbody">
+                    <!-- 动态添加的小项 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!--<div class="row">
+        <div class="col-sm-offset-5 col-sm-10">
+            <button type="button" class="btn btn-sm btn-primary" onclick="saveItems()">
+                <i class="fa fa-check"></i> 保存
+            </button>&nbsp;
+            <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()">
+                <i class="fa fa-reply-all"></i> 关闭
+            </button>
+        </div>
+    </div>-->
+    
+    <th:block th:include="include :: footer" />
+    <script th:inline="javascript">
+        var categoryIndex = [[${categoryIndex}]];
+        var layerIndex = [[${layerIndex}]];
+        var mainWindow = window.parent.document;
+        var addIframe = $(mainWindow).find("#layui-layer-iframe" + layerIndex);
+        var addWindow = addIframe[0].contentWindow;
+
+        var itemIndex = 0;
+
+        $(document).ready(function() {
+            // 可以在这里加载已有小项数据
+            if (addWindow && addWindow.getCategoryItems) {
+                var existingItems = addWindow.getCategoryItems(categoryIndex);
+                if (existingItems && existingItems.length > 0) {
+                    loadExistingItems(existingItems);
+                }
+            }
+        });
+
+        // 加载已存在的小项数据
+        function loadExistingItems(items) {
+            $.each(items, function(index, item) {
+                addItemWithData(item);
+            });
+        }
+
+        // 新增带数据的小项
+        function addItemWithData(itemData) {
+            itemIndex++;
+            var html = `            <tr id="item-row-${itemIndex}">
+                <td>${itemIndex}</td>
+                <td><input type="text" class="form-control" name="itemName" value="${itemData.itemName || ''}" placeholder="请输入小项名称" required></td>
+                <td>
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="ruleDesc" value="${itemData.ruleDesc || ''}" placeholder="请输入描述规则" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <div class="input-group-addon" onclick="showRuleDesc(this)">
+                            <i class="fa fa-eye"></i>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <select class="form-control" name="isRelated">
+                        <option value="0" ${itemData.isRelated == '0' ? 'selected' : ''}>否</option>
+                        <option value="1" ${itemData.isRelated == '1' ? 'selected' : ''}>是</option>
+                    </select>
+                </td>
+                <td><input type="number" class="form-control" name="scoreMin" value="${itemData.scoreMin || ''}" placeholder="最小分值"></td>
+                <td><input type="number" class="form-control" name="scoreMax" value="${itemData.scoreMax || ''}" placeholder="最大分值"></td>
+                <td>
+                    <input type="hidden" name="itemId" value="${itemData.itemId || ''}">
+                    <button type="button" class="btn btn-success btn-xs" onclick="moveUpItem(${itemIndex})">
+                        <i class="fa fa-arrow-up"></i>
+                    </button>
+                    <button type="button" class="btn btn-warning btn-xs" onclick="moveDownItem(${itemIndex})">
+                        <i class="fa fa-arrow-down"></i>
+                    </button>
+                    <button type="button" class="btn btn-danger btn-xs" onclick="deleteItem(${itemIndex})">
+                        <i class="fa fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
+            $('#item-tbody').append(html);
+        }
+
+        // 新增小项
+        function addItem() {
+            itemIndex++;
+            var html = `
+                <tr id="item-row-${itemIndex}">
+                    <td>${itemIndex}</td>
+                    <td><input type="text" class="form-control" name="itemName" placeholder="请输入小项名称" required></td>
+                    <td>
+                        <div class="input-group">
+                            <input type="text" class="form-control" name="ruleDesc" placeholder="请输入描述规则" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            <div class="input-group-addon" onclick="showRuleDesc(this)">
+                                <i class="fa fa-eye"></i>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <select class="form-control" name="isRelated">
+                            <option value="0">否</option>
+                            <option value="1">是</option>
+                        </select>
+                    </td>
+                    <td><input type="text" class="form-control" name="scoreMin" placeholder="如:0"></td>
+                    <td><input type="text" class="form-control" name="scoreMax" placeholder="如:10"></td>
+                    <td>
+                        <button type="button" class="btn btn-success btn-xs" onclick="moveUpItem(${itemIndex})">
+                            <i class="fa fa-arrow-up"></i>
+                        </button>
+                        <button type="button" class="btn btn-warning btn-xs" onclick="moveDownItem(${itemIndex})">
+                            <i class="fa fa-arrow-down"></i>
+                        </button>
+                        <button type="button" class="btn btn-danger btn-xs" onclick="deleteItem(${itemIndex})">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            $('#item-tbody').append(html);
+        }
+        
+        // 上移小项
+        function moveUpItem(itemIndex) {
+            var currentRow = $('#item-row-' + itemIndex);
+            var prevRow = currentRow.prev();
+            if (prevRow.length > 0) {
+                currentRow.insertBefore(prevRow);
+                reOrderItems();
+            }
+        }
+        
+        // 下移小项
+        function moveDownItem(itemIndex) {
+            var currentRow = $('#item-row-' + itemIndex);
+            var nextRow = currentRow.next();
+            if (nextRow.length > 0) {
+                currentRow.insertAfter(nextRow);
+                reOrderItems();
+            }
+        }
+        
+        // 重新排序小项
+        function reOrderItems() {
+            $('#item-tbody tr').each(function(index) {
+                $(this).find('td:first').text(index + 1);
+                var id = $(this).attr('id');
+                var newIndex = index + 1;
+                $(this).attr('id', id.replace(/\d+$/, newIndex));
+                // 更新按钮事件参数
+                $(this).find('button[onclick*="moveUpItem"]').attr('onclick', 'moveUpItem(' + newIndex + ')');
+                $(this).find('button[onclick*="moveDownItem"]').attr('onclick', 'moveDownItem(' + newIndex + ')');
+                $(this).find('button[onclick*="deleteItem"]').attr('onclick', 'deleteItem(' + newIndex + ')');
+            });
+        }
+        
+        // 删除小项
+        function deleteItem(itemIndex) {
+            $.modal.confirm("确认要删除该小项吗？", function() {
+                $('#item-row-' + itemIndex).remove();
+                reOrderItems();
+            });
+        }
+
+        // 显示描述规则的完整内容
+        function showRuleDesc(element) {
+            var row = $(element).closest('tr');
+            var ruleDesc = row.find('input[name="ruleDesc"]').val();
+
+            if (ruleDesc && ruleDesc.length > 0) {
+                var html = `            <div class="modal fade" id="ruleDescModal" tabindex="-1" role="dialog" aria-labelledby="ruleDescModalLabel">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="ruleDescModalLabel">描述规则</h4>
+                                </div>
+                                <div class="modal-body">
+                                    <p>${ruleDesc}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                $('body').append(html);
+                $('#ruleDescModal').modal('show');
+
+                // 移除模态框
+                $('#ruleDescModal').on('hidden.bs.modal', function () {
+                    $(this).remove();
+                });
+            }
+        }
+
+        // 保存小项
+        function saveItems() {
+            var items = [];
+            var isValid = true;
+            $('#item-tbody tr').each(function(index) {
+                var itemName = $(this).find("input[name='itemName']").val();
+                if (!itemName) {
+                    $.modal.alertWarning("第" + (index+1) + "行小项名称不能为空");
+                    isValid = false;
+                    return false;
+                }
+
+                // 获取最小分值和最大分值
+                var scoreMin = $(this).find("input[name='scoreMin']").val();
+                var scoreMax = $(this).find("input[name='scoreMax']").val();
+
+                var item = {
+                    itemId: $(this).find("input[name='itemId']").val() || null,
+                    itemName: itemName,
+                    ruleDesc: $(this).find("input[name='ruleDesc']").val() || "",
+                    isRelated: $(this).find("select[name='isRelated']").val() || "0",
+                    scoreMin: scoreMin ? parseInt(scoreMin) : null,
+                    scoreMax: scoreMax ? parseInt(scoreMax) : null,
+                    sort: index + 1
+                };
+                items.push(item);
+            });
+            if (!isValid) {
+                return;
+            }
+            // 将数据传递回add页面
+            if (addWindow && addWindow.setCategoryItems) {
+                addWindow.setCategoryItems(categoryIndex, items);
+                $.modal.msgSuccess("小项配置已保存");
+                closeItem();
+            } else {
+                // 如果 addWindow 不可用，尝试使用 parent
+                if (parent && parent.setCategoryItems) {
+                    parent.setCategoryItems(categoryIndex, items);
+                    $.modal.msgSuccess("小项配置已保存");
+                    closeItem();
+                } else {
+                    $.modal.alertError("无法找到父页面，请检查页面层级结构");
+                }
+            }
+        }
+        
+        // 关闭页面
+        function closeItem() {
+            var index = parent.layer.getFrameIndex(window.name);
+            parent.layer.close(index);
+        }
+    </script>
+</body>
+</html>

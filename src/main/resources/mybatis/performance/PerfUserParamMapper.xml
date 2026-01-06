@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.performance.mapper.PerfUserParamMapper">
+    
+    <resultMap type="PerfUserParam" id="PerfUserParamResult">
+        <result property="id"    column="id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="userName"    column="user_name"    />
+        <result property="loginName"    column="login_name"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="postName"    column="post_name"    />
+        <result property="paramRank"    column="param_rank"    />
+        <result property="paramPost"    column="param_post"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="postId"    column="post_id"    />
+    </resultMap>
+
+    <sql id="selectPerfUserParamVo">
+        select u.user_id user_id, u.user_name user_name, u.login_name login_name, u.dept_id dept_id, d.dept_name dept_name,
+               ep1.param_rank param_rank, ep1.param_post param_post, group_concat(p.post_name separator '、') post_name
+        from sys_user u left join sys_dept d on u.dept_id = d.dept_id
+                        left join vip_employee_param ep1 on u.user_id = ep1.user_id
+                        left join vip_employee_post ep2 on u.user_id = ep2.user_id
+                        left join vip_post p on ep2.post_id = p.post_id
+    </sql>
+
+    <select id="selectPerfUserParamList" parameterType="PerfUserParam" resultMap="PerfUserParamResult">
+        <include refid="selectPerfUserParamVo"/>
+        <where>
+            u.del_flag = 0
+            <if test="userId != null "> and u.user_id = #{userId}</if>
+            <if test="paramRank != null  and paramRank != ''"> and ep1.param_rank = #{paramRank}</if>
+            <if test="paramPost != null  and paramPost != ''"> and ep1.param_post = #{paramPost}</if>
+            <if test="deptName != null  and deptName != ''"> and d.dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
+            <if test="deptId != null "> and (d.dept_id = #{deptId} or d.parent_id = #{deptId} or d.ancestors like concat(#{deptId},'%'))</if>
+            <if test="postId != null "> and ep2.post_id = #{postId}</if>
+        </where>
+        group by u.user_id, u.user_name, u.login_name, u.dept_id, d.dept_name, ep1.param_rank, ep1.param_post
+        order by d.dept_id asc, u.user_id asc
+    </select>
+
+    <select id="selectPerfUserParamListOnly" parameterType="PerfUserParam" resultMap="PerfUserParamResult">
+        select id, user_id, param_rank, param_post, create_by, create_time, update_by, update_time
+        from vip_employee_param
+        <where>
+            <if test="userId != null "> and user_id = #{userId}</if>
+            <if test="paramRank != null  and paramRank != ''"> and param_rank = #{paramRank}</if>
+            <if test="paramPost != null  and paramPost != ''"> and param_post = #{paramPost}</if>
+        </where>
+    </select>
+
+
+    <select id="selectPerfUserParamById" parameterType="Long" resultMap="PerfUserParamResult">
+        <include refid="selectPerfUserParamVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertPerfUserParam" parameterType="PerfUserParam">
+        insert into vip_employee_param
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="paramRank != null">param_rank,</if>
+            <if test="paramPost != null">param_post,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="paramRank != null">#{paramRank},</if>
+            <if test="paramPost != null">#{paramPost},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <insert id="batchInsertPerfUserParam" parameterType="list">
+        INSERT INTO vip_employee_param
+        <foreach collection="list" item="item" index="index" separator=",">
+            <if test="index == 0">
+                <trim prefix="(" suffix=")" suffixOverrides=",">
+                    <if test="item.id != null">id,</if>
+                    <if test="item.userId != null">user_id,</if>
+                    <if test="item.paramRank != null">param_rank,</if>
+                    <if test="item.paramPost != null">param_post,</if>
+                    <if test="item.createBy != null">create_by,</if>
+                    <if test="item.createTime != null">create_time,</if>
+                </trim>
+            </if>
+        </foreach>
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="item.id != null">#{item.id},</if>
+                <if test="item.userId != null">#{item.userId},</if>
+                <if test="item.paramRank != null">#{item.paramRank},</if>
+                <if test="item.paramPost != null">#{item.paramPost},</if>
+                <if test="item.createBy != null">#{item.createBy},</if>
+                <if test="item.createTime != null">#{item.createTime},</if>
+            </trim>
+        </foreach>
+    </insert>
+
+    <update id="updatePerfUserParam" parameterType="PerfUserParam">
+        update vip_employee_param
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="paramRank != null">param_rank = #{paramRank},</if>
+            <if test="paramPost != null">param_post = #{paramPost},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePerfUserParamById" parameterType="Long">
+        delete from vip_employee_param where id = #{id}
+    </delete>
+
+    <delete id="deletePerfUserParamByIds" parameterType="String">
+        delete from vip_employee_param where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

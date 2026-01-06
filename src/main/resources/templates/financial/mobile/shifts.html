@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <th:block th:include="include :: header('季度倒班汇总审批')" />
+    <title>季度倒班汇总审批</title>
+    <link type="text/css" th:href="@{/css/mobile.css}" rel="stylesheet"/>
+</head>
+<body class="gray-bg">
+<div class="container">
+    <h2 style="color: #4682b4;">季度倒班汇总审批</h2> <!-- 标题颜色为蓝色 -->
+    <form>
+        <label>申请人:</label>
+        <input type="text" th:value="#{finOvertime.createBy}" id="createBy" readonly>
+        <label>申请时间:</label>
+        <input type="text" th:value="#{finOvertime.createTime}" id="createTime" readonly>
+        <label>申请部门:</label>
+        <input type="text" th:value="#{finOvertime.deptName}" id="deptName" readonly>
+        <label>倒班人员及时间:</label>
+        <textarea style="min-height: 100px;" id="overtime" readonly></textarea>
+        <label>倒班事由:</label>
+        <textarea style="min-height: 100px;" id="content" readonly></textarea>
+        <div class="attachment">
+            <label>附件:</label>
+            <a href="javascript:viewFile();">点击查看附件</a>
+        </div>
+    </form>
+    <div id="flowLine" class="process-nodes">
+        <h3 style="color: #4682b4;">流程节点:</h3> <!-- 标题颜色为蓝色 -->
+    </div>
+    <div class="button-container">
+        <button onclick="submit()" id="submitBtn" style="display: none" type="button">通过</button>
+        <button onclick="back()" id="backBtn" class="cancel" style="display: none" type="button">退回</button>
+    </div>
+</div>
+<th:block th:include="include :: footer" />
+<script th:src="@{/js/plugins/flowLine/mobile.min.js}"></script>
+<script th:inline="javascript">
+    var prefix = ctx + "financial/mobile";
+    var finOvertime = [[${finOvertime}]];
+    //流程操作标识
+    var canOperate = [[${canOperate}]];
+    //退回权限（高级别操作权限）
+    var canBack = [[${canBack}]];
+    //流程操作记录
+    var recLines = [[${recLines}]];
+    //终极节点标识（无需选择审批人）
+    var hasFinal = [[${hasFinal}]];
+    var conRecLines = [[${conRecLines}]];
+
+    if (canOperate) {
+        $("#submitBtn").show();
+    }
+    if (canOperate && canBack){
+        $("#backBtn").show();
+        $("#submitBtn").show();
+    }
+
+    if (!recLines){
+        getUserNameByCode();
+    }
+
+    //基本信息
+    $("#createBy").val(finOvertime.createBy);
+    $("#createTime").val(finOvertime.createTime);
+    $("#deptName").val(finOvertime.deptName);
+    $("#overtime").text(finOvertime.updateBy);
+    $("#content").text(finOvertime.remark);
+
+    //流程图
+    generateFlowLine(recLines, conRecLines, false);
+
+    //提交审核
+    function submit() {
+        doSubmitFlow(ctx, recLines, conRecLines, finOvertime, "季度倒班汇总审批", hasFinal, function (res) {
+            $("#submitBtn").hide();
+            $("#backBtn").hide();
+            generateFlowLine(recLines, conRecLines, true);
+            $.modal.msgWarning("操作成功");
+        });
+    }
+
+    //退回
+    function back() {
+        backHandler(ctx, recLines, conRecLines, finOvertime, "季度倒班汇总审批", hasFinal, function (res) {
+            $("#submitBtn").hide();
+            $("#backBtn").hide();
+            conRecLines = res["conRecLines"];
+            conRecLines.unshift({"operateBy":"申请人"});
+            hasFinal = res["hasFinal"];
+            generateFlowLine(recLines, conRecLines, true);
+            $.modal.msgWarning("操作成功");
+        })
+    }
+
+    //查看附件
+    function viewFile() {
+        downloadFile(finOvertime, "overtime", function (result) {
+            if (result.code == web_status.SUCCESS) {
+                window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+            } else if (result.code == web_status.WARNING) {
+                $.modal.alertWarning(result.msg)
+            } else {
+                $.modal.alertError(result.msg);
+            }
+        })
+    }
+</script>
+</body>
+</html>

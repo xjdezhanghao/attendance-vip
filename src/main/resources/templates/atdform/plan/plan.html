@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('排班计划列表')"/>
+    <style type="text/css">
+        #bootstrap-table td, #bootstrap-table th, #bootstrap-table1 td, #bootstrap-table1 th {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            word-break:keep-all;
+        }
+        .fixed-table-container:has(#bootstrap-table){
+            height: 78vh;
+        }
+        .pagination-detail{
+            margin-bottom: 0;
+        }
+        .fixed-columns td, .fixed-columns th {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            word-break:keep-all;
+        }
+        .editable-click, a.editable-click, a.editable-click:hover {
+            color: #676a6c;
+        }
+        .checkbox-custom {
+            position: relative;
+            padding: 0 15px 0 25px;
+            margin-bottom: 7px;
+            display: inline-block;
+        }
+        .checkbox-custom input[type="checkbox"] {
+            position: absolute;
+            cursor: pointer;
+            z-index: 2;
+            margin: -6px 0 0 0;
+            top: 50%;
+            left: 3px;
+        }
+        .checkbox-custom label {
+            cursor: pointer;
+            line-height: 1.2;
+            font-weight: normal;
+            margin-bottom: 0;
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="col-sm-12 search-collapse">
+            <form id="formId">
+                <div class="select-list">
+                    <ul style="display: flex; list-style: none; padding: 0;">
+                        <li>
+                            <label>部门：</label>
+                            <input type="text" id="deptName" name="deptName" autocomplete="off"/>
+                        </li>
+                        <li>
+                            <label>姓名：</label>
+                            <input type="text" id="userName" name="userName" autocomplete="off"/>
+                        </li>
+                        <li>
+                            <label>日期：</label>
+                            <div class="input-daterange input-group">
+                                <input type="text" class="input-sm form-control " id="startDate" placeholder="年-月-日"
+                                       name="params[beginTime]" autocomplete="off" th:value="*{start}"/>
+                                <span class="input-group-addon">到</span>
+                                <input type="text" class="input-sm form-control" id="endDate" placeholder="年-月-日"
+                                       name="params[beginTime]" autocomplete="off" th:value="*{end}"/>
+                            </div>
+                        </li>
+                        <li>
+                            <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i
+                                    class="fa fa-search"></i>&nbsp;搜索</a>
+                            <a class="btn btn-warning btn-rounded btn-sm" onclick="thisReset()"><i
+                                    class="fa fa-refresh"></i>&nbsp;重置</a>
+                        </li>
+                    </ul>
+                </div>
+            </form>
+        </div>
+
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <div class="checkbox-custom">
+                <input type="checkbox" id="autoGenerate" name="autoGenerate"> <label for="autoGenerate">自动生成后续安排</label>
+            </div>
+        </div>
+        <div class="col-sm-12 select-table1 table-striped">
+            <table id="bootstrap-table">
+            </table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<!-- CSS 样式 -->
+<th:block th:include="include :: bootstrap-editable-css"/>
+<!-- JS 脚本 -->
+<th:block th:include="include :: bootstrap-table-editable-js"/>
+<th:block th:include="include :: bootstrap-table-fixed-columns-js" />
+<!-- <script th:inline="javascript" >-->
+<script th:inline="javascript">
+    var prefix = ctx + "atdform/plan";
+    var start = [[${start}]];
+    var end = [[${end}]];
+    var canEdit = [[${canEdit}]];
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            exportUrl: prefix + "/export",
+            modalName: "排班计划",
+            pagination: false,
+            flag: true,
+            clickEdit: true,
+            fixedColumns: true,
+            fixedNumber: 1,
+            height: '70%',
+            contentType: 'application/json',
+            queryParams: function (params) {
+                return {
+                    startDate: $("#startDate").val(),
+                    endDate: $("#endDate").val(),
+                    deptName: $("#deptName").val(),
+                    userName: $("#userName").val()
+                };
+            },
+            onEditableSave: onEditableSave,
+            columns: [
+                //以下三个花括号因为我有公用的三列，如果你没有就全删了
+                {
+                    field: 'id',
+                    title: '主键',
+                    visible: false
+                },
+                {
+                    field: 'personName',
+                    title: '姓名',
+                    sortable: false
+                },
+                {
+                    field: 'date',
+                    title: '日期',
+                    sortable: false
+                }
+
+            ]
+        };
+
+        //这里遍历返回的表头集合，并组装到options里
+        // var dateColumns=['2022-07-06','2022-07-07','2022-07-08']
+        var stime0 = $("#startDate").val();
+        var etime0 = $("#endDate").val();
+        var stime;
+        var etime;
+        if (!!stime0) {
+            stime = stime0;
+            etime = etime0;
+        } else {
+            stime = getCurrentMonthTime()[0];
+            etime = getCurrentMonthTime()[1];
+        }
+        //debugger;
+        var dateColumns = getdiffdate(stime, etime);
+        dateColumns.forEach(function (value, index) {
+            var param = {};
+            param.field = value;
+            param.title = value;
+            if (canEdit){
+                param.editable = {
+                    type: 'text',
+                    placeholder: '1:白班 2:倒班 3:其他 0:取消'
+                };
+            } else {
+                param.editable = false;
+            }
+            options.columns.push(param);
+        });
+        $.table.init(options);
+        $.flag = true;
+
+    });
+
+    function onEditableSave (field, row, rowIndex, oldValue, $el) {
+        if (rowIndex == 0) {
+            row[field] = oldValue;
+            return;
+        };
+        var userId = row.id;
+        var planDate = field;
+        var newValue = row[field];
+        newValue = newValue.replaceAll(" ", "");
+        var enable = "0";
+        if (newValue != "" && newValue != '否'){
+            if (newValue == "1"){
+                enable = '1';
+                row[field] = "白"
+            } else if (newValue == "2"){
+                enable = '2';
+                row[field] = "倒"
+            } else if (newValue == "3") {
+                enable = '3';
+                row[field] = "另"
+            } else {
+                enable = '0';
+                row[field] = ""
+            }
+        } else {
+            row[field] = ""
+        }
+        var autoGenerate = $("#autoGenerate").prop("checked");
+        if (autoGenerate){
+            layer.confirm("当前勾选了自动生成后续安排，如果排班的日期在今天之后，则会按照行政班工作日上班、倒班上1休2的规则自动生成该时间段内的后续排班，是否继续？", {
+                icon: 0,
+                title: "自动排班提示",
+                btn: ['确认', '取消'],
+                offset: ['30%'],
+                btn2: function () {
+                    $.table.search();
+                }
+            }, function (index) {
+                $.modal.loading("正在处理，请稍等...");
+                $.ajax({
+                    type: "POST",
+                    url: prefix + "/process",
+                    data: {userId: userId, planDate: planDate, enable: enable, endDate: $("#endDate").val(), autoGenerate: autoGenerate},
+                    success: function(result) {
+                        $.modal.closeLoading();
+                        $.table.search();
+                    },
+                    error: function(error) {
+                        $.modal.closeLoading();
+                        $.modal.alertWarning("服务器错误");
+                        row[field] = oldValue;
+                    }
+                });
+                layer.close(index);
+            });
+        } else {
+            $.modal.loading("正在处理，请稍等...");
+            $.ajax({
+                type: "POST",
+                url: prefix + "/process",
+                data: {userId: userId, planDate: planDate, enable: enable, endDate: $("#endDate").val(), autoGenerate: autoGenerate},
+                success: function(result) {
+                    $.modal.closeLoading();
+                },
+                error: function(error) {
+                    $.modal.closeLoading();
+                    $.modal.alertWarning("服务器错误");
+                    row[field] = oldValue;
+                }
+            });
+        }
+        //alert("字段名：" + field + "，当前值：" + row[field]  + "，旧值：" + oldValue);
+    }
+
+    function getCurrentMonthTime() {//当月的时间 如：今天是8.8 则获取8.1-8.8时间
+        var TimeNow = new Date();
+        var startDay1 = new Date(TimeNow.getFullYear(), TimeNow.getMonth(), 1);//当月1号
+        var endDay1 = new Date(TimeNow.getFullYear(), TimeNow.getMonth(), TimeNow.getDate(), 23, 59, 59);//23:59:59 将结束时间改成前一天
+        var startDay = date_formate(startDay1);
+        var endDay = date_formate(endDay1);
+        return [startDay, endDay];
+    }
+
+    function date_formate(time) {
+        var date = new Date(time);
+        var y = date.getFullYear();
+        var m = date.getMonth() + 1;
+        m = m < 10 ? ('0' + m) : m;
+        var d = date.getDate();
+        d = d < 10 ? ('0' + d) : d;
+        var time_new = y + '-' + m + '-' + d;  //这里如果不需要小时 分  后边的可以不需要拼接
+        return time_new;
+    }
+
+    //获取两日期之间日期列表函数
+    function getdiffdate(stime, etime) {
+        //初始化日期列表，数组
+        var diffdate = new Array();
+        var i = 0;
+        //开始日期小于等于结束日期,并循环
+        while (stime <= etime) {
+            diffdate[i] = stime;
+
+            //获取开始日期时间戳
+            var stime_ts = new Date(stime).getTime();
+
+            //增加一天时间戳后的日期
+            var next_date = stime_ts + (24 * 60 * 60 * 1000);
+
+            //拼接年月日，这里的月份会返回（0-11），所以要+1
+            var next_dates_y = new Date(next_date).getFullYear() + '-';
+            var next_dates_m = (new Date(next_date).getMonth() + 1 < 10) ? '0' + (new Date(next_date).getMonth() + 1) + '-' : (new Date(next_date).getMonth() + 1) + '-';
+            var next_dates_d = (new Date(next_date).getDate() < 10) ? '0' + new Date(next_date).getDate() : new Date(next_date).getDate();
+
+            stime = next_dates_y + next_dates_m + next_dates_d;
+
+            //增加数组key
+            i++;
+        }
+        return diffdate;
+    }
+
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+        var startDate = laydate.render({
+            elem: '#startDate',
+            max: $('#endDate').val(),
+            theme: 'molv',
+            trigger: 'click',
+            done: function(value, date) {
+                // 结束时间大于开始时间
+                if (value !== '') {
+                    endDate.config.min.year = date.year;
+                    endDate.config.min.month = date.month - 1;
+                    endDate.config.min.date = date.date;
+                } else {
+                    endDate.config.min.year = '';
+                    endDate.config.min.month = '';
+                    endDate.config.min.date = '';
+                }
+            }
+        });
+
+        var endDate = laydate.render({
+            elem: '#endDate',
+            min: $('#startDate').val(),
+            theme: 'molv',
+            trigger: 'click',
+            done: function(value, date) {
+                // 开始时间小于结束时间
+                if (value !== '') {
+                    startDate.config.max.year = date.year;
+                    startDate.config.max.month = date.month - 1;
+                    startDate.config.max.date = date.date;
+                } else {
+                    startDate.config.max.year = '';
+                    startDate.config.max.month = '';
+                    startDate.config.max.date = '';
+                }
+            }
+        });
+    });
+
+    function thisReset() {
+        $("#startDate").val(start);
+        $("#endDate").val(end);
+        $("#deptname").val('');
+        $("#username").val('');
+        $.table.search();
+    }
+
+</script>
+</body>
+</html>
+
+

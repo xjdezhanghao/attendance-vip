@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+	<th:block th:include="include :: header('申请表')" />
+    <th:block th:include="include :: datetimepicker-css" />
+</head>
+<body class="gray-bg">
+    <div class="main-content">
+        <form id="form-add" class="form-horizontal">
+            <h4 class="form-header h4">加班申请表</h4>
+            <div class="row">
+            	<div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">名称：</label>
+                        <div class="col-sm-8">
+                            <input name="recname" class="form-control" type="text" maxlength="30" readonly="" th:field="*{finOvertime.recname}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">部门：</label>
+                        <div class="col-sm-8">
+                            <input name="deptName" class="form-control" type="text" maxlength="30" readonly="" th:field="*{finOvertime.deptName}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">申请人：</label>
+                        <div class="col-sm-8">
+                            <input name="createBy" class="form-control" type="text" maxlength="30" readonly="" th:field="*{finOvertime.createBy}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label is-required">申请时间：</label>
+                        <div class="col-sm-8">
+                            <input name="createTime" class="form-control" type="text" maxlength="30" readonly="" th:value="${#dates.format(finOvertime.createTime, 'yyyy-MM-dd HH:mm:ss')}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="form-header h4">法定节假日加班</h4>
+            <div class="row">
+                <div class="col-sm-12">
+                    <button type="button" class="btn btn-white btn-sm" onclick="addColumn('bootstrap-table')"><i class="fa fa-plus"> 增加</i></button>
+                    <button type="button" class="btn btn-white btn-sm" onclick="sub.delColumn()"><i class="fa fa-minus"> 删除</i></button>
+                    <div class="col-sm-12 select-table table-striped">
+					    <table id="bootstrap-table"></table>
+					</div>
+                </div>
+            </div>
+
+            <h4 class="form-header h4">非法定节假日加班</h4>
+            <div class="row">
+                <div class="col-sm-12">
+                    <button type="button" class="btn btn-white btn-sm" onclick="addColumn('bootstrap-table2')"><i class="fa fa-plus"> 增加</i></button>
+                    <button type="button" class="btn btn-white btn-sm" onclick="sub.delColumn()"><i class="fa fa-minus"> 删除</i></button>
+                    <div class="col-sm-12 select-table table-striped">
+                        <table id="bootstrap-table2"></table>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+      
+    <div class="row">
+        <div class="col-sm-offset-5 col-sm-10">
+            <button type="button" class="btn btn-sm btn-primary" onclick="submitHandler()"><i class="fa fa-check"></i>保 存</button>&nbsp;
+            <button type="button" class="btn btn-sm btn-danger" onclick="closeItem()"><i class="fa fa-reply-all"></i>关 闭 </button>
+        </div>
+    </div>
+    <th:block th:include="include :: footer" />
+    <th:block th:include="include :: datetimepicker-js" />
+    <script th:src="@{/js/jquery.tmpl.js}"></script>
+	<script th:inline="javascript">
+        var prefix = ctx + "financial/overtime";
+        var two = [[${two}]];
+        var three = [[${three}]];
+
+	    $(function() {
+	    	// 初始化数据, 可以由后台传过来
+		    var options1 = {
+                data: three,
+                pagination: false,
+		        showSearch: false,
+                showRefresh: false,
+                showToggle: false,
+                showColumns: false,
+                sidePagination: "client",
+                id: "bootstrap-table",
+		        columns: [{
+		            checkbox: true,
+                    width: 2,
+                    widthUnit: '%',
+		        },
+		        {
+		        	field: 'index',
+		        	align: 'center',
+		        	title: "序号",
+                    width: 3,
+                    widthUnit: '%',
+                    formatter: function (value, row, index) {
+                    	var columnIndex = $.common.sprintf("<input type='hidden' name='index' value='%s'>", $.table.serialNumber(index));
+                    	var columnId = $.common.sprintf("<input type='hidden' name='three[%s].id' value='%s'>", index, row.id);
+                    	return columnIndex + $.table.serialNumber(index) + columnId;
+                    }
+                },
+		        {
+		            field: 'userName',
+		            align: 'center',
+		            title: '姓名',
+                    width: 12,
+                    widthUnit: '%',
+		            formatter: function(value, row, index) {
+		            	var html = $.common.sprintf("<input class='form-control' type='text' name='three[%s].userName' value='%s'>", index, value);
+		        		return html;
+                    }
+		        },
+		        {
+		            field: 'deptName',
+		            align: 'center',
+		            title: '部门',
+                    width: 15,
+                    widthUnit: '%',
+		            formatter: function(value, row, index) {
+		            	var html = $.common.sprintf("<input class='form-control' type='text' name='three[%s].deptName' value='%s'>", index, value);
+		        		return html;
+                    }
+		        },
+		        {
+		            field: 'overtime',
+		            align: 'center',
+		            title: '加班日期',
+                    width: 12,
+                    widthUnit: '%',
+		            formatter: function(value, row, index) {
+		            	var html = $.common.sprintf("<input class='form-control overtime-picker' type='text' name='three[%s].overtime' value='%s' placeholder='yyyy-MM-dd'>", index, value);
+		        		return html;
+                    }
+		        },
+		        {
+		            field: 'content',
+		            align: 'center',
+		            title: '加班事由',
+		            formatter: function(value, row, index) {
+		            	var html = $.common.sprintf("<input class='form-control' type='text' name='three[%s].content' value='%s'>", index, value);
+		        		return html;
+                    }
+		        },
+                {
+                    field: 'idcard',
+                    align: 'center',
+                    title: '身份证',
+                    width: 16,
+                    widthUnit: '%',
+                    formatter: function(value, row, index) {
+                        var html = $.common.sprintf("<input class='form-control' type='text' name='three[%s].idcard' value='%s'>", index, value);
+                        return html;
+                    }
+                }]
+		    };
+		    $.table.init(options1);
+
+            var options2 = {
+                data: two,
+                pagination: false,
+                showSearch: false,
+                showRefresh: false,
+                showToggle: false,
+                showColumns: false,
+                id: "bootstrap-table2",
+                sidePagination: "client",
+                columns: [{
+                    checkbox: true,
+                    width: 2,
+                    widthUnit: '%',
+                },
+                    {
+                        field: 'index',
+                        align: 'center',
+                        title: "序号",
+                        width: 3,
+                        widthUnit: '%',
+                        formatter: function (value, row, index) {
+                            var columnIndex = $.common.sprintf("<input type='hidden' name='index' value='%s'>", $.table.serialNumber(index));
+                            var columnId = $.common.sprintf("<input type='hidden' name='two[%s].id' value='%s'>", index, row.id);
+                            return columnIndex + $.table.serialNumber(index) + columnId;
+                        }
+                    },
+                    {
+                        field: 'userName',
+                        align: 'center',
+                        title: '姓名',
+                        width: 12,
+                        widthUnit: '%',
+                        formatter: function(value, row, index) {
+                            var html = $.common.sprintf("<input class='form-control' type='text' name='two[%s].userName' value='%s'>", index, value);
+                            return html;
+                        }
+                    },
+                    {
+                        field: 'deptName',
+                        align: 'center',
+                        title: '部门',
+                        width: 15,
+                        widthUnit: '%',
+                        formatter: function(value, row, index) {
+                            var html = $.common.sprintf("<input class='form-control' type='text' name='two[%s].deptName' value='%s'>", index, value);
+                            return html;
+                        }
+                    },
+                    {
+                        field: 'overtime',
+                        align: 'center',
+                        title: '加班日期',
+                        width: 12,
+                        widthUnit: '%',
+                        formatter: function(value, row, index) {
+                            var html = $.common.sprintf("<input class='form-control overtime-picker' type='text' name='two[%s].overtime' value='%s' placeholder='yyyy-MM-dd'>", index, value);
+                            return html;
+                        }
+                    },
+                    {
+                        field: 'content',
+                        align: 'center',
+                        title: '加班事由',
+                        formatter: function(value, row, index) {
+                            var html = $.common.sprintf("<input class='form-control' type='text' name='two[%s].content' value='%s'>", index, value);
+                            return html;
+                        }
+                    },
+                    {
+                        field: 'idcard',
+                        align: 'center',
+                        title: '身份证',
+                        width: 16,
+                        widthUnit: '%',
+                        formatter: function(value, row, index) {
+                            var html = $.common.sprintf("<input class='form-control' type='text' name='two[%s].idcard' value='%s'>", index, value);
+                            return html;
+                        }
+                    }]
+            };
+            $.table.init(options2);
+
+            $(".overtime-picker").datetimepicker({
+                format: "yyyy-mm-dd",
+                minView: "month",
+                autoclose: true
+            });
+		});
+	    
+	    /* 主子表-提交 */
+        function submitHandler(index, layero){
+        	var data = $("#form-add").serializeArray();
+        	//alert(JSON.stringify(data))
+            console.info(JSON.stringify(data))
+			//$.operate.saveModal("/demo/operate/customer/add", data);
+        }
+        
+        function addColumn(type) {
+        	var row = {
+            	userName: "",
+            	deptName: "",
+            	overtime: "",
+            	content: "",
+            	idcard: "",
+            }
+        	sub.addColumn(row, type);
+        }
+        
+        $("#bootstrap-table").on("post-body.bs.table", function (e, args) {
+        	$("input[name$='date']").datetimepicker({
+	            format: "yyyy-mm-dd",
+	            minView: "month",
+	            autoclose: true,
+	            pickerPosition:'top-right'
+	        });
+    	});
+
+
+    </script>
+</body>
+</html>
+
+<!-- 商品类型 -->
+<script id="goodsTypeTpl" type="text/x-jquery-tmpl">
+<div>
+<select class='form-control' name='goods[${index}].type'>
+    <option value="">所有</option>
+    <option value="0" {{if type==="0"}}selected{{/if}}>寒性</option>
+    <option value="1" {{if type==="1"}}selected{{/if}}>热性</option>
+</select>
+</div>
+</script>

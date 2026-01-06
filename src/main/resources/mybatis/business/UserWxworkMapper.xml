@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.business.mapper.UserWxworkMapper">
+
+	<resultMap type="com.attendance.project.business.domain.UserWxwork" id="UserWxworkResult">
+		<result property="login_name"        column="login_name"/>
+		<result property="user_name"        column="user_name"/>
+		<result property="touser"        column="touser"/>
+
+	</resultMap>
+	
+	<sql id="selectWxWorkUserVo">
+        select *
+		from user_wxwork
+    </sql>
+	
+	<select id="selectWxWorkUserList" parameterType="UserWxwork" resultMap="UserWxworkResult">
+		<include refid="selectWxWorkUserVo"/>
+		<where>
+			<if test="login_name != null and login_name != ''">
+				AND login_name = #{login_name}
+			</if>
+			<if test="user_name != null and user_name != ''">
+				AND user_name like concat('%', #{user_name}, '%')
+			</if>
+			<if test="touser != null and touser != ''">
+				AND touser = #{touser}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectWxWorkUserByLoginName" parameterType="String" resultMap="UserWxworkResult">
+	    select *
+		from user_wxwork
+		where login_name = #{login_name}
+	</select>
+
+ 	<update id="updateWxWorkUser" parameterType="UserWxwork">
+ 		update user_wxwork
+ 		<set>
+ 			<if test="user_name != null and user_name != ''">user_name = #{user_name},</if>
+			<if test="touser != null ">touser = #{touser}</if>
+		</set>
+ 		where login_name = #{login_name}
+	</update>
+ 	
+ 	<insert id="insertWxWorkUser" parameterType="UserWxwork">
+ 		insert into user_wxwork(
+			<trim suffixOverrides=",">
+				<if test="login_name != null and login_name != ''">login_name,</if>
+				<if test="user_name != null and user_name != ''">user_name,</if>
+				<if test="touser != null and touser != ''">touser, </if>
+			</trim>
+ 		)values(
+			<trim suffixOverrides=",">
+				<if test="login_name != null and login_name != ''">#{login_name},</if>
+				<if test="user_name != null and user_name != ''">#{user_name},</if>
+				<if test="touser != null and touser != ''">#{touser},</if>
+			</trim>
+ 		)
+	</insert>
+
+	<delete id="deleteUserWxworkByLoginName" parameterType="UserWxwork">
+		delete from user_wxwork where login_name = #{login_name}
+	</delete>
+
+
+</mapper> 

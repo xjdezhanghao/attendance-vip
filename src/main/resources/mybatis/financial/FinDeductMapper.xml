@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.financial.mapper.FinDeductMapper">
+    
+    <resultMap type="FinDeduct" id="FinDeductResult">
+        <result property="id"    column="id"    />
+        <result property="recname"    column="recname"    />
+        <result property="rectime"    column="rectime"    />
+        <result property="rectype"    column="rectype"    />
+        <result property="deptid"    column="deptid"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="filepath"    column="filepath"    />
+    </resultMap>
+
+    <sql id="selectFinDeductVo">
+        select id, recname, rectime, rectype, deptid, dept_name, create_by, create_time, filepath from fin_deduct
+    </sql>
+
+    <select id="selectFinDeductList" parameterType="FinDeduct" resultMap="FinDeductResult">
+        select dt.id, dt.recname, dt.rectime, dt.rectype, dt.deptid, dt.dept_name, u.user_name create_by, dt.create_time, dt.filepath from fin_deduct dt
+        left join sys_dept d on dt.deptid = d.dept_id
+        left join sys_user u on dt.create_by = u.login_name
+        <where>
+            <if test="recname != null  and recname != ''"> and dt.recname like concat('%', #{recname}, '%')</if>
+            <if test="rectime != null "> and dt.rectime = #{rectime}</if>
+            <if test="rectype != null  and rectype != ''"> and dt.rectype = #{rectype}</if>
+            <if test="params.beginTime != null and params.beginTime != ''">
+                AND date_format(dt.rectime,'%y%m%d') &gt;= date_format(#{params.beginTime},'%y%m%d')
+            </if>
+            <if test="params.endTime != null and params.endTime != ''">
+                AND date_format(dt.rectime,'%y%m%d') &lt;= date_format(#{params.endTime},'%y%m%d')
+            </if>
+            <if test="deptName != null  and deptName != ''"> and dt.dept_name like concat('%', #{deptName}, '%')</if>
+            ${params.dataScope}
+        </where>
+        order by create_time desc
+    </select>
+    
+    <select id="selectFinDeductById" parameterType="Long" resultMap="FinDeductResult">
+        <include refid="selectFinDeductVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertFinDeduct" parameterType="FinDeduct">
+        insert into fin_deduct
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="recname != null">recname,</if>
+            <if test="rectime != null">rectime,</if>
+            <if test="rectype != null">rectype,</if>
+            <if test="deptid != null">deptid,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="filepath != null">filepath,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="recname != null">#{recname},</if>
+            <if test="rectime != null">#{rectime},</if>
+            <if test="rectype != null">#{rectype},</if>
+            <if test="deptid != null">#{deptid},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="filepath != null">#{filepath},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFinDeduct" parameterType="FinDeduct">
+        update fin_deduct
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="recname != null">recname = #{recname},</if>
+            <if test="rectime != null">rectime = #{rectime},</if>
+            <if test="rectype != null">rectype = #{rectype},</if>
+            <if test="deptid != null">deptid = #{deptid},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="filepath != null">filepath = #{filepath},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFinDeductById" parameterType="Long">
+        delete from fin_deduct where id = #{id}
+    </delete>
+
+    <delete id="deleteFinDeductByIds" parameterType="String">
+        delete from fin_deduct where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

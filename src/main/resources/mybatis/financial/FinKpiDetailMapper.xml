@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.financial.mapper.FinKpiDetailMapper">
+    
+    <resultMap type="FinKpiDetail" id="FinKpiDetailResult">
+        <result property="id"    column="id"    />
+        <result property="userid"    column="userid"    />
+        <result property="userName"    column="user_name"    />
+        <result property="deptid"    column="deptid"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="jxdj"    column="jxdj"    />
+        <result property="jljx"    column="jljx"    />
+        <result property="kfjx"    column="kfjx"    />
+        <result property="khzf"    column="khzf"    />
+        <result property="jlf"    column="jlf"    />
+        <result property="kff"    column="kff"    />
+        <result property="content"    column="content"    />
+        <result property="fjzb"    column="fjzb"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="pid"    column="pid"    />
+    </resultMap>
+
+    <sql id="selectFinKpiDetailVo">
+        select id, userid, user_name, deptid, dept_name, jxdj, jljx, kfjx, khzf, jlf, kff, content, fjzb, create_by, create_time, pid from fin_kpi_detail
+    </sql>
+
+    <select id="selectFinKpiDetailList" parameterType="FinKpiDetail" resultMap="FinKpiDetailResult">
+        <include refid="selectFinKpiDetailVo"/>
+        <where>  
+            <if test="userid != null "> and userid = #{userid}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="deptid != null "> and deptid = #{deptid}</if>
+            <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="jxdj != null  and jxdj != ''"> and jxdj = #{jxdj}</if>
+            <if test="jljx != null  and jljx != ''"> and jljx = #{jljx}</if>
+            <if test="kfjx != null  and kfjx != ''"> and kfjx = #{kfjx}</if>
+            <if test="khzf != null  and khzf != ''"> and khzf = #{khzf}</if>
+            <if test="jlf != null "> and jlf = #{jlf}</if>
+            <if test="kff != null  and kff != ''"> and kff = #{kff}</if>
+            <if test="content != null  and content != ''"> and content = #{content}</if>
+            <if test="fjzb != null  and fjzb != ''"> and fjzb = #{fjzb}</if>
+            <if test="pid != null "> and pid = #{pid}</if>
+        </where>
+        order by deptid asc
+    </select>
+    
+    <select id="selectFinKpiDetailById" parameterType="Long" resultMap="FinKpiDetailResult">
+        <include refid="selectFinKpiDetailVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertFinKpiDetail" parameterType="FinKpiDetail" useGeneratedKeys="true" keyProperty="id">
+        insert into fin_kpi_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="userid != null">userid,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="deptid != null">deptid,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="jxdj != null">jxdj,</if>
+            <if test="jljx != null">jljx,</if>
+            <if test="kfjx != null">kfjx,</if>
+            <if test="khzf != null">khzf,</if>
+            <if test="jlf != null">jlf,</if>
+            <if test="kff != null">kff,</if>
+            <if test="content != null">content,</if>
+            <if test="fjzb != null">fjzb,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="pid != null">pid,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="userid != null">#{userid},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="deptid != null">#{deptid},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="jxdj != null">#{jxdj},</if>
+            <if test="jljx != null">#{jljx},</if>
+            <if test="kfjx != null">#{kfjx},</if>
+            <if test="khzf != null">#{khzf},</if>
+            <if test="jlf != null">#{jlf},</if>
+            <if test="kff != null">#{kff},</if>
+            <if test="content != null">#{content},</if>
+            <if test="fjzb != null">#{fjzb},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="pid != null">#{pid},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFinKpiDetail" parameterType="FinKpiDetail">
+        update fin_kpi_detail
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userid != null">userid = #{userid},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="deptid != null">deptid = #{deptid},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="jxdj != null">jxdj = #{jxdj},</if>
+            <if test="jljx != null">jljx = #{jljx},</if>
+            <if test="kfjx != null">kfjx = #{kfjx},</if>
+            <if test="khzf != null">khzf = #{khzf},</if>
+            <if test="jlf != null">jlf = #{jlf},</if>
+            <if test="kff != null">kff = #{kff},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="fjzb != null">fjzb = #{fjzb},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="pid != null">pid = #{pid},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFinKpiDetailById" parameterType="Long">
+        delete from fin_kpi_detail where id = #{id}
+    </delete>
+
+    <delete id="deleteFinKpiDetailByIds" parameterType="String">
+        delete from fin_kpi_detail where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteFinKpiDetailByPids" parameterType="String">
+        delete from fin_kpi_detail where pid in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="batchInsertFinKpiDetail" parameterType="list">
+        INSERT INTO fin_kpi_detail
+        <foreach collection="list" item="item" index="index" separator=",">
+            <if test="index == 0">
+                <trim prefix="(" suffix=")" suffixOverrides=",">
+                    <if test="item.id != null">id,</if>
+                    <if test="item.userid != null">userid,</if>
+                    <if test="item.userName != null">user_name,</if>
+                    <if test="item.deptid != null">deptid,</if>
+                    <if test="item.deptName != null">dept_name,</if>
+                    <if test="item.jxdj != null">jxdj,</if>
+                    <if test="item.jljx != null">jljx,</if>
+                    <if test="item.kfjx != null">kfjx,</if>
+                    <if test="item.khzf != null">khzf,</if>
+                    <if test="item.jlf != null">jlf,</if>
+                    <if test="item.kff != null">kff,</if>
+                    <if test="item.fjzb != null">fjzb,</if>
+                    <if test="item.content != null">content,</if>
+                    <if test="item.createBy != null">create_by,</if>
+                    <if test="item.createTime != null">create_time,</if>
+                    <if test="item.pid != null">pid,</if>
+                </trim>
+            </if>
+        </foreach>
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="item.id != null">#{item.id},</if>
+                <if test="item.userid != null">#{item.userid},</if>
+                <if test="item.userName != null">#{item.userName},</if>
+                <if test="item.deptid != null">#{item.deptid},</if>
+                <if test="item.deptName != null">#{item.deptName},</if>
+                <if test="item.jxdj != null">#{item.jxdj},</if>
+                <if test="item.jljx != null">#{item.jljx},</if>
+                <if test="item.kfjx != null">#{item.kfjx},</if>
+                <if test="item.khzf != null">#{item.khzf},</if>
+                <if test="item.jlf != null">#{item.jlf},</if>
+                <if test="item.kff != null">#{item.kff},</if>
+                <if test="item.fjzb != null">#{item.fjzb},</if>
+                <if test="item.content != null">#{item.content},</if>
+                <if test="item.createBy != null">#{item.createBy},</if>
+                <if test="item.createTime != null">#{item.createTime},</if>
+                <if test="item.pid != null">#{item.pid},</if>
+            </trim>
+        </foreach>
+    </insert>
+</mapper>

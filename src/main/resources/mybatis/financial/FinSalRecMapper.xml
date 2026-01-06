@@ -1,0 +1,597 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.financial.mapper.FinSalRecMapper">
+    
+    <resultMap type="FinSalRec" id="FinSalRecResult">
+        <result property="id"    column="id"    />
+        <result property="userid"    column="userid"    />
+        <result property="userName"    column="user_name"    />
+        <result property="deptid"    column="deptid"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="rankCode"    column="rank_code"    />
+        <result property="rankText"    column="rank_text"    />
+        <result property="rankValue"    column="rank_value"    />
+        <result property="postCode"    column="post_code"    />
+        <result property="postText"    column="post_text"    />
+        <result property="postValue"    column="post_value"    />
+        <result property="nggz"    column="nggz"    />
+        <result property="yxqxed"    column="yxqxed"    />
+        <result property="zfbt"    column="zfbt"    />
+        <result property="dzf"    column="dzf"    />
+        <result property="gwxy"    column="gwxy"    />
+        <result property="zfbtxy"    column="zfbtxy"    />
+        <result property="gdjj"    column="gdjj"    />
+        <result property="zwbt"    column="zwbt"    />
+        <result property="grxyze"    column="grxyze"    />
+        <result property="bmjljx"    column="bmjljx"    />
+        <result property="grjljx"    column="grjljx"    />
+        <result property="grkfjx"    column="grkfjx"    />
+        <result property="sfxygz"    column="sfxygz"    />
+        <result property="jxgz2"    column="jxgz2"    />
+        <result property="yfxj"    column="yfxj"    />
+        <result property="wybt"    column="wybt"    />
+        <result property="bf"    column="bf"    />
+        <result property="bzbt"    column="bzbt"    />
+        <result property="wptxbz"    column="wptxbz"    />
+        <result property="gsjl"    column="gsjl"    />
+        <result property="qnf"    column="qnf"    />
+        <result property="yfhj"    column="yfhj"    />
+        <result property="dkylbx"    column="dkylbx"    />
+        <result property="dkyibx"    column="dkyibx"    />
+        <result property="dkgjj"    column="dkgjj"    />
+        <result property="dksds"    column="dksds"    />
+        <result property="kqkk"    column="kqkk"    />
+        <result property="kkhj"    column="kkhj"    />
+        <result property="sfgzze"    column="sfgzze"    />
+        <result property="sfgz"    column="sfgz"    />
+        <result property="gzrys"    column="gzrys"    />
+        <result property="shxts"    column="shxts"    />
+        <result property="sxts"    column="sxts"    />
+        <result property="ybts"    column="ybts"    />
+        <result property="fsjwf"    column="fsjwf"    />
+        <result property="sfhy"    column="sfhy"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="timetag"    column="timetag"    />
+        <result property="salid"    column="salid"    />
+        <result property="kqdj"    column="kqdj"    />
+        <result property="kqcd"    column="kqcd"    />
+        <result property="kqzt"    column="kqzt"    />
+
+        <result property="dksybx"    column="dksybx"    />
+        <result property="dkqynj"    column="dkqynj"    />
+        <result property="bkyl"    column="bkyl"    />
+        <result property="bkyil"    column="bkyil"    />
+        <result property="bksy"    column="bksy"    />
+        <result property="bkgjj"    column="bkgjj"    />
+        <result property="bkqynj"    column="bkqynj"    />
+        <result property="dksf"    column="dksf"    />
+        <result property="dkglwsf"    column="dkglwsf"    />
+        <result property="kgsdjsb"    column="kgsdjsb"    />
+
+        <result property="idcard"    column="idcard"    />
+        <result property="yhkh"    column="yhkh"    />
+    </resultMap>
+
+    <sql id="selectFinSalRecVo">
+        select id, userid, user_name, deptid, dept_name, rank_code, rank_text, rank_value, post_code, post_text, post_value, nggz, yxqxed, zfbt, dzf, gwxy, zfbtxy, gdjj, zwbt, grxyze, bmjljx, grjljx, grkfjx, sfxygz, jxgz2, yfxj, wybt, bf, bzbt, wptxbz, gsjl, qnf, yfhj, dkylbx, dkyibx, dkgjj, dksds, kqkk, kkhj, sfgzze, sfgz, gzrys, shxts, sxts, ybts, fsjwf, sfhy, create_by, create_time, timetag, salid, kqcd, kqzt, kqdj,
+        dksybx, dkqynj, bkyl, bkyil, bksy, bkgjj, bkqynj, dksf, dkglwsf, kgsdjsb, idcard, yhkh from fin_sal_rec
+    </sql>
+
+    <select id="selectFinSalRecList" parameterType="FinSalRec" resultMap="FinSalRecResult">
+        <include refid="selectFinSalRecVo"/>
+        <where>  
+            <if test="userid != null "> and userid = #{userid}</if>
+            <if test="userName != null  and userName != ''"> and user_name like concat('%', #{userName}, '%')</if>
+            <if test="deptid != null "> and deptid = #{deptid}</if>
+            <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="rankCode != null  and rankCode != ''"> and rank_code = #{rankCode}</if>
+            <if test="rankText != null  and rankText != ''"> and rank_text = #{rankText}</if>
+            <if test="rankValue != null  and rankValue != ''"> and rank_value = #{rankValue}</if>
+            <if test="postCode != null  and postCode != ''"> and post_code = #{postCode}</if>
+            <if test="postText != null  and postText != ''"> and post_text = #{postText}</if>
+            <if test="postValue != null  and postValue != ''"> and post_value = #{postValue}</if>
+            <if test="nggz != null "> and nggz = #{nggz}</if>
+            <if test="yxqxed != null "> and yxqxed = #{yxqxed}</if>
+            <if test="zfbt != null "> and zfbt = #{zfbt}</if>
+            <if test="dzf != null "> and dzf = #{dzf}</if>
+            <if test="gwxy != null "> and gwxy = #{gwxy}</if>
+            <if test="zfbtxy != null "> and zfbtxy = #{zfbtxy}</if>
+            <if test="gdjj != null "> and gdjj = #{gdjj}</if>
+            <if test="zwbt != null "> and zwbt = #{zwbt}</if>
+            <if test="grxyze != null "> and grxyze = #{grxyze}</if>
+            <if test="bmjljx != null "> and bmjljx = #{bmjljx}</if>
+            <if test="grjljx != null "> and grjljx = #{grjljx}</if>
+            <if test="grkfjx != null "> and grkfjx = #{grkfjx}</if>
+            <if test="sfxygz != null "> and sfxygz = #{sfxygz}</if>
+            <if test="jxgz2 != null "> and jxgz2 = #{jxgz2}</if>
+            <if test="yfxj != null "> and yfxj = #{yfxj}</if>
+            <if test="wybt != null "> and wybt = #{wybt}</if>
+            <if test="bf != null "> and bf = #{bf}</if>
+            <if test="bzbt != null "> and bzbt = #{bzbt}</if>
+            <if test="wptxbz != null "> and wptxbz = #{wptxbz}</if>
+            <if test="gsjl != null "> and gsjl = #{gsjl}</if>
+            <if test="qnf != null "> and qnf = #{qnf}</if>
+            <if test="yfhj != null "> and yfhj = #{yfhj}</if>
+            <if test="dkylbx != null "> and dkylbx = #{dkylbx}</if>
+            <if test="dkyibx != null "> and dkyibx = #{dkyibx}</if>
+            <if test="dkgjj != null "> and dkgjj = #{dkgjj}</if>
+            <if test="dksds != null "> and dksds = #{dksds}</if>
+            <if test="kqkk != null "> and kqkk = #{kqkk}</if>
+            <if test="kkhj != null "> and kkhj = #{kkhj}</if>
+            <if test="sfgzze != null "> and sfgzze = #{sfgzze}</if>
+            <if test="sfgz != null "> and sfgz = #{sfgz}</if>
+            <if test="gzrys != null "> and gzrys = #{gzrys}</if>
+            <if test="shxts != null "> and shxts = #{shxts}</if>
+            <if test="sxts != null "> and sxts = #{sxts}</if>
+            <if test="ybts != null "> and ybts = #{ybts}</if>
+            <if test="fsjwf != null "> and fsjwf = #{fsjwf}</if>
+            <if test="sfhy != null  and sfhy != ''"> and sfhy = #{sfhy}</if>
+            <if test="salid != null  and salid != ''"> and salid = #{salid}</if>
+            <if test="idcard != null  and idcard != ''"> and idcard = #{idcard}</if>
+            <if test="yhkh != null  and yhkh != ''"> and yhkh = #{yhkh}</if>
+        </where>
+    </select>
+    
+    <select id="selectFinSalRecById" parameterType="Long" resultMap="FinSalRecResult">
+        <include refid="selectFinSalRecVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertFinSalRec" parameterType="FinSalRec">
+        insert into fin_sal_rec
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="userid != null">userid,</if>
+            <if test="userName != null">user_name,</if>
+            <if test="deptid != null">deptid,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="rankCode != null">rank_code,</if>
+            <if test="rankText != null">rank_text,</if>
+            <if test="rankValue != null">rank_value,</if>
+            <if test="postCode != null">post_code,</if>
+            <if test="postText != null">post_text,</if>
+            <if test="postValue != null">post_value,</if>
+            <if test="nggz != null">nggz,</if>
+            <if test="yxqxed != null">yxqxed,</if>
+            <if test="zfbt != null">zfbt,</if>
+            <if test="dzf != null">dzf,</if>
+            <if test="gwxy != null">gwxy,</if>
+            <if test="zfbtxy != null">zfbtxy,</if>
+            <if test="gdjj != null">gdjj,</if>
+            <if test="zwbt != null">zwbt,</if>
+            <if test="grxyze != null">grxyze,</if>
+            <if test="bmjljx != null">bmjljx,</if>
+            <if test="grjljx != null">grjljx,</if>
+            <if test="grkfjx != null">grkfjx,</if>
+            <if test="sfxygz != null">sfxygz,</if>
+            <if test="jxgz2 != null">jxgz2,</if>
+            <if test="yfxj != null">yfxj,</if>
+            <if test="wybt != null">wybt,</if>
+            <if test="bf != null">bf,</if>
+            <if test="bzbt != null">bzbt,</if>
+            <if test="wptxbz != null">wptxbz,</if>
+            <if test="gsjl != null">gsjl,</if>
+            <if test="qnf != null">qnf,</if>
+            <if test="yfhj != null">yfhj,</if>
+            <if test="dkylbx != null">dkylbx,</if>
+            <if test="dkyibx != null">dkyibx,</if>
+            <if test="dkgjj != null">dkgjj,</if>
+            <if test="dksds != null">dksds,</if>
+            <if test="kqkk != null">kqkk,</if>
+            <if test="kkhj != null">kkhj,</if>
+            <if test="sfgzze != null">sfgzze,</if>
+            <if test="sfgz != null">sfgz,</if>
+            <if test="gzrys != null">gzrys,</if>
+            <if test="shxts != null">shxts,</if>
+            <if test="sxts != null">sxts,</if>
+            <if test="ybts != null">ybts,</if>
+            <if test="fsjwf != null">fsjwf,</if>
+            <if test="sfhy != null">sfhy,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="timetag != null">timetag,</if>
+            <if test="salid != null">salid,</if>
+            <if test="kqdj != null">kqdj,</if>
+            <if test="kqcd != null">kqcd,</if>
+            <if test="kqzt != null">kqzt,</if>
+
+            <if test="dksybx != null">dksybx,</if>
+            <if test="dkqynj != null">dkqynj,</if>
+            <if test="bkyl != null">bkyl,</if>
+            <if test="bkyil != null">bkyil,</if>
+            <if test="bksy != null">bksy,</if>
+            <if test="bkgjj != null">bkgjj,</if>
+            <if test="bkqynj != null">bkqynj,</if>
+            <if test="dksf != null">dksf,</if>
+            <if test="dkglwsf != null">dkglwsf,</if>
+            <if test="kgsdjsb != null">kgsdjsb,</if>
+
+            <if test="idcard != null">idcard,</if>
+            <if test="yhkh != null">yhkh,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="userid != null">#{userid},</if>
+            <if test="userName != null">#{userName},</if>
+            <if test="deptid != null">#{deptid},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="rankCode != null">#{rankCode},</if>
+            <if test="rankText != null">#{rankText},</if>
+            <if test="rankValue != null">#{rankValue},</if>
+            <if test="postCode != null">#{postCode},</if>
+            <if test="postText != null">#{postText},</if>
+            <if test="postValue != null">#{postValue},</if>
+            <if test="nggz != null">#{nggz},</if>
+            <if test="yxqxed != null">#{yxqxed},</if>
+            <if test="zfbt != null">#{zfbt},</if>
+            <if test="dzf != null">#{dzf},</if>
+            <if test="gwxy != null">#{gwxy},</if>
+            <if test="zfbtxy != null">#{zfbtxy},</if>
+            <if test="gdjj != null">#{gdjj},</if>
+            <if test="zwbt != null">#{zwbt},</if>
+            <if test="grxyze != null">#{grxyze},</if>
+            <if test="bmjljx != null">#{bmjljx},</if>
+            <if test="grjljx != null">#{grjljx},</if>
+            <if test="grkfjx != null">#{grkfjx},</if>
+            <if test="sfxygz != null">#{sfxygz},</if>
+            <if test="jxgz2 != null">#{jxgz2},</if>
+            <if test="yfxj != null">#{yfxj},</if>
+            <if test="wybt != null">#{wybt},</if>
+            <if test="bf != null">#{bf},</if>
+            <if test="bzbt != null">#{bzbt},</if>
+            <if test="wptxbz != null">#{wptxbz},</if>
+            <if test="gsjl != null">#{gsjl},</if>
+            <if test="qnf != null">#{qnf},</if>
+            <if test="yfhj != null">#{yfhj},</if>
+            <if test="dkylbx != null">#{dkylbx},</if>
+            <if test="dkyibx != null">#{dkyibx},</if>
+            <if test="dkgjj != null">#{dkgjj},</if>
+            <if test="dksds != null">#{dksds},</if>
+            <if test="kqkk != null">#{kqkk},</if>
+            <if test="kkhj != null">#{kkhj},</if>
+            <if test="sfgzze != null">#{sfgzze},</if>
+            <if test="sfgz != null">#{sfgz},</if>
+            <if test="gzrys != null">#{gzrys},</if>
+            <if test="shxts != null">#{shxts},</if>
+            <if test="sxts != null">#{sxts},</if>
+            <if test="ybts != null">#{ybts},</if>
+            <if test="fsjwf != null">#{fsjwf},</if>
+            <if test="sfhy != null">#{sfhy},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="timetag != null">#{timetag},</if>
+            <if test="salid != null">#{salid},</if>
+            <if test="kqdj != null">#{kqdj},</if>
+            <if test="kqcd != null">#{kqcd},</if>
+            <if test="kqzt != null">#{kqzt},</if>
+
+            <if test="dksybx != null">#{dksybx},</if>
+            <if test="dkqynj != null">#{dkqynj},</if>
+            <if test="bkyl != null">#{bkyl},</if>
+            <if test="bkyil != null">#{bkyil},</if>
+            <if test="bksy != null">#{bksy},</if>
+            <if test="bkgjj != null">#{bkgjj},</if>
+            <if test="bkqynj != null">#{bkqynj},</if>
+            <if test="dksf != null">#{dksf},</if>
+            <if test="dkglwsf != null">#{dkglwsf},</if>
+            <if test="kgsdjsb != null">#{kgsdjsb},</if>
+
+            <if test="idcard != null">#{idcard},</if>
+            <if test="yhkh != null">#{yhkh},</if>
+         </trim>
+    </insert>
+
+    <update id="updateFinSalRec" parameterType="FinSalRec">
+        update fin_sal_rec
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="userid != null">userid = #{userid},</if>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="deptid != null">deptid = #{deptid},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="rankCode != null">rank_code = #{rankCode},</if>
+            <if test="rankText != null">rank_text = #{rankText},</if>
+            <if test="rankValue != null">rank_value = #{rankValue},</if>
+            <if test="postCode != null">post_code = #{postCode},</if>
+            <if test="postText != null">post_text = #{postText},</if>
+            <if test="postValue != null">post_value = #{postValue},</if>
+            <if test="nggz != null">nggz = #{nggz},</if>
+            <if test="yxqxed != null">yxqxed = #{yxqxed},</if>
+            <if test="zfbt != null">zfbt = #{zfbt},</if>
+            <if test="dzf != null">dzf = #{dzf},</if>
+            <if test="gwxy != null">gwxy = #{gwxy},</if>
+            <if test="zfbtxy != null">zfbtxy = #{zfbtxy},</if>
+            <if test="gdjj != null">gdjj = #{gdjj},</if>
+            <if test="zwbt != null">zwbt = #{zwbt},</if>
+            <if test="grxyze != null">grxyze = #{grxyze},</if>
+            <if test="bmjljx != null">bmjljx = #{bmjljx},</if>
+            <if test="grjljx != null">grjljx = #{grjljx},</if>
+            <if test="grkfjx != null">grkfjx = #{grkfjx},</if>
+            <if test="sfxygz != null">sfxygz = #{sfxygz},</if>
+            <if test="jxgz2 != null">jxgz2 = #{jxgz2},</if>
+            <if test="yfxj != null">yfxj = #{yfxj},</if>
+            <if test="wybt != null">wybt = #{wybt},</if>
+            <if test="bf != null">bf = #{bf},</if>
+            <if test="bzbt != null">bzbt = #{bzbt},</if>
+            <if test="wptxbz != null">wptxbz = #{wptxbz},</if>
+            <if test="gsjl != null">gsjl = #{gsjl},</if>
+            <if test="qnf != null">qnf = #{qnf},</if>
+            <if test="yfhj != null">yfhj = #{yfhj},</if>
+            <if test="dkylbx != null">dkylbx = #{dkylbx},</if>
+            <if test="dkyibx != null">dkyibx = #{dkyibx},</if>
+            <if test="dkgjj != null">dkgjj = #{dkgjj},</if>
+            <if test="dksds != null">dksds = #{dksds},</if>
+            <if test="kqkk != null">kqkk = #{kqkk},</if>
+            <if test="kkhj != null">kkhj = #{kkhj},</if>
+            <if test="sfgzze != null">sfgzze = #{sfgzze},</if>
+            <if test="sfgz != null">sfgz = #{sfgz},</if>
+            <if test="gzrys != null">gzrys = #{gzrys},</if>
+            <if test="shxts != null">shxts = #{shxts},</if>
+            <if test="sxts != null">sxts = #{sxts},</if>
+            <if test="ybts != null">ybts = #{ybts},</if>
+            <if test="fsjwf != null">fsjwf = #{fsjwf},</if>
+            <if test="sfhy != null">sfhy = #{sfhy},</if>
+            <if test="kqdj != null">kqdj = #{kqdj},</if>
+            <if test="kqcd != null">kqcd = #{kqcd},</if>
+            <if test="kqzt != null">kqzt = #{kqzt},</if>
+
+            <if test="dksybx != null">dksybx = #{dksybx},</if>
+            <if test="dkqynj != null">dkqynj = #{dkqynj},</if>
+            <if test="bkyl != null">bkyl = #{bkyl},</if>
+            <if test="bkyil != null">bkyil = #{bkyil},</if>
+            <if test="bksy != null">bksy = #{bksy},</if>
+            <if test="bkgjj != null">bkgjj = #{bkgjj},</if>
+            <if test="bkqynj != null">bkqynj = #{bkqynj},</if>
+            <if test="dksf != null">dksf = #{dksf},</if>
+            <if test="dkglwsf != null">dkglwsf = #{dkglwsf},</if>
+            <if test="kgsdjsb != null">kgsdjsb = #{kgsdjsb},</if>
+
+            <if test="idcard != null">idcard = #{idcard},</if>
+            <if test="yhkh != null">yhkh = #{yhkh},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteFinSalRecById" parameterType="Long">
+        delete from fin_sal_rec where id = #{id}
+    </delete>
+
+    <delete id="deleteFinSalRecByIds" parameterType="String">
+        delete from fin_sal_rec where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteFinSalRecBySalids" parameterType="String">
+        delete from fin_sal_rec where salid in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteFinSalRecOverview" parameterType="FinSalRec">
+        delete from fin_sal_rec where salid = #{salid} and userid = -1 and deptid = -1
+    </delete>
+
+    <insert id="batchInsertFinSalRec" parameterType="list">
+        INSERT INTO fin_sal_rec
+        <foreach collection="list" item="item" index="index" separator=",">
+            <if test="index == 0">
+                <trim prefix="(" suffix=")" suffixOverrides=",">
+                    <if test="item.id != null">id,</if>
+                    <if test="item.userid != null">userid,</if>
+                    <if test="item.userName != null">user_name,</if>
+                    <if test="item.deptid != null">deptid,</if>
+                    <if test="item.deptName != null">dept_name,</if>
+                    <if test="item.rankCode != null">rank_code,</if>
+                    <if test="item.rankText != null">rank_text,</if>
+                    <if test="item.rankValue != null">rank_value,</if>
+                    <if test="item.postCode != null">post_code,</if>
+                    <if test="item.postText != null">post_text,</if>
+                    <if test="item.postValue != null">post_value,</if>
+                    <if test="item.nggz != null">nggz,</if>
+                    <if test="item.yxqxed != null">yxqxed,</if>
+                    <if test="item.zfbt != null">zfbt,</if>
+                    <if test="item.dzf != null">dzf,</if>
+                    <if test="item.gwxy != null">gwxy,</if>
+                    <if test="item.zfbtxy != null">zfbtxy,</if>
+                    <if test="item.gdjj != null">gdjj,</if>
+                    <if test="item.zwbt != null">zwbt,</if>
+                    <if test="item.grxyze != null">grxyze,</if>
+                    <if test="item.bmjljx != null">bmjljx,</if>
+                    <if test="item.grjljx != null">grjljx,</if>
+                    <if test="item.grkfjx != null">grkfjx,</if>
+                    <if test="item.sfxygz != null">sfxygz,</if>
+                    <if test="item.jxgz2 != null">jxgz2,</if>
+                    <if test="item.yfxj != null">yfxj,</if>
+                    <if test="item.wybt != null">wybt,</if>
+                    <if test="item.bf != null">bf,</if>
+                    <if test="item.bzbt != null">bzbt,</if>
+                    <if test="item.wptxbz != null">wptxbz,</if>
+                    <if test="item.gsjl != null">gsjl,</if>
+                    <if test="item.qnf != null">qnf,</if>
+                    <if test="item.yfhj != null">yfhj,</if>
+                    <if test="item.dkylbx != null">dkylbx,</if>
+                    <if test="item.dkyibx != null">dkyibx,</if>
+                    <if test="item.dkgjj != null">dkgjj,</if>
+                    <if test="item.dksds != null">dksds,</if>
+                    <if test="item.kqkk != null">kqkk,</if>
+                    <if test="item.kkhj != null">kkhj,</if>
+                    <if test="item.sfgzze != null">sfgzze,</if>
+                    <if test="item.sfgz != null">sfgz,</if>
+                    <if test="item.gzrys != null">gzrys,</if>
+                    <if test="item.shxts != null">shxts,</if>
+                    <if test="item.sxts != null">sxts,</if>
+                    <if test="item.ybts != null">ybts,</if>
+                    <if test="item.fsjwf != null">fsjwf,</if>
+                    <if test="item.sfhy != null">sfhy,</if>
+                    <if test="item.createBy != null">create_by,</if>
+                    <if test="item.createTime != null">create_time,</if>
+                    <if test="item.timetag != null">timetag,</if>
+                    <if test="item.salid != null">salid,</if>
+                    <if test="item.kqdj != null">kqdj,</if>
+                    <if test="item.kqcd != null">kqcd,</if>
+                    <if test="item.kqzt != null">kqzt,</if>
+
+                    <if test="item.dksybx != null">dksybx,</if>
+                    <if test="item.dkqynj != null">dkqynj,</if>
+                    <if test="item.bkyl != null">bkyl,</if>
+                    <if test="item.bkyil != null">bkyil,</if>
+                    <if test="item.bksy != null">bksy,</if>
+                    <if test="item.bkgjj != null">bkgjj,</if>
+                    <if test="item.bkqynj != null">bkqynj,</if>
+                    <if test="item.dksf != null">dksf,</if>
+                    <if test="item.dkglwsf != null">dkglwsf,</if>
+                    <if test="item.kgsdjsb != null">kgsdjsb,</if>
+
+                    <if test="item.idcard != null">idcard,</if>
+                    <if test="item.yhkh != null">yhkh,</if>
+                </trim>
+            </if>
+        </foreach>
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="item.id != null">#{item.id},</if>
+                <if test="item.userid != null">#{item.userid},</if>
+                <if test="item.userName != null">#{item.userName},</if>
+                <if test="item.deptid != null">#{item.deptid},</if>
+                <if test="item.deptName != null">#{item.deptName},</if>
+                <if test="item.rankCode != null">#{item.rankCode},</if>
+                <if test="item.rankText != null">#{item.rankText},</if>
+                <if test="item.rankValue != null">#{item.rankValue},</if>
+                <if test="item.postCode != null">#{item.postCode},</if>
+                <if test="item.postText != null">#{item.postText},</if>
+                <if test="item.postValue != null">#{item.postValue},</if>
+                <if test="item.nggz != null">#{item.nggz},</if>
+                <if test="item.yxqxed != null">#{item.yxqxed},</if>
+                <if test="item.zfbt != null">#{item.zfbt},</if>
+                <if test="item.dzf != null">#{item.dzf},</if>
+                <if test="item.gwxy != null">#{item.gwxy},</if>
+                <if test="item.zfbtxy != null">#{item.zfbtxy},</if>
+                <if test="item.gdjj != null">#{item.gdjj},</if>
+                <if test="item.zwbt != null">#{item.zwbt},</if>
+                <if test="item.grxyze != null">#{item.grxyze},</if>
+                <if test="item.bmjljx != null">#{item.bmjljx},</if>
+                <if test="item.grjljx != null">#{item.grjljx},</if>
+                <if test="item.grkfjx != null">#{item.grkfjx},</if>
+                <if test="item.sfxygz != null">#{item.sfxygz},</if>
+                <if test="item.jxgz2 != null">#{item.jxgz2},</if>
+                <if test="item.yfxj != null">#{item.yfxj},</if>
+                <if test="item.wybt != null">#{item.wybt},</if>
+                <if test="item.bf != null">#{item.bf},</if>
+                <if test="item.bzbt != null">#{item.bzbt},</if>
+                <if test="item.wptxbz != null">#{item.wptxbz},</if>
+                <if test="item.gsjl != null">#{item.gsjl},</if>
+                <if test="item.qnf != null">#{item.qnf},</if>
+                <if test="item.yfhj != null">#{item.yfhj},</if>
+                <if test="item.dkylbx != null">#{item.dkylbx},</if>
+                <if test="item.dkyibx != null">#{item.dkyibx},</if>
+                <if test="item.dkgjj != null">#{item.dkgjj},</if>
+                <if test="item.dksds != null">#{item.dksds},</if>
+                <if test="item.kqkk != null">#{item.kqkk},</if>
+                <if test="item.kkhj != null">#{item.kkhj},</if>
+                <if test="item.sfgzze != null">#{item.sfgzze},</if>
+                <if test="item.sfgz != null">#{item.sfgz},</if>
+                <if test="item.gzrys != null">#{item.gzrys},</if>
+                <if test="item.shxts != null">#{item.shxts},</if>
+                <if test="item.sxts != null">#{item.sxts},</if>
+                <if test="item.ybts != null">#{item.ybts},</if>
+                <if test="item.fsjwf != null">#{item.fsjwf},</if>
+                <if test="item.sfhy != null">#{item.sfhy},</if>
+                <if test="item.createBy != null">#{item.createBy},</if>
+                <if test="item.createTime != null">#{item.createTime},</if>
+                <if test="item.timetag != null">#{item.timetag},</if>
+                <if test="item.salid != null">#{item.salid},</if>
+                <if test="item.kqdj != null">#{item.kqdj},</if>
+                <if test="item.kqcd != null">#{item.kqcd},</if>
+                <if test="item.kqzt != null">#{item.kqzt},</if>
+
+                <if test="item.dksybx != null">#{item.dksybx},</if>
+                <if test="item.dkqynj != null">#{item.dkqynj},</if>
+                <if test="item.bkyl != null">#{item.bkyl},</if>
+                <if test="item.bkyil != null">#{item.bkyil},</if>
+                <if test="item.bksy != null">#{item.bksy},</if>
+                <if test="item.bkgjj != null">#{item.bkgjj},</if>
+                <if test="item.bkqynj != null">#{item.bkqynj},</if>
+                <if test="item.dksf != null">#{item.dksf},</if>
+                <if test="item.dkglwsf != null">#{item.dkglwsf},</if>
+                <if test="item.kgsdjsb != null">#{item.kgsdjsb},</if>
+
+                <if test="item.idcard != null">#{item.idcard},</if>
+                <if test="item.yhkh != null">#{item.yhkh},</if>
+            </trim>
+        </foreach>
+    </insert>
+
+    <!-- 结转 -->
+    <select id="selectForwardFinItems" parameterType="FinSalRec" resultMap="FinSalRecResult">
+        select deptid,
+               dept_name,
+               ROUND(SUM(yfhj), 2)    yfhj,
+               ROUND(SUM(zfbt), 2)    zfbt,
+               ROUND(SUM(dzf), 2)     dzf,
+               ROUND(SUM(kqkk), 2)    kqkk,
+               ROUND(SUM(dkglwsf), 2) dkglwsf,
+               ROUND(SUM(wybt), 2)    wybt,
+               ROUND(SUM(yfhj), 2) -
+               (ROUND(SUM(zfbt), 2) + ROUND(SUM(dzf), 2) + ROUND(SUM(kqkk), 2) + ROUND(SUM(dkglwsf), 2) +
+                ROUND(SUM(wybt), 2))  sfgz
+        from fin_sal_rec
+        where deptid > 0
+            <if test="timetag != null and timetag != ''">and timetag like concat(#{timetag}, '%')</if>
+            <if test="salid != null and salid != ''">and salid = #{salid}</if>
+        group by deptid, dept_name
+
+        union all
+        select 999 deptid, '合计' dept_name, ROUND(SUM(yfhj), 2) yfhj, ROUND(SUM(zfbt), 2) zfbt, ROUND(SUM(dzf), 2) dzf, ROUND(SUM(kqkk), 2) kqkk, ROUND(SUM(dkglwsf), 2) dkglwsf, ROUND(SUM(wybt), 2) wybt,
+               ROUND(SUM(yfhj), 2)-(ROUND(SUM(zfbt), 2)+ROUND(SUM(dzf), 2)+ROUND(SUM(kqkk), 2)+ROUND(SUM(dkglwsf), 2)+ROUND(SUM(wybt), 2)) sfhj
+        from fin_sal_rec where
+        deptid > 0
+        <if test="timetag != null and timetag != ''">and timetag like concat(#{timetag}, '%')</if>
+        <if test="salid != null and salid != ''">and salid = #{salid}</if>
+
+        order by deptid asc;
+    </select>
+
+    <select id="selectForwardFinDeducts" parameterType="FinSalRec" resultMap="FinSalRecResult">
+        select ROUND(SUM(dkqynj + bkqynj), 2) dkqynj,
+               ROUND(SUM(dkylbx + bkyl), 2)   dkylbx,
+               ROUND(SUM(dkyibx + bkyil), 2)  dkyibx,
+               ROUND(SUM(dksybx + bksy), 2)   dksybx,
+               ROUND(SUM(dkgjj + bkgjj), 2)   dkgjj,
+               ROUND(kqkk, 2)                 kqkk,
+               ROUND(SUM(sfgz), 2)            sfgz,
+               COUNT(id) * 500                bf
+        from fin_sal_rec
+        where deptid > 0
+        <if test="timetag != null and timetag != ''">and timetag like concat(#{timetag}, '%')</if>
+        <if test="salid != null and salid != ''">and salid = #{salid}</if>
+    </select>
+
+    <select id="selectForwardFinCounts" parameterType="FinSalRec" resultMap="FinSalRecResult">
+        select deptid, dept_name, count(id)*500 bf
+        from fin_sal_rec
+        where timetag like concat(#{timetag}, '%')
+          and deptid > 0
+          and userid not in
+        <foreach item="userid" collection="userids" open="(" separator="," close=")">
+            #{userid}
+        </foreach>
+        group by deptid, dept_name
+        order by deptid asc;
+    </select>
+
+    <select id="selectSpecificUserids" parameterType="Integer" resultMap="FinSalRecResult">
+        select userid
+        from fin_sal_rec
+        where deptid > 0
+        <if test="timetag != null and timetag != ''">and timetag like concat(#{timetag}, '%')</if>
+        <if test="salid != null and salid != ''">and salid = #{salid}</if>
+        order by id desc limit 6
+    </select>
+
+</mapper>

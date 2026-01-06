@@ -1,0 +1,130 @@
+﻿body {
+	font-family: 'Arial', sans-serif;
+	background-color: #e7f1f9; /* 浅蓝色背景，奠定蓝色基调 */
+	margin: 0;
+	padding: 0;
+}
+.container {
+	max-width: 600px;
+	margin: 20px auto;
+	background-color: #fff;
+	padding: 20px;
+	border-radius: 10px;
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+label {
+	display: block;
+	margin-bottom: 8px;
+	color: #333;
+	font-weight: bold;
+}
+input, textarea, select {
+	width: 100%;
+	padding: 10px;
+	margin-bottom: 20px;
+	border: 1px solid #b6d7f2; /* 浅蓝色边框 */
+	border-radius: 5px;
+	box-sizing: border-box;
+}
+input[readonly], textarea[readonly] {
+	background-color: #f4f4f4; /* 只读输入框的背景色 */
+	border-color: #d0d0d0; /* 只读输入框的边框颜色 */
+}
+button {
+	background-color: #4682b4; /* 蓝色按钮 */
+	color: white;
+	margin: 0 20px;
+	padding: 12px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 16px;
+	width: 130px;
+}
+button.cancel{
+	background-color: #fff;
+	color: #404a58;
+	margin: 0 20px;
+	padding: 12px 20px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-size: 16px;
+	width: 130px;
+	border: 1px solid #c0c4cd;
+}
+/*button:hover {
+	background-color: #3a6d98; !* 按钮悬停时的深蓝色 *!
+}*/
+.attachment {
+	margin-bottom: 20px;
+	display: flex;
+	align-items: center;
+}
+.attachment a {
+	color: #4682b4; /* 蓝色链接颜色 */
+	text-decoration: none;
+	margin-left: 10px;
+}
+.attachment a:hover {
+	text-decoration: underline; /* 鼠标悬停时添加下划线 */
+}
+.process-nodes {
+	margin-top: 30px;
+}
+.node {
+	display: flex;
+	align-items: center;
+	margin-bottom: 15px;
+}
+.node-circle-completed {
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background-color: #4682b4; /* 蓝色圆形节点 */
+	color: white;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-right: 10px;
+}
+.node-circle-uncompleted {
+	width: 27px;
+	height: 27px;
+	border-radius: 50%;
+	border:2px solid #4682b4;
+	background-color: white; /* 蓝色圆形节点 */
+	color: #4682b4;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-right: 10px;
+}
+.node-text {
+	font-size: 14px;
+}
+.button-container {
+	display: flex;
+	justify-content: center;
+	margin-top: 20px;
+}
+
+.layui-layer-setwin {
+	display: none;
+}
+
+.layui-layer-btn {
+	display: flex;
+	justify-content: center;
+	margin-top: 10px;
+}
+
+.layui-layer-btn a {
+	margin: 0 15px;
+	width: 100px;
+	height: 45px;
+}
+
+.layui-layer-btn .layui-layer-btn0 {
+	background-color: #4682b4;
+}

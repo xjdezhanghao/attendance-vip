@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.atdform.atdstatisticform.mapper.AtdHolidayMapper">
+    
+    <resultMap type="AtdHoliday" id="AtdHolidayResult">
+        <result property="id"    column="id"    />
+        <result property="date"    column="date"    />
+        <result property="year"    column="year"    />
+        <result property="type"    column="type"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectAtdHolidayVo">
+        select id, date, year, type, remark from atd_holiday
+    </sql>
+
+    <select id="selectAtdHolidayList" parameterType="AtdHoliday" resultMap="AtdHolidayResult">
+        <include refid="selectAtdHolidayVo"/>
+        <where>  
+            <if test="date != null  and date != ''"> and date = #{date}</if>
+            <if test="year != null  and year != ''"> and year = #{year}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+        </where>
+    </select>
+    
+    <select id="selectAtdHolidayById" parameterType="Long" resultMap="AtdHolidayResult">
+        <include refid="selectAtdHolidayVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertAtdHoliday" parameterType="AtdHoliday" useGeneratedKeys="true" keyProperty="id">
+        insert into atd_holiday
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="date != null">date,</if>
+            <if test="year != null and year != ''">year,</if>
+            <if test="type != null">type,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="date != null">#{date},</if>
+            <if test="year != null and year != ''">#{year},</if>
+            <if test="type != null">#{type},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateAtdHoliday" parameterType="AtdHoliday">
+        update atd_holiday
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="date != null">date = #{date},</if>
+            <if test="year != null and year != ''">year = #{year},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteAtdHolidayById" parameterType="Long">
+        delete from atd_holiday where id = #{id}
+    </delete>
+
+    <delete id="deleteAtdHolidayByIds" parameterType="String">
+        delete from atd_holiday where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="batchInsertAtdHoliday" parameterType="list">
+        INSERT INTO atd_holiday
+        <foreach collection="list" item="item" index="index" separator=",">
+            <if test="index == 0">
+                <trim prefix="(" suffix=")" suffixOverrides=",">
+                    <if test="item.id != null">id,</if>
+                    <if test="item.date != null">date,</if>
+                    <if test="item.year != null">year,</if>
+                    <if test="item.type != null">type,</if>
+                    <if test="item.remark != null">remark,</if>
+                </trim>
+            </if>
+        </foreach>
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="item.id != null">#{item.id},</if>
+                <if test="item.date != null">#{item.date},</if>
+                <if test="item.year != null">#{item.year},</if>
+                <if test="item.type != null">#{item.type},</if>
+                <if test="item.remark != null">#{item.remark},</if>
+            </trim>
+        </foreach>
+    </insert>
+
+    <select id="selectAtdHolidayStringList" parameterType="AtdHoliday" resultType="String">
+        select date from atd_holiday
+        <where>
+            <if test="type != null and type != ''">
+                <choose>
+                    <when test="type == 'xiuban'">
+                        and (type = '1' or type = '2')
+                    </when>
+                    <otherwise>
+                        and type = #{type}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="year != null  and year != ''"> and year = #{year}</if>
+            <if test="date != null  and date != ''"> and date = #{date}</if>
+        </where>
+    </select>
+
+</mapper>

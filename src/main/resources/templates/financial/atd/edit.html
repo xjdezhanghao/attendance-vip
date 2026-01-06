@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('考勤表统计列表')"/>
+    <style type="text/css">
+        #bootstrap-table td, #bootstrap-table th, #bootstrap-table1 td, #bootstrap-table1 th {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            word-break:keep-all;
+        }
+        .fixed-table-container:has(#bootstrap-table){
+            height: 88vh;
+        }
+        .pagination-detail{
+            margin-bottom: 0;
+        }
+        .fixed-columns td, .fixed-columns th {
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            word-break:keep-all;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="container-div">
+    <div class="row">
+        <div class="btn-group-sm" id="toolbar" role="group">
+            <!--   <a class="btn btn-success" onclick="$.operate.add()" shiro:hasPermission="atdform:atdstatisticform:add">
+                   <i class="fa fa-plus"></i> 添加
+               </a>
+               <a class="btn btn-primary single disabled" onclick="$.operate.edit()"
+                  shiro:hasPermission="atdform:atdstatisticform:edit">
+                   <i class="fa fa-edit"></i> 修改
+               </a>
+               <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()"
+                  shiro:hasPermission="atdform:atdstatisticform:remove">
+                   <i class="fa fa-remove"></i> 删除
+               </a>-->
+
+            <a class="btn btn-warning" href="javascript:void(0)" onclick="exportExcel()">
+                <i class="fa fa-download"></i> 导出
+            </a>
+            <a style="display: none" id="submitBtn" class="btn btn-primary " onclick="submitHandler()" >
+                <i class="fa fa-check"></i> 提交
+            </a>
+            <a style="display: none" id="backBtn" class="btn btn-danger " onclick="backHandler()" >
+                <i class="fa fa-reply"></i> 退回
+            </a>
+            <a style="display: none" id="recLinesBtn" class="btn btn-warning " onclick="viewRecLine()" >
+                <i class="fa fa-ellipsis-h"></i> 查看流程
+            </a>
+        </div>
+        <div class="col-sm-12 select-table1 table-striped">
+            <table id="bootstrap-table">
+            </table>
+        </div>
+    </div>
+</div>
+<th:block th:include="include :: footer"/>
+<!-- CSS 样式 -->
+<th:block th:include="include :: bootstrap-editable-css"/>
+<!-- JS 脚本 -->
+<th:block th:include="include :: bootstrap-table-editable-js"/>
+<th:block th:include="include :: bootstrap-table-fixed-columns-js" />
+<!-- <script th:inline="javascript" >-->
+<script th:inline="javascript">
+    var prefix = ctx + "atdform/atdstatisticform";
+
+    var finAtd = [[${finAtd}]];
+    //流程操作标识
+    var canOperate = [[${canOperate}]];
+    //退回权限（高级别操作权限）
+    var canBack = [[${canBack}]];
+    //流程操作记录
+    var recLines = [[${recLines}]];
+    //终极节点标识（无需选择审批人）
+    var hasFinal = [[${hasFinal}]];
+
+    //当前用户是否可操作
+    if (canOperate) {
+        $("#submitBtn").show();
+    }
+    if (canOperate && canBack){
+        $("#backBtn").show();
+        $("#submitBtn").html("<i class='fa fa-check'></i>通 过");
+    }
+    if (recLines.length > 0){
+        $("#recLinesBtn").show();
+    }
+
+    $(function () {
+        var options = {
+            url: prefix + "/list",
+            exportUrl: prefix + "/export",
+            modalName: "考勤记录",
+            pagination: false,
+            flag: true,
+            clickEdit: true,
+            fixedColumns: true,
+            fixedNumber: 1,
+            height: '70%',
+            contentType: 'application/json',
+            queryParams: function (params) {
+                return {
+                    startDate: finAtd.startdate,
+                    endDate: finAtd.enddate,
+                    deptname: finAtd.deptName,
+                    atdId: finAtd.id
+                };
+            },
+            columns: [
+                //以下三个花括号因为我有公用的三列，如果你没有就全删了
+                {
+                    field: 'id',
+                    title: '主键',
+                    visible: false
+                },
+                {
+                    field: 'personName',
+                    title: '姓名',
+                    sortable: false
+                },
+                {
+                    field: 'date',
+                    title: '日期',
+                    sortable: false
+
+                }
+
+            ]
+        };
+        //这里遍历返回的表头集合，并组装到options里
+        // var dateColumns=['2022-07-06','2022-07-07','2022-07-08']
+        var stime0 = finAtd.startdate;
+        var etime0 = finAtd.enddate;
+        var stime;
+        var etime;
+        if (!!stime0) {
+            stime = stime0;
+            etime = etime0;
+        } else {
+            stime = getCurrentMonthTime()[0];
+            etime = getCurrentMonthTime()[1];
+        }
+        //debugger;
+        var dateColumns = getdiffdate(stime, etime);
+        dateColumns.push("出勤");
+        dateColumns.push("迟到");
+        dateColumns.push("早退");
+        dateColumns.push("核实出勤");
+        dateColumns.push("核实迟到");
+        dateColumns.push("核实早退");
+        dateColumns.push("考勤等级");
+        dateColumns.push("应出勤");
+        dateColumns.forEach(function (value, index) {
+            var param = {};
+            if (value.length > 4) {
+                /* param.field = value.substring(8);
+                 param.title = value.substring(8);*/
+                param.field = value;
+                param.title = value;
+            } else {
+                param.field = value;
+                param.title = value;
+            }
+            /* param.field = value;
+             param.title = value;*/
+            options.columns.push(param);
+        });
+        $.table.init(options);
+        $.flag = true;
+
+    });
+
+    function getCurrentMonthTime() {//当月的时间 如：今天是8.8 则获取8.1-8.8时间
+        var TimeNow = new Date();
+        var startDay1 = new Date(TimeNow.getFullYear(), TimeNow.getMonth(), 1);//当月1号
+        var endDay1 = new Date(TimeNow.getFullYear(), TimeNow.getMonth(), TimeNow.getDate(), 23, 59, 59);//23:59:59 将结束时间改成前一天
+        var startDay = date_formate(startDay1);
+        var endDay = date_formate(endDay1);
+        return [startDay, endDay];
+    }
+
+    function date_formate(time) {
+        var date = new Date(time);
+        var y = date.getFullYear();
+        var m = date.getMonth() + 1;
+        m = m < 10 ? ('0' + m) : m;
+        var d = date.getDate();
+        d = d < 10 ? ('0' + d) : d;
+        var time_new = y + '-' + m + '-' + d;  //这里如果不需要小时 分  后边的可以不需要拼接
+        return time_new;
+    }
+
+    //获取两日期之间日期列表函数
+    function getdiffdate(stime, etime) {
+        //初始化日期列表，数组
+        var diffdate = new Array();
+        var i = 0;
+        //开始日期小于等于结束日期,并循环
+        while (stime <= etime) {
+            diffdate[i] = stime;
+
+            //获取开始日期时间戳
+            var stime_ts = new Date(stime).getTime();
+            console.log('当前日期：' + stime + '当前时间戳：' + stime_ts);
+
+            //增加一天时间戳后的日期
+            var next_date = stime_ts + (24 * 60 * 60 * 1000);
+
+            //拼接年月日，这里的月份会返回（0-11），所以要+1
+            var next_dates_y = new Date(next_date).getFullYear() + '-';
+            var next_dates_m = (new Date(next_date).getMonth() + 1 < 10) ? '0' + (new Date(next_date).getMonth() + 1) + '-' : (new Date(next_date).getMonth() + 1) + '-';
+            var next_dates_d = (new Date(next_date).getDate() < 10) ? '0' + new Date(next_date).getDate() : new Date(next_date).getDate();
+
+            stime = next_dates_y + next_dates_m + next_dates_d;
+
+            //增加数组key
+            i++;
+        }
+        return diffdate;
+    }
+
+    // 导出数据
+    function exportExcel() {
+        // table.set();
+        $.modal.confirm("确定导出考勤信息吗？", function () {
+            //var dataParam  = JSON.stringify({starttime:$("#startDate").val(),endtime:$("#endDate").val(),deptname:$("#deptname").val()})
+            var dataParam = {
+                "starttime": finAtd.startdate,
+                "endtime": finAtd.enddate,
+                "deptname": finAtd.deptName
+            }
+            debugger;
+            $.modal.loading("正在导出数据，请稍候...");
+            $.post(prefix + "/export", dataParam, function (result) {
+                if (result.code == web_status.SUCCESS) {
+                    window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+                } else if (result.code == web_status.WARNING) {
+                    $.modal.alertWarning(result.msg)
+                } else {
+                    $.modal.alertError(result.msg);
+                }
+                $.modal.closeLoading();
+            });
+        });
+    }
+
+    //提交审核
+    function submitHandler(index, layero){
+        //选择流程
+        if (recLines != null && recLines.length > 0){
+            //已存在流程
+            doSubmitFlow();
+        } else {
+            //发起申请，流程首节点
+            var options = {
+                title: '选择流程',
+                //url: prefix + "/parent",
+                url: ctx + "system/line/radio",
+                callBack: doSubmitFlow
+            };
+            $.modal.openOptions(options);
+        }
+    }
+
+    //选择流程
+    function doSubmitFlow(index, layero) {
+        var nodeIndex = 0;
+        var flowid = 0;
+        //获取流程id及当前步骤序号
+        if (recLines != null && recLines.length > 0){
+            //已存在流程
+            flowid = recLines[0].lineId;
+            nodeIndex = recLines[recLines.length-1].lineIndex+1;
+        } else {
+            var rows = layero.find("iframe")[0].contentWindow.getSelections();
+            if (rows.length == 0) {
+                $.modal.alertWarning("请至少选择一条记录");
+                return;
+            }
+            $.modal.close(index);
+            var rowArr = rows.split(",");
+            flowid = rowArr[0];
+        }
+
+        //终节点操作
+        if (hasFinal){
+            $.modal.confirm("确认通过吗?", function() {
+                //传入参数自定义
+                doSubmitFlow2(nodeIndex, flowid);
+            });
+            return;;
+        }
+
+        var options = {
+            title: '选择用户',
+            url: ctx + "system/line/radio/"+flowid+"/"+nodeIndex+"",
+            callBack: doSubmitFlow2
+        };
+        $.modal.openOptions(options);
+
+    }
+
+    //选择用户
+    function doSubmitFlow2(index, layero){
+        //公共流程参数封装
+        var param = {};
+        param["operateStatus"] = "0";//默认新发起流程，待审核状态0
+        if (recLines != null && recLines.length > 0){
+            //已有审核流程
+            param["id"] = recLines[recLines.length-1].id;//当前审核记录id
+            param["operateStatus"] = "1";//通过状态
+        }
+        param["recId"] = finAtd.id;
+        param["recType"] = "考勤情况汇总";
+        //当前页面用作审核页面
+        param["recUrl"] = window.location.pathname;
+
+        //自定义传入参数：步骤序号 index。流程id layero
+        if (!hasFinal){
+            //非终极流程，需选择用户
+            var rows = layero.find("iframe")[0].contentWindow.getSelections();
+            if (rows.length == 0) {
+                $.modal.alertWarning("请至少选择一条记录");
+                return;
+            }
+            $.modal.close(index);
+
+            var rowArr = rows.split(",");
+            var loginName = rowArr[0];
+            var lineid = rowArr[1];
+            var nodeIndex = rowArr[2];
+            //下环节操作者
+            param["operateBy"] = loginName;
+            param["lineId"] = lineid;
+            param["lineIndex"] = nodeIndex;
+        } else {
+            //最终环节临时参数
+            param["lineId"] = layero;
+            param["lineIndex"] = index;
+        }
+        $.ajax({
+            url: ctx + "system/line/addRecLine",
+            type: 'post',
+            data: param,
+            dataType: "json",
+            success: function (res){
+                canOperate = res["canOperate"];
+                if (!canOperate) {
+                    $("#submitBtn").hide();
+                    $("#backBtn").hide();
+                };
+                recLines = res["recLines"];
+                if (recLines.length > 0){
+                    $("#recLinesBtn").show();
+                }
+                $.modal.msgWarning("提交成功");
+            }
+        })
+    }
+
+    // 退回操作
+    function backHandler() {
+        layer.prompt({title: '是否退回（退回说明可选填）', formType: 2}, function(text, index){
+            layer.close(index);
+            if (text != null) text = text.trim();
+
+            var param = {};
+            param["operateStatus"] = "2";
+            param["operateBy"] = recLines[0].createBy;
+            param["recId"] = finAtd.id;
+            param["id"] = recLines[recLines.length-1].id;
+            param["lineId"] = recLines[recLines.length-1].lineId;
+            param["lineIndex"] = -1;
+            param["recType"] = "考勤情况汇总";
+            param["recUrl"] = window.location.pathname;
+            param["operateContent"] = text;
+
+            $.ajax({
+                url: ctx + "system/line/addRecLine",
+                type: 'post',
+                data: param,
+                dataType: "json",
+                success: function (res){
+                    canOperate = res["canOperate"];
+                    if (!canOperate) {
+                        $("#submitBtn").hide();
+                        $("#backBtn").hide();
+                    };
+                    recLines = res["recLines"];
+                    if (recLines.length > 0){
+                        $("#recLinesBtn").show();
+                    }
+                    $.modal.msgWarning("提交成功");
+                }
+            })
+        });
+    }
+
+    function viewRecLine() {
+        var options = {
+            title: '查看流程',
+            //url: prefix + "/parent",
+            url: ctx + "system/line/timeline/"+finAtd.id,
+            yes: function () {
+                return true;
+            }
+        };
+        $.modal.openOptions(options);
+    }
+
+</script>
+</body>
+</html>
+
+
