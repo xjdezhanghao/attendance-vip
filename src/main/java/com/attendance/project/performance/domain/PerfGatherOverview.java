@@ -34,9 +34,9 @@ public class PerfGatherOverview extends BaseEntity
     @Excel(name = "考核项目ID", readConverterExp = "关=联perf_ind_project")
     private Long projectId;
 
-    /** 采集月份（格式：YYYYMM） */
-    @Excel(name = "采集月份", readConverterExp = "格=式：YYYYMM")
-    private String gatherMonth;
+    /** 采集月份（格式：YYYY-MM-DD） */
+    @Excel(name = "采集日期", readConverterExp = "格式：YYYY-MM-DD")
+    private String gatherDate;
 
     /** 考核总分 */
     @Excel(name = "考核总分")
@@ -102,14 +102,14 @@ public class PerfGatherOverview extends BaseEntity
     {
         return projectId;
     }
-    public void setGatherMonth(String gatherMonth)
+    public void setGatherMonth(String gatherDate)
     {
-        this.gatherMonth = gatherMonth;
+        this.gatherDate = gatherDate;
     }
 
     public String getGatherMonth()
     {
-        return gatherMonth;
+        return gatherDate;
     }
     public void setTotalScore(BigDecimal totalScore)
     {

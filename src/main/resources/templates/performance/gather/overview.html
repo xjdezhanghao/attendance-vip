@@ -47,12 +47,12 @@
                     <div class="select-list">
                         <ul>
                             <li style="display: flex; align-items: center;">
-                                <span style="margin-right: 5px;">采集月份：</span>
+                                <span style="margin-right: 5px;">采集日期：</span>
                                 <div class="input-group date">
                                     <span class="month-picker input-group-addon"><i class="fa fa-calendar"></i></span>
-                                    <input type="text" class="form-control" id="gatherMonth" name="gatherMonth"
-                                           th:value="${#dates.format(#dates.createNow(), 'yyyy-MM')}"
-                                           placeholder="选择月份" style="width: 120px;">
+                                    <input type="text" class="form-control" id="gatherDate" name="gatherDate"
+                                           th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                                           placeholder="选择日期" style="width: 120px;">
                                 </div>
                             </li>
                             <li>
@@ -88,13 +88,13 @@ var posts = [[${@dict.getType('perf_post_type')}]];
 
 $(function() {
     // 初始化月份选择器
-    $("#gatherMonth").datetimepicker({
-        format: "yyyy-mm",
-        minView: "year",
-        maxView: "decade",
+    $("#gatherDate").datetimepicker({
+        format: "yyyy-mm-dd",
+        minView: "month",
+        //maxView: "decade",
         autoclose: true,
-        startView: 3,  // 从年视图开始
-        minViewMode: 1 // 月份模式
+        //startView: 3,  // 从年视图开始
+        minViewMode: 2 // 月份模式
     });
 
     var panehHidden = false;
@@ -163,8 +163,8 @@ function queryUserList() {
                 title: '考核项目'
             },*/
             {
-                field: 'gatherMonth',
-                title: '采集月份'
+                field: 'gatherDate',
+                title: '采集日期'
             },
             {
                 field: 'totalScore',

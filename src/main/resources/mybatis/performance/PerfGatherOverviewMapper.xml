@@ -9,7 +9,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="deptId"    column="dept_id"    />
         <result property="userId"    column="user_id"    />
         <result property="projectId"    column="project_id"    />
-        <result property="gatherMonth"    column="gather_month"    />
+        <result property="gatherDate"    column="gather_date"    />
         <result property="totalScore"    column="total_score"    />
         <result property="gatherStatus"    column="gather_status"    />
         <result property="gatherId"    column="gather_id"    />
@@ -29,7 +29,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectPerfGatherOverviewVo">
-        select pgo.overview_id, pgo.dept_id, pgo.user_id, pgo.project_id, pgo.gather_month, pgo.total_score, pgo.gather_status, pgo.gather_id,
+        select pgo.overview_id, pgo.dept_id, pgo.user_id, pgo.project_id, pgo.gather_date, pgo.total_score, pgo.gather_status, pgo.gather_id,
                pgo.audit_id, pgo.audit_time, pgo.create_by, pgo.create_time, pgo.update_by, pgo.update_time, pgo.remark,
                vp.post_name post_name, d.dept_name dept_name
                from perf_gather_overview pgo
@@ -39,13 +39,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </sql>
 
     <sql id="selectPerfGatherOverviewVoList">
-        select pgo.user_id, pgo.dept_id, pgo.gather_month,
+        select pgo.user_id, pgo.dept_id, pgo.gather_date,
                pgo.total_score, pgo.create_time,
                u.user_name, d.dept_name, eparam.param_rank, eparam.param_post,
                group_concat(vp.post_name separator '、') as post_name
         from (
-                 select dept_id, user_id, gather_month, sum(total_score) total_score, create_time from perf_gather_overview
-                 group by user_id, dept_id, gather_month, create_time
+                 select dept_id, user_id, gather_date, sum(total_score) total_score, create_time from perf_gather_overview
+                 group by user_id, dept_id, gather_date, create_time
              ) pgo
                  left join sys_user u on pgo.user_id = u.user_id
                  left join sys_dept d on pgo.dept_id = d.dept_id
@@ -60,7 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deptId != null "> and pgo.dept_id = #{deptId}</if>
             <if test="userId != null "> and pgo.user_id = #{userId}</if>
             <if test="projectId != null "> and pgo.project_id = #{projectId}</if>
-            <if test="gatherMonth != null  and gatherMonth != ''"> and pgo.gather_month = #{gatherMonth}</if>
+            <if test="gatherDate != null  and gatherDate != ''"> and pgo.gather_date = #{gatherDate}</if>
             <if test="totalScore != null "> and pgo.total_score = #{totalScore}</if>
             <if test="gatherStatus != null "> and pgo.gather_status = #{gatherStatus}</if>
             <if test="gatherId != null "> and pgo.gather_id = #{gatherId}</if>
@@ -73,7 +73,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="postName != null and postName != ''"> and vp.post_name like concat('%', #{postName}, '%')</if>
             ${params.dataScope}
         </where>
-        group by pgo.user_id, pgo.gather_month, pgo.dept_id, pgo.total_score, pgo.create_time,
+        group by pgo.user_id, pgo.gather_date, pgo.dept_id, pgo.total_score, pgo.create_time,
             u.user_name, d.dept_name, eparam.param_rank, eparam.param_post
         order by pgo.user_id asc, u.number asc, pgo.dept_id asc, pgo.create_time desc
     </select>
@@ -84,7 +84,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deptId != null "> and pgo.dept_id = #{deptId}</if>
             <if test="userId != null "> and pgo.user_id = #{userId}</if>
             <if test="projectId != null "> and pgo.project_id = #{projectId}</if>
-            <if test="gatherMonth != null  and gatherMonth != ''"> and pgo.gather_month = #{gatherMonth}</if>
+            <if test="gatherDate != null  and gatherDate != ''"> and pgo.gather_date = #{gatherDate}</if>
             <if test="totalScore != null "> and pgo.total_score = #{totalScore}</if>
             <if test="gatherStatus != null "> and pgo.gather_status = #{gatherStatus}</if>
             <if test="gatherId != null "> and pgo.gather_id = #{gatherId}</if>
@@ -110,7 +110,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deptId != null">dept_id,</if>
             <if test="userId != null">user_id,</if>
             <if test="projectId != null">project_id,</if>
-            <if test="gatherMonth != null and gatherMonth != ''">gather_month,</if>
+            <if test="gatherDate != null and gatherDate != ''">gather_date,</if>
             <if test="totalScore != null">total_score,</if>
             <if test="gatherStatus != null">gather_status,</if>
             <if test="gatherId != null">gather_id,</if>
@@ -126,7 +126,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deptId != null">#{deptId},</if>
             <if test="userId != null">#{userId},</if>
             <if test="projectId != null">#{projectId},</if>
-            <if test="gatherMonth != null and gatherMonth != ''">#{gatherMonth},</if>
+            <if test="gatherDate != null and gatherDate != ''">#{gatherDate},</if>
             <if test="totalScore != null">#{totalScore},</if>
             <if test="gatherStatus != null">#{gatherStatus},</if>
             <if test="gatherId != null">#{gatherId},</if>
@@ -146,7 +146,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deptId != null">dept_id = #{deptId},</if>
             <if test="userId != null">user_id = #{userId},</if>
             <if test="projectId != null">project_id = #{projectId},</if>
-            <if test="gatherMonth != null and gatherMonth != ''">gather_month = #{gatherMonth},</if>
+            <if test="gatherDate != null and gatherDate != ''">gather_date = #{gatherDate},</if>
             <if test="totalScore != null">total_score = #{totalScore},</if>
             <if test="gatherStatus != null">gather_status = #{gatherStatus},</if>
             <if test="gatherId != null">gather_id = #{gatherId},</if>
