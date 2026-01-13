@@ -11,7 +11,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="categoryId"    column="category_id"    />
         <result property="itemId"    column="item_id"    />
         <result property="itemScore"    column="item_score"    />
-        <result property="sourceType"    column="source_type"    />
+        <result property="scoreType"    column="score_Type"    />
         <result property="itemRemark"    column="item_remark"    />
         <result property="isRelated"    column="is_related"    />
         <result property="dataSource"    column="data_source"    />
@@ -29,7 +29,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectPerfGatherDetailVo">
-        select detail_id, overview_id, project_id, category_id, item_id, item_score, source_type, item_remark, is_related, data_source, create_time, update_time, image_path from perf_gather_detail
+        select detail_id, overview_id, project_id, category_id, item_id, item_score, score_type, item_remark, is_related, data_source, create_time, update_time, image_path from perf_gather_detail
     </sql>
 
     <!-- 以item为基准查询出关联的考核category和采集detail -->
@@ -44,15 +44,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectPerfGatherDetailList" parameterType="PerfGatherDetail" resultMap="PerfGatherDetailResult">
         select pit.item_id, pic.project_id, pic.category_id, pic.score_type, pic.weight,
         pic.category_name, pit.item_name, pit.rule_desc, pit.score_min, pit.score_max,
-        pgd.item_score, pgd.image_path
+        pgd.item_score, pgd.image_path, pgd.item_remark
         from perf_ind_item pit left join perf_ind_category pic on pit.category_id = pic.category_id
         left join
-        (select item_id, item_score, image_path from perf_gather_detail <where><if test="overviewId != null "> and overview_id = #{overviewId}</if></where>) pgd on pit.item_id = pgd.item_id
+        (select item_id, item_score, image_path, item_remark from perf_gather_detail <where><if test="overviewId != null "> and overview_id = #{overviewId}</if></where>) pgd on pit.item_id = pgd.item_id
         <where>
             <if test="projectId != null "> and pic.project_id = #{projectId}</if>
             <if test="categoryId != null "> and pic.category_id = #{categoryId}</if>
             <if test="itemId != null "> and pit.item_id = #{itemId}</if>
-            <if test="sourceType != null  and sourceType != ''"> and pic.source_type = #{sourceType}</if>
+            <if test="scoreType != null  and scoreType != ''"> and pic.score_type = #{scoreType}</if>
             <if test="isRelated != null  and isRelated != ''"> and pit.is_related = #{isRelated}</if>
         </where>
         order by pic.project_id asc, pic.sort asc, pit.sort asc
@@ -71,7 +71,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="categoryId != null">category_id,</if>
             <if test="itemId != null">item_id,</if>
             <if test="itemScore != null">item_score,</if>
-            <if test="sourceType != null">source_type,</if>
+            <if test="scoreType != null">score_type,</if>
             <if test="itemRemark != null">item_remark,</if>
             <if test="isRelated != null">is_related,</if>
             <if test="dataSource != null">data_source,</if>
@@ -85,7 +85,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="categoryId != null">#{categoryId},</if>
             <if test="itemId != null">#{itemId},</if>
             <if test="itemScore != null">#{itemScore},</if>
-            <if test="sourceType != null">#{sourceType},</if>
+            <if test="scoreType != null">#{scoreType},</if>
             <if test="itemRemark != null">#{itemRemark},</if>
             <if test="isRelated != null">#{isRelated},</if>
             <if test="dataSource != null">#{dataSource},</if>
@@ -103,7 +103,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="categoryId != null">category_id = #{categoryId},</if>
             <if test="itemId != null">item_id = #{itemId},</if>
             <if test="itemScore != null">item_score = #{itemScore},</if>
-            <if test="sourceType != null">source_type = #{sourceType},</if>
+            <if test="scoreType != null">score_type = #{scoreType},</if>
             <if test="itemRemark != null">item_remark = #{itemRemark},</if>
             <if test="isRelated != null">is_related = #{isRelated},</if>
             <if test="dataSource != null">data_source = #{dataSource},</if>

@@ -42,7 +42,7 @@ public class PerfGatherDetail extends BaseEntity
 
     /** 加减分类型（0加分1减分2不加减） */
     @Excel(name = "加减分类型", readConverterExp = "0=加分1减分2不加减")
-    private String sourceType;
+    private String scoreType;
 
     /** 小项备注 */
     @Excel(name = "小项备注")
@@ -68,8 +68,6 @@ public class PerfGatherDetail extends BaseEntity
     private String ruleDesc;
 
     private Double weight;
-
-    private String scoreType;
 
     private BigDecimal scoreMin;
 
@@ -129,15 +127,7 @@ public class PerfGatherDetail extends BaseEntity
     {
         return itemScore;
     }
-    public void setSourceType(String sourceType)
-    {
-        this.sourceType = sourceType;
-    }
 
-    public String getSourceType()
-    {
-        return sourceType;
-    }
     public void setItemRemark(String itemRemark)
     {
         this.itemRemark = itemRemark;
@@ -248,7 +238,7 @@ public class PerfGatherDetail extends BaseEntity
             .append("categoryId", getCategoryId())
             .append("itemId", getItemId())
             .append("itemScore", getItemScore())
-            .append("sourceType", getSourceType())
+            .append("scoreType", getScoreType())
             .append("itemRemark", getItemRemark())
             .append("isRelated", getIsRelated())
             .append("dataSource", getDataSource())

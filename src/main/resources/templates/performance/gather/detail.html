@@ -14,10 +14,10 @@
       font-weight: bold;
     }
     .score-input {
-      width: 80px;
+
     }
     .remark-input {
-      width: 200px;
+      resize: vertical;
     }
     .image-upload {
       display: inline-block;
@@ -151,7 +151,8 @@
                      th:data-score-max="${itemDetail.scoreMax ?: 100}"
                      th:data-item-score="${itemDetail.itemScore}"
                      th:data-item-remark="${itemDetail.itemRemark}"
-                     th:data-item-image-path="${itemDetail.imagePath}">  <!-- 添加图片路径 -->
+                     th:data-item-image-path="${itemDetail.imagePath}"
+                     th:data-score-type="${itemDetail.scoreType}">  <!-- 添加图片路径 和 加减分类型 -->
                 </div>
               </div>
             </div>
@@ -235,7 +236,8 @@
         scoreMax: $(this).data('score-max'),
         itemScore: $(this).data('item-score'),
         itemRemark: $(this).data('item-remark'),
-        imagePath: $(this).data('item-image-path')  // 添加图片路径
+        imagePath: $(this).data('item-image-path'),  // 添加图片路径
+        scoreType: $(this).data('score-type')  // 添加分类加减分类型
       });
     });
 
@@ -244,14 +246,28 @@
       var category = categoryMap[categoryId];
       var overviewId = $('#' + formId).find('input[name="overviewId"]').val();
 
+      // 获取分类的scoreType（从第一个项目获取，因为同一分类下所有项目的scoreType应该相同）
+      var categoryScoreType = category.items.length > 0 ? category.items[0].scoreType : '0';
+
       // 创建分类容器
-      var categorySection = $('<div class="category-section" data-category-id="' + category.id + '" data-tab-index="' + tabIndex + '"></div>');
-      var categoryHeader = $('<div class="category-header"><span>' + category.name + '</span><span class="pull-right">小计: <span class="category-total" id="categoryTotal_' + category.id + '_' + tabIndex + '">0</span> 分</span></div>');
+      var categorySection = $('<div class="category-section" data-category-id="' + category.id + '" data-tab-index="' + tabIndex + '" data-score-type="' + categoryScoreType + '"></div>');
+      
+      // 根据scoreType显示分类类型
+      var categoryTypeText = '';
+      if (categoryScoreType === '1' || categoryScoreType === 1) {
+        categoryTypeText = ' (加分项)';
+      } else if (categoryScoreType === '2' || categoryScoreType === 2) {
+        categoryTypeText = ' (减分项)';
+      } else {
+        categoryTypeText = ' (不加减分)';
+      }
+      
+      var categoryHeader = $('<div class="category-header"><span>' + category.name + categoryTypeText + '</span><span class="pull-right">小计: <span class="category-total" id="categoryTotal_' + category.id + '_' + tabIndex + '">0</span> 分</span></div>');
       var categoryBody = $('<div class="category-body"></div>');
 
       // 创建表格
       var table = $('<table class="item-table" data-category-id="' + category.id + '"></table>');
-      var thead = $('<thead><tr><th>名称</th><th>说明</th><th>单项分值</th><th>得分</th><th>备注</th><th>图片</th></tr></thead>');
+      var thead = $('<thead><tr><th width="5%">名称</th><th width="45%">说明</th><th width="8%">单项分值</th><th width="6%">得分</th><th width="26%">备注</th><th width="10%">图片</th></tr></thead>');
       var tbody = $('<tbody></tbody>');
 
       // 添加表格行
@@ -264,14 +280,12 @@
         row.append('<td>' + item.scoreMin + ' - ' + item.scoreMax + '</td>');
 
         var scoreCell = $('<td></td>');
-        var scoreInput = $('<input type="text" class="form-control score-input" name="score_' + item.itemId + '" data-item-id="' + item.itemId + '" data-overview-id="' + overviewId + '" placeholder="分数" value="' + (item.itemScore || '') + '"/>');
-        // var scoreRange = $('<span class="score-range">(范围: ' + item.scoreMin + '-' + item.scoreMax + ')</span>');
-        // scoreCell.append(scoreInput).append(scoreRange);
+        var scoreInput = $('<input type="text" class="form-control score-input" name="score_' + item.itemId + '" data-item-id="' + item.itemId + '" data-category-id="' + item.categoryId + '" data-overview-id="' + overviewId + '" placeholder="分数" value="' + (item.itemScore || '') + '"/>');
         scoreCell.append(scoreInput);
         row.append(scoreCell);
 
         var remarkCell = $('<td></td>');
-        var remarkInput = $('<input type="text" class="form-control remark-input" name="remark_' + item.itemId + '" placeholder="备注" value="' + (item.itemRemark || '') + '"/>');
+        var remarkInput = $('<textarea class="form-control remark-input" name="remark_' + item.itemId + '" placeholder="备注" rows="2">' + (item.itemRemark || '') + '</textarea>');
         remarkCell.append(remarkInput);
         row.append(remarkCell);
 
@@ -308,15 +322,28 @@
   // 计算总分
   function calculateTotalScore(formId) {
     let total = 0;
+    
     $('#' + formId + ' .score-input').each(function() {
       let score = parseFloat($(this).val()) || 0;
-      // 不再限制分数在范围内，允许任意数值包括小数
-      total += score;
+      
+      // 获取当前输入框所在的分类容器
+      var categorySection = $(this).closest('.category-section');
+      var scoreType = categorySection.data('score-type');
+
+      // 根据scoreType决定加减分
+      // 0表示不加减分，1表示加分，2表示减分
+      if (scoreType === '1' || scoreType === 1) {
+        // 加分
+        total += score;
+      } else if (scoreType === '2' || scoreType === 2) {
+        // 减分
+        total -= score;
+      }
+      // scoreType为2时不加不减
     });
 
     var overviewId = $('#' + formId).find('input[name="overviewId"]').val();
     $('#totalScore_' + overviewId).text(total.toFixed(1));
-
   }
 
   // 计算分类小计
@@ -326,11 +353,24 @@
       var categoryId = $(this).data('category-id');
       var tabIndex = $(this).data('tab-index');
       var categoryTotal = 0;
+      
+      // 获取当前分类的加减分类型
+      var scoreType = $(this).data('score-type');
 
       // 计算当前分类下所有得分
       $(this).find('.score-input').each(function() {
         var score = parseFloat($(this).val()) || 0;
-        categoryTotal += score;
+        
+        // 根据scoreType决定加减分
+        // 0表示不加减分，1表示加分，2表示减分
+        if (scoreType === '1' || scoreType === 1) {
+          // 加分
+          categoryTotal += score;
+        } else if (scoreType === '2' || scoreType === 2) {
+          // 减分
+          categoryTotal -= score;
+        }
+        // scoreType为0时不加不减
       });
 
       // 更新分类小计显示
@@ -466,6 +506,7 @@
         var name = $(this).attr('name');
         var itemId = name.replace('remark_', '');
         var remark = $(this).val();
+        console.log("Remark:", name, "=", remark);
         if (remark !== '') {
           formData.append('remarks[' + currentOverviewId + '][' + itemId + ']', remark);
         }

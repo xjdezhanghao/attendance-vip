@@ -244,6 +244,13 @@ public class PerfGatherOverviewController extends BaseController
                 if (imagePaths == null) imagePaths = new HashMap<>();
 
                 perfGatherOverviewService.updateScoresAndRemarks(overviewId, scores, remarks, imagePaths);
+                
+                // 计算并更新总分
+                BigDecimal totalScore = calculateTotalScore(overviewId, scores);
+                PerfGatherOverview overview = new PerfGatherOverview();
+                overview.setOverviewId(overviewId);
+                overview.setTotalScore(totalScore);
+                perfGatherOverviewService.updatePerfGatherOverview(overview);
             }
 
             return AjaxResult.success();
@@ -251,6 +258,38 @@ public class PerfGatherOverviewController extends BaseController
             logger.error("保存绩效采集评分失败", e);
             return AjaxResult.error("保存失败：" + e.getMessage());
         }
+    }
+    
+    /**
+     * 计算总分
+     */
+    private BigDecimal calculateTotalScore(Long overviewId, Map<Long, BigDecimal> scores) {
+        // 查询该项目的所有考核项详情，包含scoreType信息
+        PerfGatherDetail detailParam = new PerfGatherDetail();
+        detailParam.setOverviewId(overviewId);
+        List<PerfGatherDetail> details = perfGatherDetailService.selectPerfGatherDetailList(detailParam);
+        
+        BigDecimal totalScore = new BigDecimal("0"); // 基础分为0分
+        
+        for (PerfGatherDetail detail : details) {
+            Long itemId = detail.getItemId();
+            if (scores.containsKey(itemId)) {
+                // 使用提交的分数，而不是数据库中存储的分数
+                BigDecimal score = scores.get(itemId);
+                String scoreType = detail.getScoreType();
+                
+                // 根据scoreType决定加减分
+                // 根据项目规范：0表示不加减分，1表示加分，2表示减分
+                if ("1".equals(scoreType)) { // 加分
+                    totalScore = totalScore.add(score);
+                } else if ("2".equals(scoreType)) { // 减分
+                    totalScore = totalScore.subtract(score);
+                }
+                // scoreType为0或其他时不加不减
+            }
+        }
+        
+        return totalScore;
     }
 
     /**
