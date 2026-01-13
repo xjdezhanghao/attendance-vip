@@ -5,6 +5,8 @@ import com.attendance.framework.web.domain.BaseEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.math.BigDecimal;
+
 /**
  * 绩效小项采集对象 perf_gather_detail
  * 
@@ -36,7 +38,7 @@ public class PerfGatherDetail extends BaseEntity
 
     /** 小项得分 */
     @Excel(name = "小项得分")
-    private Long itemScore;
+    private BigDecimal itemScore;
 
     /** 加减分类型（0加分1减分2不加减） */
     @Excel(name = "加减分类型", readConverterExp = "0=加分1减分2不加减")
@@ -69,9 +71,9 @@ public class PerfGatherDetail extends BaseEntity
 
     private String scoreType;
 
-    private Integer scoreMin;
+    private BigDecimal scoreMin;
 
-    private Integer scoreMax;
+    private BigDecimal scoreMax;
 
     public void setDetailId(Long detailId)
     {
@@ -118,12 +120,12 @@ public class PerfGatherDetail extends BaseEntity
     {
         return itemId;
     }
-    public void setItemScore(Long itemScore)
+    public void setItemScore(BigDecimal itemScore)
     {
         this.itemScore = itemScore;
     }
 
-    public Long getItemScore()
+    public BigDecimal getItemScore()
     {
         return itemScore;
     }
@@ -221,19 +223,19 @@ public class PerfGatherDetail extends BaseEntity
         this.scoreType = scoreType;
     }
 
-    public Integer getScoreMin() {
+    public BigDecimal getScoreMin() {
         return scoreMin;
     }
 
-    public void setScoreMin(Integer scoreMin) {
+    public void setScoreMin(BigDecimal scoreMin) {
         this.scoreMin = scoreMin;
     }
 
-    public Integer getScoreMax() {
+    public BigDecimal getScoreMax() {
         return scoreMax;
     }
 
-    public void setScoreMax(Integer scoreMax) {
+    public void setScoreMax(BigDecimal scoreMax) {
         this.scoreMax = scoreMax;
     }
 

@@ -127,25 +127,25 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
 
     @Override
     @Transactional
-    public void generateMonthlyGatherRecords() {
+    public void generateDateGatherRecords() {
         // 获取当前月份
-        String currentMonth = DateUtils.dateTimeNow("yyyy-MM");
+        String currentDate = DateUtils.dateTimeNow("yyyy-MM-DD");
 
         // 查询生效中的考核项目
         PerfIndProject projectQuery = new PerfIndProject();
-        projectQuery.setStatus("0"); // 0启用
         List<PerfIndProject> activeProjects = perfIndProjectMapper.selectPerfIndProjectList(projectQuery);
 
         // 为每个考核项目生成对应的采集记录
         for (PerfIndProject project : activeProjects) {
-            generateGatherRecordsForProject(project, currentMonth);
+            generateGatherRecordsForProject(project, currentDate);
         }
     }
 
     /**
      * 为特定考核项目生成采集记录
+     * 每个人根据其部门岗位设置可能存在多条采集记录
      */
-    private void generateGatherRecordsForProject(PerfIndProject project, String gatherMonth) {
+    private void generateGatherRecordsForProject(PerfIndProject project, String gatherDate) {
         // 根据考核项目的层级和关联条件查询对应人员
         List<PerfUserParam> users = findUsersByProjectConditions(project);
 
@@ -155,7 +155,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
             PerfGatherOverview checkRecord = new PerfGatherOverview();
             checkRecord.setUserId(user.getUserId());
             checkRecord.setProjectId(project.getProjectId());
-            checkRecord.setGatherMonth(gatherMonth);
+            checkRecord.setGatherDate(gatherDate);
 
             List<PerfGatherOverview> existingRecords = perfGatherOverviewMapper.selectPerfGatherOverviewList(checkRecord);
 
@@ -165,8 +165,8 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
                 newRecord.setUserId(user.getUserId());
                 newRecord.setDeptId(user.getDeptId());
                 newRecord.setProjectId(project.getProjectId());
-                newRecord.setGatherMonth(gatherMonth);
-                newRecord.setTotalScore(new BigDecimal(100)); // 默认分数
+                newRecord.setGatherDate(gatherDate);
+                newRecord.setTotalScore(new BigDecimal(0)); // 默认分数
                 newRecord.setGatherStatus(0); // 0未采集
                 newRecord.setCreateTime(DateUtils.getNowDate());
 
@@ -199,7 +199,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
 
 
     @Override
-    public void updateScoresAndRemarks(Long overviewId, Map<Long, Long> scores, Map<Long, String> remarks, Map<Long, String> imagePaths) {
+    public void updateScoresAndRemarks(Long overviewId, Map<Long, BigDecimal> scores, Map<Long, String> remarks, Map<Long, String> imagePaths) {
         // 删除现有的考核项详情
         PerfGatherDetail deleteParam = new PerfGatherDetail();
         deleteParam.setOverviewId(overviewId);

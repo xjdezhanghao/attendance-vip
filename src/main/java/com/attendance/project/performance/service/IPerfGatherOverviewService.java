@@ -69,9 +69,9 @@ public interface IPerfGatherOverviewService
      * 定时任务相关
      */
     /**
-     * 生成当月考核采集记录
+     * 生成每日考核采集记录
      */
-    void generateMonthlyGatherRecords();
+    void generateDateGatherRecords();
 
     /**
      * 批量更新考核项的评分、备注和图片路径
@@ -80,6 +80,6 @@ public interface IPerfGatherOverviewService
      * @param remarks 备注映射
      * @param imagePaths 图片路径映射
      */
-    public void updateScoresAndRemarks(Long overviewId, Map<Long, Long> scores, Map<Long, String> remarks, Map<Long, String> imagePaths);
+    public void updateScoresAndRemarks(Long overviewId, Map<Long, BigDecimal> scores, Map<Long, String> remarks, Map<Long, String> imagePaths);
 
 }

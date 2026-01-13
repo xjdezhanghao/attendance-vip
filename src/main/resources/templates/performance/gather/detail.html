@@ -251,7 +251,7 @@
 
       // 创建表格
       var table = $('<table class="item-table" data-category-id="' + category.id + '"></table>');
-      var thead = $('<thead><tr><th>考核项名称</th><th>说明</th><th>分数范围</th><th>得分</th><th>备注</th><th>图片</th></tr></thead>');
+      var thead = $('<thead><tr><th>名称</th><th>说明</th><th>单项分值</th><th>得分</th><th>备注</th><th>图片</th></tr></thead>');
       var tbody = $('<tbody></tbody>');
 
       // 添加表格行
@@ -264,7 +264,7 @@
         row.append('<td>' + item.scoreMin + ' - ' + item.scoreMax + '</td>');
 
         var scoreCell = $('<td></td>');
-        var scoreInput = $('<input type="number" class="form-control score-input" name="score_' + item.itemId + '" data-item-id="' + item.itemId + '" data-overview-id="' + overviewId + '" data-min="' + item.scoreMin + '" data-max="' + item.scoreMax + '" placeholder="分数" value="' + (item.itemScore || '') + '" min="' + item.scoreMin + '" max="' + item.scoreMax + '"/>');
+        var scoreInput = $('<input type="text" class="form-control score-input" name="score_' + item.itemId + '" data-item-id="' + item.itemId + '" data-overview-id="' + overviewId + '" placeholder="分数" value="' + (item.itemScore || '') + '"/>');
         // var scoreRange = $('<span class="score-range">(范围: ' + item.scoreMin + '-' + item.scoreMax + ')</span>');
         // scoreCell.append(scoreInput).append(scoreRange);
         scoreCell.append(scoreInput);
@@ -310,19 +310,13 @@
     let total = 0;
     $('#' + formId + ' .score-input').each(function() {
       let score = parseFloat($(this).val()) || 0;
-      let min = parseFloat($(this).data('min')) || 0;
-      let max = parseFloat($(this).data('max')) || 100;
-
-      // 限制分数在范围内
-      if(score < min) score = min;
-      if(score > max) score = max;
-
-      $(this).val(score);
+      // 不再限制分数在范围内，允许任意数值包括小数
       total += score;
     });
 
     var overviewId = $('#' + formId).find('input[name="overviewId"]').val();
     $('#totalScore_' + overviewId).text(total.toFixed(1));
+
   }
 
   // 计算分类小计

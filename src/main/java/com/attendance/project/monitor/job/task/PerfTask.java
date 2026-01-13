@@ -37,9 +37,18 @@ public class PerfTask
      */
     //@Scheduled(cron = "0 0 12,0 * * ?")
     public void generateGatherRecords() {
-        System.out.println("开始生成当月考核采集记录");
-        perfGatherOverviewService.generateMonthlyGatherRecords();
-        System.out.println("当月考核采集记录生成完成");
+        System.out.println("开始生成当日考核采集记录");
+        perfGatherOverviewService.generateDateGatherRecords();
+        System.out.println("当日考核采集记录生成完成");
+    }
+
+    /**
+     * 提供给外部调用的生成采集记录方法
+     */
+    public void callGenerateGatherRecords() {
+        System.out.println("开始生成当日考核采集记录");
+        perfGatherOverviewService.generateDateGatherRecords();
+        System.out.println("当日考核采集记录生成完成");
     }
 
 }

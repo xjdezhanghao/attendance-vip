@@ -65,6 +65,7 @@ public class PerfGatherOverview extends BaseEntity
     private String paramRank;
     private String paramPost;
     private String postName;
+    private Long postId;
 
     public void setOverviewId(Long overviewId)
     {
@@ -102,12 +103,12 @@ public class PerfGatherOverview extends BaseEntity
     {
         return projectId;
     }
-    public void setGatherMonth(String gatherDate)
+    public void setGatherDate(String gatherDate)
     {
         this.gatherDate = gatherDate;
     }
 
-    public String getGatherMonth()
+    public String getGatherDate()
     {
         return gatherDate;
     }
@@ -197,6 +198,14 @@ public class PerfGatherOverview extends BaseEntity
         this.postName = postName;
     }
 
+    public Long getPostId() {
+        return postId;
+    }
+
+    public void setPostId(Long postId) {
+        this.postId = postId;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
@@ -204,7 +213,7 @@ public class PerfGatherOverview extends BaseEntity
             .append("deptId", getDeptId())
             .append("userId", getUserId())
             .append("projectId", getProjectId())
-            .append("gatherMonth", getGatherMonth())
+            .append("gatherDate", getGatherDate())
             .append("totalScore", getTotalScore())
             .append("gatherStatus", getGatherStatus())
             .append("gatherId", getGatherId())

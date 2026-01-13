@@ -5,6 +5,8 @@ import com.attendance.framework.web.domain.BaseEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.math.BigDecimal;
+
 /**
  * 考核小项对象 perf_ind_item
  * 
@@ -44,11 +46,11 @@ public class PerfIndItem extends BaseEntity
 
     /** 分值最小值 */
     @Excel(name = "分值最小值")
-    private Long scoreMin;
+    private BigDecimal scoreMin;
 
     /** 分值最大值 */
     @Excel(name = "分值最大值")
-    private Long scoreMax;
+    private BigDecimal scoreMax;
 
     /** 排序 */
     @Excel(name = "排序")
@@ -117,21 +119,21 @@ public class PerfIndItem extends BaseEntity
     {
         return dataSource;
     }
-    public void setScoreMin(Long scoreMin)
+    public void setScoreMin(BigDecimal scoreMin)
     {
         this.scoreMin = scoreMin;
     }
 
-    public Long getScoreMin()
+    public BigDecimal getScoreMin()
     {
         return scoreMin;
     }
-    public void setScoreMax(Long scoreMax)
+    public void setScoreMax(BigDecimal scoreMax)
     {
         this.scoreMax = scoreMax;
     }
 
-    public Long getScoreMax()
+    public BigDecimal getScoreMax()
     {
         return scoreMax;
     }

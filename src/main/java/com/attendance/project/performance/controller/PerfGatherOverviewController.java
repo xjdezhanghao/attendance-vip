@@ -107,13 +107,13 @@ public class PerfGatherOverviewController extends BaseController
     @RequiresPermissions("perf:gather:edit")
     @GetMapping("/overviewGather")
     public String overviewGather(@RequestParam Long userId,
-                                 @RequestParam String gatherMonth,
+                                 @RequestParam String gatherDate,
                                  ModelMap mmap)
     {
         // 根据用户ID和采集月份查找对应的overview记录
         PerfGatherOverview queryParam = new PerfGatherOverview();
         queryParam.setUserId(userId);
-        queryParam.setGatherMonth(gatherMonth);
+        queryParam.setGatherDate(gatherDate);
         List<PerfGatherOverview> overviewList = perfGatherOverviewService.selectPerfGatherOverviewListAll(queryParam);
 
         // 限制最多3个标签页
@@ -121,12 +121,12 @@ public class PerfGatherOverviewController extends BaseController
             overviewList = overviewList.subList(0, 3);
         }
 
-        // 根据overview的projectId获取对应的考核项目和详细信息
+        // 根据overview的projectId获取对应的采集考核项目，根据overview的id获取实际采集的详细信息
         List<List<PerfGatherDetail>> gatherDetailsList = new ArrayList<>();
         for (PerfGatherOverview overview : overviewList) {
             PerfGatherDetail detailParam = new PerfGatherDetail();
             detailParam.setProjectId(overview.getProjectId());
-            //detailParam.setOverviewId(overview.getOverviewId());
+            detailParam.setOverviewId(overview.getOverviewId());
             List<PerfGatherDetail> details = perfGatherDetailService.selectPerfGatherDetailList(detailParam);
             gatherDetailsList.add(details);
         }
@@ -139,7 +139,7 @@ public class PerfGatherOverviewController extends BaseController
         mmap.put("overviewList", overviewList);
         mmap.put("gatherDetailList", gatherDetailsList);
         mmap.put("userId", userId);
-        mmap.put("gatherMonth", gatherMonth);
+        mmap.put("gatherDate", gatherDate);
         mmap.put("userParam", userParam);
         return prefix + "/detail";
     }
@@ -157,7 +157,7 @@ public class PerfGatherOverviewController extends BaseController
             Map<String, String[]> parameterMap = request.getParameterMap();
 
             // 存储每个overviewId对应的数据
-            Map<Long, Map<Long, Long>> allScores = new HashMap<>();
+            Map<Long, Map<Long, BigDecimal>> allScores = new HashMap<>();
             Map<Long, Map<Long, String>> allRemarks = new HashMap<>();
             Map<Long, Map<Long, String>> allImagePaths = new HashMap<>();
             Map<Long, String> overallRemarks = new HashMap<>();
@@ -174,8 +174,10 @@ public class PerfGatherOverviewController extends BaseController
                         Long itemId = Long.parseLong(matcher.group(2));
                         String[] values = parameterMap.get(paramName);
                         if (values.length > 0 && !values[0].isEmpty()) {
+                            // 将分数转换为BigDecimal类型
+                            BigDecimal score = new BigDecimal(values[0]);
                             allScores.computeIfAbsent(overviewId, k -> new HashMap<>())
-                                    .put(itemId, Long.valueOf(values[0]));
+                                    .put(itemId, score);
                         }
                     }
                 } else if (paramName.startsWith("remarks[")) {
@@ -232,7 +234,7 @@ public class PerfGatherOverviewController extends BaseController
 
             // 批量更新每个overview下的考核项
             for (Long overviewId : allScores.keySet()) {
-                Map<Long, Long> scores = allScores.get(overviewId);
+                Map<Long, BigDecimal> scores = allScores.get(overviewId);
                 Map<Long, String> remarks = allRemarks.get(overviewId);
                 Map<Long, String> imagePaths = allImagePaths.get(overviewId);
 

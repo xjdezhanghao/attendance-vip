@@ -33,17 +33,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectPerfUserParamList" parameterType="PerfUserParam" resultMap="PerfUserParamResult">
         <include refid="selectPerfUserParamVo"/>
         <where>
-            u.del_flag = 0
+            u.del_flag = 0 and d.dept_id > 100
             <if test="userId != null "> and u.user_id = #{userId}</if>
             <if test="paramRank != null  and paramRank != ''"> and ep1.param_rank = #{paramRank}</if>
             <if test="paramPost != null  and paramPost != ''"> and ep1.param_post = #{paramPost}</if>
             <if test="deptName != null  and deptName != ''"> and d.dept_name like concat('%', #{deptName}, '%')</if>
             <if test="userName != null  and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
-            <if test="deptId != null "> and (d.dept_id = #{deptId} or d.parent_id = #{deptId} or d.ancestors like concat(#{deptId},'%'))</if>
+            <if test="deptId != null "> and (d.dept_id = #{deptId} or
+             d.parent_id = #{deptId} or d.ancestors like concat('%', #{deptId},',%'))</if>
             <if test="postId != null "> and ep2.post_id = #{postId}</if>
+            <if test="postName != null  and postName != ''"> and p.post_name like concat('%', #{postName}, '%')</if>
         </where>
         group by u.user_id, u.user_name, u.login_name, u.dept_id, d.dept_name, ep1.param_rank, ep1.param_post
-        order by d.dept_id asc, u.user_id asc
+        order by d.dept_id asc, u.number asc, u.user_id asc
     </select>
 
     <select id="selectPerfUserParamListOnly" parameterType="PerfUserParam" resultMap="PerfUserParamResult">

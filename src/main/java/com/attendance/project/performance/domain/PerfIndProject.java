@@ -42,6 +42,8 @@ public class PerfIndProject extends BaseEntity
 
     private String deptName;
 
+    private String postName;
+
     /** 大类列表 */
     private List<PerfIndCategory> categories;
 
@@ -114,6 +116,14 @@ public class PerfIndProject extends BaseEntity
 
     public void setDeptName(String deptName) {
         this.deptName = deptName;
+    }
+
+    public String getPostName() {
+        return postName;
+    }
+
+    public void setPostName(String postName) {
+        this.postName = postName;
     }
 
     @Override

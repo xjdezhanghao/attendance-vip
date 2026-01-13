@@ -6,6 +6,7 @@
     <th:block th:include="include :: layout-latest-css" />
     <th:block th:include="include :: ztree-css" />
     <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
     <style>
         .month-picker {
             width: 20px !important;
@@ -59,6 +60,11 @@
                                 员工姓名：<input type="text" name="userName"/>
                             </li>
                             <li>
+                                岗位：<select name="postId" id="postIdSelect" class="form-control">
+                                <option value="">请选择岗位</option>
+                            </select>
+                            </li>
+                            <li>
                                 <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                                 <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                             </li>
@@ -78,6 +84,7 @@
 <th:block th:include="include :: layout-latest-js" />
 <th:block th:include="include :: ztree-js" />
 <th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: select2-js" />
 <script th:inline="javascript">
 var editFlag = [[${@permission.hasPermi('perf:gather:edit')}]];
 var removeFlag = [[${@permission.hasPermi('perf:gather:remove')}]];
@@ -110,9 +117,44 @@ $(function() {
         };
         $('#scroll-up').toTop(opt);
     }
+    loadPostData();
+    // 进入页面时自动调用生成采集记录
+    generateGatherRecords();
     queryUserList();
     queryDeptTree();
 });
+
+// 自动调用生成采集记录
+function generateGatherRecords() {
+    $.ajax({
+        url: ctx + "monitor/job/perfTask/generateGatherRecords",
+        type: "post",
+        success: function(result) {
+            console.log("采集记录生成完成");
+            // 可以根据返回结果决定是否显示消息给用户
+            if(result.code === 0) {
+                console.log(result.msg);
+                // 生成完成后刷新列表
+                $.table.refresh();
+            }
+        },
+        error: function(xhr, status, error) {
+            console.log("采集记录生成可能已有任务在执行或出现错误: ", error);
+        }
+    });
+}
+
+function loadPostData() {
+    $.get(ctx + "performance/post/list2", function(result) {
+        if (result.code === 0) {
+            var postOptions = '<option value="">请选择岗位</option>';
+            $.each(result.rows, function(index, item) {
+                postOptions += '<option value="' + item.postId + '">' + item.postName + '</option>';
+            });
+            $("#postIdSelect").html(postOptions);
+        }
+    });
+}
 
 function queryUserList() {
     var options = {
@@ -147,7 +189,7 @@ function queryUserList() {
             },
             {
                 field: 'deptName',
-                title: '所属部门'
+                title: '所属单位'
             },
             {
                 field: 'postName',
@@ -168,21 +210,21 @@ function queryUserList() {
             },
             {
                 field: 'totalScore',
-                title: '考核总分',
+                title: '考核得分',
                 formatter: function(value, row, index) {
                     return '<span class="score-' + (value >= 100 ? 'high' : value >= 80 ? 'medium' : 'low') + '">' + value + '</span>';
                 }
             },
-            {
+            /*{
                 field: 'gatherStatusName',
                 title: '采集状态'
-            },
+            },*/
             {
                 title: '操作',
                 align: 'center',
                 formatter: function(value, row, index) {
                     var actions = [];
-                    actions.push('<a class="btn btn-primary btn-xs" href="javascript:void(0)" onclick="overviewGather(\''+row.userId+'\',\''+row.gatherMonth+'\',\''+row.userName+'\')"><i class="fa fa-edit"></i>采集</a> ');
+                    actions.push('<a class="btn btn-primary btn-xs" href="javascript:void(0)" onclick="overviewGather(\''+row.userId+'\',\''+row.gatherDate+'\',\''+row.userName+'\')"><i class="fa fa-edit"></i>采集</a> ');
                     return actions.join('');
                 }
             }]
@@ -229,8 +271,8 @@ function dept() {
     $.modal.openTab("部门管理", url);
 }
 
-function overviewGather(userId,gatherMonth,userName){
-    var url = prefix + "/overviewGather?userId=" + userId + "&gatherMonth=" + gatherMonth;
+function overviewGather(userId,gatherDate,userName){
+    var url = prefix + "/overviewGather?userId=" + userId + "&gatherDate=" + gatherDate;
     $.modal.openTab("绩效采集："+userName, url);
 
 }

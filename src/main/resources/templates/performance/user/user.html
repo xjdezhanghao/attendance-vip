@@ -35,7 +35,13 @@
 						<div class="select-list">
 							<ul>
 								<li>
-									用户姓名：<input type="text" name="userName"/>
+									姓名：<input type="text" name="userName"/>
+								</li>
+								<li>
+									单位：<input type="text" name="deptName"/>
+								</li>
+								<li>
+									岗位：<input type="text" name="postName"/>
 								</li>
 								<li>
 									<a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -108,7 +114,7 @@
 		            field: 'deptName',
 		            title: '部门'
 		        },
-				{
+				/*{
 					field: 'paramRank',
 					title: '职级类型',
 					formatter: function(value, row, index) {
@@ -121,7 +127,7 @@
 					formatter: function(value, row, index) {
 						return $.table.selectDictLabel(posts, value);
 					}
-				},
+				},*/
 				{
 					field: 'postName',
 					title: '员工岗位'

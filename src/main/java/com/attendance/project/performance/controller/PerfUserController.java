@@ -53,12 +53,10 @@ public class PerfUserController extends BaseController
 
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(User user)
+    public TableDataInfo list(PerfUserParam userParam)
     {
         User curUser = getSysUser();
-        Dept curDept = curUser.getDept();
         startPage();
-        PerfUserParam userParam = new PerfUserParam();
         //userParam.setDeptId(curDept.getParentId());
         List<PerfUserParam> userParams = userParamService.selectPerfUserParamList(userParam);
         return getDataTable(userParams);

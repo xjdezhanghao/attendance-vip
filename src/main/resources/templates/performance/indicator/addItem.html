@@ -16,8 +16,8 @@
                 <thead>
                     <tr>
                         <th width="5%"></th>
-                        <th width="18%">小项名称</th>
-                        <th width="32%">描述规则</th>
+                        <th width="10%">名称</th>
+                        <th width="40%">描述规则</th>
                         <th width="10%">关联数据</th>
                         <th width="10%">最小分值</th>
                         <th width="10%">最大分值</th>
@@ -47,6 +47,7 @@
         var categoryIndex = [[${categoryIndex}]];
         var layerIndex = [[${layerIndex}]];
         var mainWindow = window.parent.document;
+        //获取上级页面
         var addIframe = $(mainWindow).find("#layui-layer-iframe" + layerIndex);
         var addWindow = addIframe[0].contentWindow;
 
@@ -74,10 +75,10 @@
             itemIndex++;
             var html = `            <tr id="item-row-${itemIndex}">
                 <td>${itemIndex}</td>
-                <td><input type="text" class="form-control" name="itemName" value="${itemData.itemName || ''}" placeholder="请输入小项名称" required></td>
+                <td><input type="text" class="form-control" name="itemName" value="${itemData.itemName || ''}" placeholder="请输入小项名称"></td>
                 <td>
                     <div class="input-group">
-                        <input type="text" class="form-control" name="ruleDesc" value="${itemData.ruleDesc || ''}" placeholder="请输入描述规则" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <input type="text" class="form-control" name="ruleDesc" value="${itemData.ruleDesc || ''}" placeholder="请输入描述规则" style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                         <div class="input-group-addon" onclick="showRuleDesc(this)">
                             <i class="fa fa-eye"></i>
                         </div>
@@ -89,8 +90,8 @@
                         <option value="1" ${itemData.isRelated == '1' ? 'selected' : ''}>是</option>
                     </select>
                 </td>
-                <td><input type="number" class="form-control" name="scoreMin" value="${itemData.scoreMin || ''}" placeholder="最小分值"></td>
-                <td><input type="number" class="form-control" name="scoreMax" value="${itemData.scoreMax || ''}" placeholder="最大分值"></td>
+                <td><input type="text" class="form-control" name="scoreMin" value="${itemData.scoreMin !== undefined && itemData.scoreMin !== null ? itemData.scoreMin : ''}" placeholder="最小分值"></td>
+                <td><input type="text" class="form-control" name="scoreMax" value="${itemData.scoreMax !== undefined && itemData.scoreMax !== null ? itemData.scoreMax : ''}" placeholder="最大分值"></td>
                 <td>
                     <input type="hidden" name="itemId" value="${itemData.itemId || ''}">
                     <button type="button" class="btn btn-success btn-xs" onclick="moveUpItem(${itemIndex})">
@@ -114,10 +115,10 @@
             var html = `
                 <tr id="item-row-${itemIndex}">
                     <td>${itemIndex}</td>
-                    <td><input type="text" class="form-control" name="itemName" placeholder="请输入小项名称" required></td>
+                    <td><input type="text" class="form-control" name="itemName" value="${itemIndex}" placeholder="请输入小项名称" required></td>
                     <td>
                         <div class="input-group">
-                            <input type="text" class="form-control" name="ruleDesc" placeholder="请输入描述规则" style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            <input type="text" class="form-control" name="ruleDesc" placeholder="请输入描述规则" style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                             <div class="input-group-addon" onclick="showRuleDesc(this)">
                                 <i class="fa fa-eye"></i>
                             </div>
@@ -129,8 +130,8 @@
                             <option value="1">是</option>
                         </select>
                     </td>
-                    <td><input type="text" class="form-control" name="scoreMin" placeholder="如:0"></td>
-                    <td><input type="text" class="form-control" name="scoreMax" placeholder="如:10"></td>
+                    <td><input type="text" class="form-control" name="scoreMin" placeholder="最小分值"></td>
+                    <td><input type="text" class="form-control" name="scoreMax" placeholder="最大分值"></td>
                     <td>
                         <button type="button" class="btn btn-success btn-xs" onclick="moveUpItem(${itemIndex})">
                             <i class="fa fa-arrow-up"></i>
@@ -229,23 +230,54 @@
             var isValid = true;
             $('#item-tbody tr').each(function(index) {
                 var itemName = $(this).find("input[name='itemName']").val();
-                if (!itemName) {
+                /*if (!itemName) {
                     $.modal.alertWarning("第" + (index+1) + "行小项名称不能为空");
                     isValid = false;
                     return false;
-                }
+                }*/
 
                 // 获取最小分值和最大分值
                 var scoreMin = $(this).find("input[name='scoreMin']").val();
                 var scoreMax = $(this).find("input[name='scoreMax']").val();
+
+                // 验证分值格式并转换为数值
+                var parsedScoreMin = null;
+                var parsedScoreMax = null;
+
+                if (scoreMin !== "" && scoreMin !== null) {
+                    if (/^\d+(\.\d{1})?$/.test(scoreMin)) {
+                        parsedScoreMin = parseFloat(scoreMin);
+                    } else {
+                        $.modal.alertWarning("第" + (index+1) + "行最小分值格式不正确，请输入整数或1位小数");
+                        isValid = false;
+                        return false;
+                    }
+                }
+
+                if (scoreMax !== "" && scoreMax !== null) {
+                    if (/^\d+(\.\d{1})?$/.test(scoreMax)) {
+                        parsedScoreMax = parseFloat(scoreMax);
+                    } else {
+                        $.modal.alertWarning("第" + (index+1) + "行最大分值格式不正确，请输入整数或1位小数");
+                        isValid = false;
+                        return false;
+                    }
+                }
+
+                // 检查最小分值不能大于最大分值
+                if (parsedScoreMin !== null && parsedScoreMax !== null && parsedScoreMin > parsedScoreMax) {
+                    $.modal.alertWarning("第" + (index+1) + "行最小分值不能大于最大分值");
+                    isValid = false;
+                    return false;
+                }
 
                 var item = {
                     itemId: $(this).find("input[name='itemId']").val() || null,
                     itemName: itemName,
                     ruleDesc: $(this).find("input[name='ruleDesc']").val() || "",
                     isRelated: $(this).find("select[name='isRelated']").val() || "0",
-                    scoreMin: scoreMin ? parseInt(scoreMin) : null,
-                    scoreMax: scoreMax ? parseInt(scoreMax) : null,
+                    scoreMin: scoreMin,
+                    scoreMax: scoreMax,
                     sort: index + 1
                 };
                 items.push(item);

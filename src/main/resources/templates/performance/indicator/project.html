@@ -15,16 +15,12 @@
                                 <input type="text" name="projectName"/>
                             </li>
                             <li>
-                                <label>适用层级：</label>
-                                <input type="text" name="deptLevel"/>
+                                <label>所属单位：</label>
+                                <input type="text" name="deptName"/>
                             </li>
                             <li>
-                                <label>适用科室/班组ID：</label>
-                                <input type="text" name="deptId"/>
-                            </li>
-                            <li>
-                                <label>适用岗位ID：</label>
-                                <input type="text" name="postId"/>
+                                <label>所属岗位：</label>
+                                <input type="text" name="postName"/>
                             </li>
                             <li>
                                 <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
@@ -45,9 +41,9 @@
                 <a class="btn btn-danger multiple disabled" onclick="$.operate.removeAll()" shiro:hasPermission="system:project:remove">
                     <i class="fa fa-remove"></i> 删除
                 </a>
-                <a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:project:export">
+                <!--<a class="btn btn-warning" onclick="$.table.exportExcel()" shiro:hasPermission="system:project:export">
                     <i class="fa fa-download"></i> 导出
-                </a>
+                </a>-->
             </div>
             <div class="col-sm-12 select-table table-striped">
                 <table id="bootstrap-table"></table>
@@ -72,6 +68,10 @@
                     checkbox: true
                 },
                 {
+                    field: 'status',
+                    title: '排序'
+                },
+                {
                     field: 'projectId',
                     title: '考核项目ID',
                     visible: false
@@ -82,19 +82,16 @@
                 },
                 {
                     field: 'deptLevel',
-                    title: '适用层级'
+                    title: '适用层级',
+                    visible: false
                 },
                 {
-                    field: 'deptId',
-                    title: '适用科室/班组ID'
+                    field: 'deptName',
+                    title: '适用单位'
                 },
                 {
-                    field: 'postId',
-                    title: '适用岗位ID'
-                },
-                {
-                    field: 'status',
-                    title: '状态'
+                    field: 'postName',
+                    title: '适用岗位'
                 },
                 {
                     title: '操作',
