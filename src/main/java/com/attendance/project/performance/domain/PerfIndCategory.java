@@ -30,7 +30,7 @@ public class PerfIndCategory extends BaseEntity
     private String categoryName;
 
     /** 加减分类型（0加分1减分2不加减） */
-    @Excel(name = "加减分类型", readConverterExp = "0=加分1减分2不加减")
+    @Excel(name = "加减分类型", readConverterExp = "0=不加减1加分2减分")
     private String scoreType;
 
     /** 权重 */

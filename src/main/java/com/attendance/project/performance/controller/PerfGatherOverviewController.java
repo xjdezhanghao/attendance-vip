@@ -1,16 +1,19 @@
 package com.attendance.project.performance.controller;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import com.attendance.framework.config.AttendanceConfig;
 import com.attendance.project.performance.domain.PerfGatherDetail;
 import com.attendance.project.performance.domain.PerfUserParam;
 import com.attendance.project.performance.service.IPerfGatherDetailService;
 import com.attendance.project.performance.service.IPerfUserParamService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.apache.commons.compress.utils.IOUtils;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -303,4 +306,62 @@ public class PerfGatherOverviewController extends BaseController
     {
         return toAjax(perfGatherOverviewService.deletePerfGatherOverviewByOverviewIds(ids));
     }
+
+    /**
+     * 导出绩效采集模板
+     * 根据当前页面查询出的overview结果生成模板
+     * 每个Sheet对应一个人员，多个Sheet对应多个人员
+     */
+    @Log(title = "绩效采集", businessType = BusinessType. EXPORT)
+    @PostMapping("/exportTemplate")
+    @ResponseBody
+    public AjaxResult exportTemplate(PerfGatherOverview queryParam)
+    {
+        OutputStream out = null;
+        try {
+            // 获取所有overview列表用于生成模板
+            List<PerfGatherOverview> overviewList = perfGatherOverviewService.selectPerfGatherOverviewList(queryParam);
+
+            // 如果没有数据，返回错误
+            if (overviewList == null || overviewList.isEmpty()) {
+                return AjaxResult.error("没有可导出的数据");
+            }
+
+            // 调用Service层生成模板
+            Workbook wb = perfGatherOverviewService.generateGatherTemplate(overviewList);
+
+            // 保存文件
+            String filename = encodingFilename("绩效采集模板");
+            out = new FileOutputStream(getAbsoluteFile(filename));
+            wb.write(out);
+
+            return AjaxResult.success(filename);
+        } catch (Exception e) {
+            logger.error("导出模板异常", e);
+            return AjaxResult.error("导出模板失败，请联系网站管理员！");
+        } finally {
+            IOUtils.closeQuietly(out);
+        }
+    }
+
+    /**
+     * 编码文件名
+     */
+    public String encodingFilename(String filename) {
+        filename = UUID.randomUUID().toString() + "_" + filename + ".xlsx";
+        return filename;
+    }
+
+    /**
+     * 获取下载路径
+     */
+    public String getAbsoluteFile(String filename) {
+        String downloadPath = AttendanceConfig.getDownloadPath() + filename;
+        File desc = new File(downloadPath);
+        if (!desc.getParentFile().exists()) {
+            desc.getParentFile().mkdirs();
+        }
+        return downloadPath;
+    }
+
 }

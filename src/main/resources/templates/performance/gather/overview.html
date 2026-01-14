@@ -73,6 +73,16 @@
                 </form>
             </div>
 
+            <!-- 新增工具栏：模板下载和导入按钮 -->
+            <div class="btn-group-sm" id="toolbar" role="group">
+                <a class="btn btn-warning" onclick="downloadTemplate()">
+                    <i class="fa fa-download"></i> 模板
+                </a>
+                <a class="btn btn-warning" onclick="$.table.importExcel()">
+                    <i class="fa fa-upload"></i> 导入
+                </a>
+            </div>
+
             <div class="col-sm-12 select-table table-striped">
                 <table id="bootstrap-table"></table>
             </div>
@@ -153,6 +163,24 @@ function loadPostData() {
             });
             $("#postIdSelect").html(postOptions);
         }
+    });
+}
+
+/**
+ * 下载模板
+ */
+function downloadTemplate() {
+    var data = $("#user-form").serialize();
+    $. modal. loading("正在生成模板，请稍候...");
+    $.post(prefix + "/exportTemplate", data, function (result) {
+        if (result.code == web_status.SUCCESS) {
+            window.location.href = ctx + "common/download?fileName=" + encodeURI(result.msg) + "&delete=" + true;
+        } else if (result.code == web_status.WARNING) {
+            $.modal.alertWarning(result.msg)
+        } else {
+            $. modal.alertError(result.msg);
+        }
+        $.modal.closeLoading();
     });
 }
 

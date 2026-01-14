@@ -56,6 +56,11 @@ public class PerfIndItem extends BaseEntity
     @Excel(name = "排序")
     private Long sort;
 
+    //关联字段
+    private String categoryName;
+    private String projectName;
+    private String scoreType;
+
     public void setItemId(Long itemId)
     {
         this.itemId = itemId;
@@ -145,6 +150,30 @@ public class PerfIndItem extends BaseEntity
     public Long getSort()
     {
         return sort;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String getScoreType() {
+        return scoreType;
+    }
+
+    public void setScoreType(String scoreType) {
+        this.scoreType = scoreType;
     }
 
     @Override

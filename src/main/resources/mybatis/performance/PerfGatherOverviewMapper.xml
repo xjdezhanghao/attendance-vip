@@ -56,12 +56,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <!-- 合并同一用户不同project的每日采集记录在列表显示 -->
     <select id="selectPerfGatherOverviewList" parameterType="PerfGatherOverview" resultMap="PerfGatherOverviewResult">
-        select pgo.user_id, pgo.dept_id, pgo.gather_date,
+        select pgo.overview_id, pgo.project_id, pgo.user_id, pgo.dept_id, pgo.gather_date,
         pgo.total_score, pgo.create_time,
         u.user_name, d.dept_name, eparam.param_rank, eparam.param_post,
         group_concat(vp.post_name separator '、') as post_name
         from (
-        select dept_id, user_id, gather_date, sum(total_score) total_score, max(create_time) create_time from perf_gather_overview
+        select min(overview_id) overview_id, min(project_id) project_id, dept_id, user_id, gather_date, sum(total_score) total_score, max(create_time) create_time from perf_gather_overview
         <where>
             <if test="gatherDate != null  and gatherDate != ''"> and gather_date = #{gatherDate}</if>
             <!--<if test="deptId != null "> and dept_id = #{deptId}</if>-->

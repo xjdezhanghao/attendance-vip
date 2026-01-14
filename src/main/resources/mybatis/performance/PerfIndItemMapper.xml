@@ -18,6 +18,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="remark"    column="remark"    />
         <result property="createBy"    column="create_by"    />
         <result property="createTime"    column="create_time"    />
+        <result property="projectName"    column="project_name"    />
+        <result property="categoryName"    column="category_name"    />
+        <result property="scoreType"    column="score_type"    />
     </resultMap>
 
     <sql id="selectPerfIndItemVo">
@@ -38,7 +41,42 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="sort != null "> and sort = #{sort}</if>
         </where>
     </select>
-    
+
+    <select id="selectPerfIndItemCatProList" parameterType="PerfIndItem" resultMap="PerfIndItemResult">
+        SELECT
+        it.item_id,
+        it.item_name,
+        it.rule_desc,
+        it.is_related,
+        it.data_source,
+        it.score_min,
+        it.score_max,
+        it.sort,
+        it.remark,
+        it.create_by,
+        it.create_time,
+        ip.project_id,
+        ip.project_name,
+        ic.category_id,
+        ic.category_name,
+        ic.sort,
+        ic.score_type
+        FROM
+        perf_ind_item it left join perf_ind_category ic on it.category_id = ic.category_id left join perf_ind_project ip on ic.project_id = ip.project_id
+        <where>
+            <if test="projectId != null "> and it.project_id = #{projectId}</if>
+            <if test="categoryId != null "> and it.category_id = #{categoryId}</if>
+            <if test="itemName != null  and itemName != ''"> and it.item_name like concat('%', #{itemName}, '%')</if>
+            <if test="ruleDesc != null  and ruleDesc != ''"> and it.rule_desc = #{ruleDesc}</if>
+            <if test="isRelated != null  and isRelated != ''"> and it.is_related = #{isRelated}</if>
+            <if test="dataSource != null  and dataSource != ''"> and it.data_source = #{dataSource}</if>
+            <if test="scoreMin != null "> and it.score_min = #{scoreMin}</if>
+            <if test="scoreMax != null "> and it.score_max = #{scoreMax}</if>
+            <if test="sort != null "> and it.sort = #{sort}</if>
+        </where>
+        order by ic.sort asc, it.sort asc
+    </select>
+
     <select id="selectPerfIndItemByItemId" parameterType="Long" resultMap="PerfIndItemResult">
         <include refid="selectPerfIndItemVo"/>
         where item_id = #{itemId}

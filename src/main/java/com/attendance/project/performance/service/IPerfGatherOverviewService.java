@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.attendance.project.performance.domain.PerfGatherOverview;
+import org.apache.poi.ss.usermodel.Workbook;
 
 /**
  * 绩效采集主Service接口
@@ -82,4 +83,10 @@ public interface IPerfGatherOverviewService
      */
     public void updateScoresAndRemarks(Long overviewId, Map<Long, BigDecimal> scores, Map<Long, String> remarks, Map<Long, String> imagePaths);
 
+    /**
+     * 生成绩效采集模板
+     * @param overviewList 采集记录列表
+     * @return Workbook对象
+     */
+    public Workbook generateGatherTemplate(List<PerfGatherOverview> overviewList) throws Exception;
 }

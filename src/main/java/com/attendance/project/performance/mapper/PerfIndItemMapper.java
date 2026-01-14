@@ -26,6 +26,7 @@ public interface PerfIndItemMapper
      * @return 考核小项集合
      */
     public List<PerfIndItem> selectPerfIndItemList(PerfIndItem perfIndItem);
+    public List<PerfIndItem> selectPerfIndItemCatProList(PerfIndItem perfIndItem);
 
     /**
      * 新增考核小项
