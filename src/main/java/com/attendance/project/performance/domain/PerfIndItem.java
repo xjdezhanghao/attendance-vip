@@ -52,14 +52,17 @@ public class PerfIndItem extends BaseEntity
     @Excel(name = "分值最大值")
     private BigDecimal scoreMax;
 
+
     /** 排序 */
     @Excel(name = "排序")
     private Long sort;
 
+    private String scoreType;
+
     //关联字段
     private String categoryName;
     private String projectName;
-    private String scoreType;
+
 
     public void setItemId(Long itemId)
     {

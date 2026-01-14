@@ -44,6 +44,8 @@ public interface PerfIndItemMapper
      */
     public int updatePerfIndItem(PerfIndItem perfIndItem);
 
+    public int updatePerfIndItemByCategory(PerfIndItem perfIndItem);
+
     /**
      * 删除考核小项
      * 

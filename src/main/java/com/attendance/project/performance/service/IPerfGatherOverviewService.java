@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.attendance.project.performance.domain.PerfGatherOverview;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 绩效采集主Service接口
@@ -89,4 +90,14 @@ public interface IPerfGatherOverviewService
      * @return Workbook对象
      */
     public Workbook generateGatherTemplate(List<PerfGatherOverview> overviewList) throws Exception;
+
+    /**
+     * 导入绩效采集详情数据
+     * @param file 上传的Excel文件
+     * @return 导入结果信息
+     */
+    public String importGatherDetails(MultipartFile file) throws Exception;
+
+    public BigDecimal calculateTotalScore(Long overviewId, Map<Long, BigDecimal> scores);
+
 }

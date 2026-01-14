@@ -143,6 +143,21 @@ public class PerfIndProjectController extends BaseController
         }
     }
 
+    @RequiresPermissions("perf:ind:edit")
+    @Log(title = "校对考核项目", businessType = BusinessType.UPDATE)
+    @GetMapping("/checkProjectItem")
+    @ResponseBody
+    public AjaxResult checkProjectItem()
+    {
+        try {
+            perfIndItemService.updatePerfIndItemByCategory(new PerfIndItem());
+            return AjaxResult.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return AjaxResult.error("校对失败，请重试");
+        }
+    }
+
     /**
      * 删除考核项目主
      */

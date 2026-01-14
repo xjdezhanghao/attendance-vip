@@ -70,6 +70,11 @@ public class PerfIndItemServiceImpl implements IPerfIndItemService
         return perfIndItemMapper.updatePerfIndItem(perfIndItem);
     }
 
+    @Override
+    public int updatePerfIndItemByCategory(PerfIndItem perfIndItem) {
+        return perfIndItemMapper.updatePerfIndItemByCategory(perfIndItem);
+    }
+
     /**
      * 批量删除考核小项
      * 

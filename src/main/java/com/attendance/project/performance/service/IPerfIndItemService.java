@@ -42,6 +42,7 @@ public interface IPerfIndItemService
      * @return 结果
      */
     public int updatePerfIndItem(PerfIndItem perfIndItem);
+    public int updatePerfIndItemByCategory(PerfIndItem perfIndItem);
 
     /**
      * 批量删除考核小项

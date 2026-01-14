@@ -27,6 +27,7 @@ import com.attendance.framework.web.controller.BaseController;
 import com.attendance.framework.web.domain.AjaxResult;
 import com.attendance.common.utils.poi.ExcelUtil;
 import com.attendance.framework.web.page.TableDataInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 绩效采集主Controller
@@ -249,7 +250,7 @@ public class PerfGatherOverviewController extends BaseController
                 perfGatherOverviewService.updateScoresAndRemarks(overviewId, scores, remarks, imagePaths);
                 
                 // 计算并更新总分
-                BigDecimal totalScore = calculateTotalScore(overviewId, scores);
+                BigDecimal totalScore = perfGatherOverviewService.calculateTotalScore(overviewId, scores);
                 PerfGatherOverview overview = new PerfGatherOverview();
                 overview.setOverviewId(overviewId);
                 overview.setTotalScore(totalScore);
@@ -261,38 +262,6 @@ public class PerfGatherOverviewController extends BaseController
             logger.error("保存绩效采集评分失败", e);
             return AjaxResult.error("保存失败：" + e.getMessage());
         }
-    }
-    
-    /**
-     * 计算总分
-     */
-    private BigDecimal calculateTotalScore(Long overviewId, Map<Long, BigDecimal> scores) {
-        // 查询该项目的所有考核项详情，包含scoreType信息
-        PerfGatherDetail detailParam = new PerfGatherDetail();
-        detailParam.setOverviewId(overviewId);
-        List<PerfGatherDetail> details = perfGatherDetailService.selectPerfGatherDetailList(detailParam);
-        
-        BigDecimal totalScore = new BigDecimal("0"); // 基础分为0分
-        
-        for (PerfGatherDetail detail : details) {
-            Long itemId = detail.getItemId();
-            if (scores.containsKey(itemId)) {
-                // 使用提交的分数，而不是数据库中存储的分数
-                BigDecimal score = scores.get(itemId);
-                String scoreType = detail.getScoreType();
-                
-                // 根据scoreType决定加减分
-                // 根据项目规范：0表示不加减分，1表示加分，2表示减分
-                if ("1".equals(scoreType)) { // 加分
-                    totalScore = totalScore.add(score);
-                } else if ("2".equals(scoreType)) { // 减分
-                    totalScore = totalScore.subtract(score);
-                }
-                // scoreType为0或其他时不加不减
-            }
-        }
-        
-        return totalScore;
     }
 
     /**
@@ -341,6 +310,29 @@ public class PerfGatherOverviewController extends BaseController
             return AjaxResult.error("导出模板失败，请联系网站管理员！");
         } finally {
             IOUtils.closeQuietly(out);
+        }
+    }
+
+    /**
+     * 导入绩效采集详情数据
+     * 接收上传的Excel文件，解析并导入数据
+     */
+    @RequiresPermissions("perf: gather:edit")
+    @Log(title = "绩效采集", businessType = BusinessType.IMPORT)
+    @PostMapping("/importData")
+    @ResponseBody
+    public AjaxResult importGatherData(@RequestParam("file") MultipartFile file)
+    {
+        try {
+            if (file.isEmpty()) {
+                return AjaxResult.error("上传文件不能为空");
+            }
+
+            String result = perfGatherOverviewService. importGatherDetails(file);
+            return AjaxResult.success(result);
+        } catch (Exception e) {
+            logger.error("导入绩效采集详情失败", e);
+            return AjaxResult.error("导入失败：" + e.getMessage());
         }
     }
 

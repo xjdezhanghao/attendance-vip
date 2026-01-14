@@ -24,7 +24,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectPerfIndItemVo">
-        select item_id, project_id, category_id, item_name, rule_desc, is_related, data_source, score_min, score_max, sort, remark, create_by, create_time from perf_ind_item
+        select item_id, project_id, category_id, item_name, rule_desc, is_related, data_source, score_min, score_max, sort, score_type, remark, create_by, create_time from perf_ind_item
     </sql>
 
     <select id="selectPerfIndItemList" parameterType="PerfIndItem" resultMap="PerfIndItemResult">
@@ -94,6 +94,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="scoreMin != null">score_min,</if>
             <if test="scoreMax != null">score_max,</if>
             <if test="sort != null">sort,</if>
+            <if test="scoreType != null">score_type,</if>
             <if test="remark != null">remark,</if>
             <if test="createBy != null">create_by,</if>
             <if test="createTime != null">create_time,</if>
@@ -108,6 +109,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="scoreMin != null">#{scoreMin},</if>
             <if test="scoreMax != null">#{scoreMax},</if>
             <if test="sort != null">#{sort},</if>
+            <if test="scoreType != null">#{scoreType},</if>
             <if test="remark != null">#{remark},</if>
             <if test="createBy != null">#{createBy},</if>
             <if test="createTime != null">#{createTime},</if>
@@ -126,11 +128,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="scoreMin != null">score_min = #{scoreMin},</if>
             <if test="scoreMax != null">score_max = #{scoreMax},</if>
             <if test="sort != null">sort = #{sort},</if>
+            <if test="scoreType != null">score_type = #{scoreType},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="createBy != null">create_by = #{createBy},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
         </trim>
         where item_id = #{itemId}
+    </update>
+
+    <update id="updatePerfIndItemByCategory" parameterType="PerfIndItem">
+        UPDATE perf_ind_item it
+        JOIN perf_ind_category ic
+        ON ic.category_id = it.category_id
+        SET
+        it.project_id = ic.project_id,
+        it.score_type = ic.score_type
+        <where>
+            (it.project_id != ic.project_id
+            OR it.project_id IS NULL
+            OR it.score_type != ic.score_type
+            OR it.score_type IS NULL)
+            <if test="projectId != null "> and it.project_id = #{projectId}</if>
+            <if test="categoryId != null "> and it.category_id = #{categoryId}</if>
+        </where>
     </update>
 
     <delete id="deletePerfIndItemByItemId" parameterType="Long">
