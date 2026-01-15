@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.performance.statistics.mapper.PerfStatisticsMapper">
+
+    <resultMap type="com.attendance.project.performance.statistics.vo.StatisticsOverviewVO" id="StatisticsOverviewResult">
+        <result property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="deptId" column="dept_id"/>
+        <result property="deptName" column="dept_name"/>
+        <result property="postId" column="post_id"/>
+        <result property="postName" column="post_name"/>
+        <result property="gatherDate" column="gatherDate"/>
+        <result property="totalScore" column="totalScore"/>
+    </resultMap>
+
+    <resultMap type="com.attendance.project.performance.statistics.vo.StatisticsProjectOverviewVO" id="StatisticsProjectOverviewResult">
+        <result property="overviewId" column="overview_id"/>
+        <result property="projectId" column="project_id"/>
+        <result property="projectName" column="project_name"/>
+        <result property="totalScore" column="totalScore"/>
+        <result property="remark" column="remark"/>
+    </resultMap>
+
+    <resultMap type="com.attendance.project.performance.statistics.dto.StatisticsProjectSummaryRow" id="StatisticsProjectSummaryRowResult">
+        <result property="overviewId" column="overview_id"/>
+        <result property="projectId" column="project_id"/>
+        <result property="projectName" column="project_name"/>
+        <result property="totalScore" column="totalScore"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="gatherDate" column="gather_date"/>
+    </resultMap>
+
+    <resultMap type="com.attendance.project.performance.statistics.dto.StatisticsDetailRow" id="StatisticsDetailRowResult">
+        <result property="detailId" column="detail_id"/>
+        <result property="overviewId" column="overview_id"/>
+        <result property="projectId" column="project_id"/>
+        <result property="projectName" column="project_name"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="categorySort" column="category_sort"/>
+        <result property="itemId" column="item_id"/>
+        <result property="itemName" column="item_name"/>
+        <result property="itemSort" column="item_sort"/>
+        <result property="ruleDesc" column="rule_desc"/>
+        <result property="scoreMin" column="score_min"/>
+        <result property="scoreMax" column="score_max"/>
+        <result property="scoreType" column="score_type"/>
+        <result property="itemScore" column="item_score"/>
+        <result property="itemRemark" column="item_remark"/>
+        <result property="imagePath" column="image_path"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <sql id="statisticsOverviewJoins">
+        from perf_gather_overview pgo
+            left join sys_user u on pgo.user_id = u.user_id
+            left join sys_dept d on pgo.dept_id = d.dept_id
+            left join vip_employee_param eparam on pgo.user_id = eparam.user_id
+            left join vip_employee_post epost on pgo.user_id = epost.user_id
+            left join vip_post vp on epost.post_id = vp.post_id
+    </sql>
+
+    <select id="selectStatisticsOverviewList" parameterType="com.attendance.project.performance.statistics.dto.StatisticsOverviewQuery" resultMap="StatisticsOverviewResult">
+        select pgo.user_id,
+               pgo.dept_id,
+               sum(pgo.total_score) totalScore,
+               max(pgo.create_time) create_time,
+               u.user_name,
+               d.dept_name,
+               max(vp.post_id) post_id,
+               group_concat(vp.post_name separator '、') as post_name
+        <include refid="statisticsOverviewJoins"/>
+        <where>
+            <if test="startDate != null and startDate != ''"> and pgo.gather_date <![CDATA[>=]]> #{startDate}</if>
+            <if test="endDate != null and endDate != ''"> and pgo.gather_date <![CDATA[<=]]> #{endDate}</if>
+            <if test="userId != null"> and pgo.user_id = #{userId}</if>
+            <if test="userName != null and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
+            <if test="deptId != null"> and (d.dept_id = #{deptId} or d.parent_id = #{deptId}
+                or d.ancestors like concat('%', #{deptId},',%'))</if>
+            <if test="postId != null"> and vp.post_id = #{postId}</if>
+            ${params.dataScope}
+        </where>
+        group by pgo.user_id, pgo.dept_id, u.user_name, d.dept_name
+    </select>
+
+    <select id="selectStatisticsDailyList" parameterType="com.attendance.project.performance.statistics.dto.StatisticsOverviewQuery" resultMap="StatisticsOverviewResult">
+        select pgo.user_id,
+               pgo.dept_id,
+               pgo.gather_date gatherDate,
+               sum(pgo.total_score) totalScore,
+               max(pgo.create_time) create_time,
+               u.user_name,
+               d.dept_name,
+               max(vp.post_id) post_id,
+               group_concat(vp.post_name separator '、') as post_name
+        <include refid="statisticsOverviewJoins"/>
+        <where>
+            <if test="startDate != null and startDate != ''"> and pgo.gather_date <![CDATA[>=]]> #{startDate}</if>
+            <if test="endDate != null and endDate != ''"> and pgo.gather_date <![CDATA[<=]]> #{endDate}</if>
+            <if test="userId != null"> and pgo.user_id = #{userId}</if>
+            <if test="userName != null and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
+            <if test="deptId != null"> and (d.dept_id = #{deptId} or d.parent_id = #{deptId}
+                or d.ancestors like concat('%', #{deptId},',%'))</if>
+            <if test="postId != null"> and vp.post_id = #{postId}</if>
+            ${params.dataScope}
+        </where>
+        group by pgo.user_id, pgo.dept_id, pgo.gather_date, u.user_name, d.dept_name
+        order by pgo.gather_date asc
+    </select>
+
+    <select id="selectDailyProjectOverviewList" parameterType="com.attendance.project.performance.statistics.dto.StatisticsDetailQuery" resultMap="StatisticsProjectOverviewResult">
+        select pgo.overview_id,
+               pgo.project_id,
+               pip.project_name,
+               pgo.total_score totalScore,
+               pgo.remark
+        from perf_gather_overview pgo
+            left join perf_ind_project pip on pgo.project_id = pip.project_id
+        <where>
+            <if test="userId != null"> and pgo.user_id = #{userId}</if>
+            <if test="gatherDate != null and gatherDate != ''"> and pgo.gather_date = #{gatherDate}</if>
+        </where>
+        order by pgo.project_id asc
+    </select>
+
+    <select id="selectRangeProjectSummaryList" parameterType="com.attendance.project.performance.statistics.dto.StatisticsDetailQuery" resultMap="StatisticsProjectSummaryRowResult">
+        select pgo.overview_id,
+               pgo.project_id,
+               pip.project_name,
+               pgo.total_score totalScore,
+               pgo.remark,
+               pgo.create_time,
+               pgo.gather_date
+        from perf_gather_overview pgo
+            left join perf_ind_project pip on pgo.project_id = pip.project_id
+        <where>
+            <if test="userId != null"> and pgo.user_id = #{userId}</if>
+            <if test="startDate != null and startDate != ''"> and pgo.gather_date <![CDATA[>=]]> #{startDate}</if>
+            <if test="endDate != null and endDate != ''"> and pgo.gather_date <![CDATA[<=]]> #{endDate}</if>
+        </where>
+        order by pgo.project_id asc, pgo.gather_date asc, pgo.overview_id asc
+    </select>
+
+    <select id="selectRangeDetailRows" parameterType="com.attendance.project.performance.statistics.dto.StatisticsDetailQuery" resultMap="StatisticsDetailRowResult">
+        select pgd.detail_id,
+               pgd.overview_id,
+               pgo.project_id,
+               pip.project_name,
+               pic.category_id,
+               pic.category_name,
+               pic.sort category_sort,
+               pit.item_id,
+               pit.item_name,
+               pit.sort item_sort,
+               pit.rule_desc,
+               pit.score_min,
+               pit.score_max,
+               pic.score_type,
+               pgd.item_score,
+               pgd.item_remark,
+               pgd.image_path,
+               pgd.create_time
+        from perf_gather_detail pgd
+            left join perf_gather_overview pgo on pgd.overview_id = pgo.overview_id
+            left join perf_ind_item pit on pgd.item_id = pit.item_id
+            left join perf_ind_category pic on pit.category_id = pic.category_id
+            left join perf_ind_project pip on pic.project_id = pip.project_id
+        <where>
+            <if test="userId != null"> and pgo.user_id = #{userId}</if>
+            <if test="startDate != null and startDate != ''"> and pgo.gather_date <![CDATA[>=]]> #{startDate}</if>
+            <if test="endDate != null and endDate != ''"> and pgo.gather_date <![CDATA[<=]]> #{endDate}</if>
+        </where>
+        order by pgo.project_id asc, pic.sort asc, pit.sort asc, pgd.create_time asc, pgd.detail_id asc
+    </select>
+</mapper>
