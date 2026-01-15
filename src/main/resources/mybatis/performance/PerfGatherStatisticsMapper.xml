@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.attendance.project.performance.mapper.PerfStatisticsOverviewMapper">
+    
+    <resultMap type="PerfStatisticsOverview" id="PerfStatisticsOverviewResult">
+        <result property="overviewId"    column="overview_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="projectId"    column="project_id"    />
+        <result property="gatherDate"    column="gather_date"    />
+        <result property="totalScore"    column="total_score"    />
+        <result property="gatherStatus"    column="gather_status"    />
+        <result property="gatherId"    column="gather_id"    />
+        <result property="auditId"    column="audit_id"    />
+        <result property="auditTime"    column="audit_time"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <!-- 关联表字段 -->
+        <result property="userName"      column="user_name" />
+        <result property="deptName"      column="dept_name" />
+        <result property="paramRank"     column="param_rank" />
+        <result property="paramPost"     column="param_post" />
+        <result property="postName"      column="post_name" />
+    </resultMap>
+
+    <sql id="selectPerfStatisticsOverviewVo">
+        select pgo.overview_id, pgo.dept_id, pgo.user_id, pgo.project_id, pgo.gather_date, pgo.total_score, pgo.gather_status, pgo.gather_id,
+               pgo.audit_id, pgo.audit_time, pgo.create_by, pgo.create_time, pgo.update_by, pgo.update_time, pgo.remark,
+               vp.post_name post_name, d.dept_name dept_name
+               from perf_gather_overview pgo
+                   left join perf_ind_project pip on pgo.project_id = pip.project_id
+                   left join sys_dept d on pgo.dept_id = d.dept_id
+                   left join vip_post vp on pip.post_id = vp.post_id
+    </sql>
+
+    <sql id="selectPerfStatisticsOverviewVoList">
+        select pgo.user_id, pgo.dept_id, pgo.gather_date,
+               pgo.total_score, max(pgo.create_time) pgo.create_time,
+               u.user_name, d.dept_name, eparam.param_rank, eparam.param_post,
+               group_concat(vp.post_name separator '、') as post_name
+        from (
+                 select dept_id, user_id, gather_date, sum(total_score) total_score, max(create_time) create_time from perf_gather_overview
+                 group by user_id, dept_id, gather_date
+             ) pgo
+                 left join sys_user u on pgo.user_id = u.user_id
+                 left join sys_dept d on pgo.dept_id = d.dept_id
+                 left join vip_employee_param eparam on pgo.user_id = eparam.user_id
+                 left join vip_employee_post epost on pgo.user_id = epost.user_id
+                 left join vip_post vp on epost.post_id = vp.post_id
+    </sql>
+
+    <!-- 合并同一用户不同project的每日采集记录在列表显示 -->
+    <select id="selectPerfStatisticsOverviewList" parameterType="PerfStatisticsOverview" resultMap="PerfStatisticsOverviewResult">
+        SELECT
+            user_id,
+            max( dept_id ) dept_id,
+            concat(
+            min( gather_date ),
+            ' - ',
+            max( gather_date )) gather_date,
+            max( user_name ) user_name,
+            max( dept_name ) dept_name,
+            max( post_name ) post_name,
+            sum( total_score ) total_score
+        FROM
+            (
+            SELECT
+            pgo.user_id,
+            pgo.dept_id,
+            pgo.gather_date,
+            pgo.total_score,
+            pgo.create_time,
+            u.user_name,
+            d.dept_name,
+            eparam.param_rank,
+            eparam.param_post,
+            group_concat( vp.post_name SEPARATOR '、' ) AS post_name
+            FROM
+            (
+                SELECT
+                dept_id,
+                user_id,
+                gather_date,
+                sum( total_score ) total_score,
+                max( create_time ) create_time
+                FROM
+                perf_gather_overview
+                <where>
+                    <if test="startDate != null  and startDate != ''"> and gather_date &gt;= #{startDate}</if>
+                    <if test="endDate != null  and endDate != ''"> and gather_date &lt;= #{endDate}</if>
+                    <if test="userId != null "> and user_id = #{userId}</if>
+                    <if test="projectId != null "> and project_id = #{projectId}</if>
+                    <if test="totalScore != null "> and total_score = #{totalScore}</if>
+                    <if test="gatherStatus != null "> and gather_status = #{gatherStatus}</if>
+                    <if test="gatherId != null "> and gather_id = #{gatherId}</if>
+                    <if test="auditId != null "> and audit_id = #{auditId}</if>
+                    <if test="auditTime != null "> and audit_time = #{auditTime}</if>
+                </where>
+                GROUP BY
+                    user_id,
+                    dept_id,
+                    gather_date
+            ) pgo
+            LEFT JOIN sys_user u ON pgo.user_id = u.user_id
+            LEFT JOIN sys_dept d ON pgo.dept_id = d.dept_id
+            LEFT JOIN vip_employee_param eparam ON pgo.user_id = eparam.user_id
+            LEFT JOIN vip_employee_post epost ON pgo.user_id = epost.user_id
+            LEFT JOIN vip_post vp ON epost.post_id = vp.post_id
+        <where>
+            <if test="userName != null and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
+            <if test="deptId != null "> and (d.dept_id = #{deptId} or
+                d.parent_id = #{deptId} or d.ancestors like concat('%', #{deptId},',%'))</if>
+            <if test="deptName != null and deptName != ''"> and d.dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="paramRank != null and paramRank != ''"> and eparam.param_rank = #{paramRank}</if>
+            <if test="paramPost != null and paramPost != ''"> and eparam.param_post = #{paramPost}</if>
+            <if test="postName != null and postName != ''"> and vp.post_name like concat('%', #{postName}, '%')</if>
+            <if test="postId != null and postId != ''"> and vp.post_id = #{postId}</if>
+            ${params.dataScope}
+        </where>
+        GROUP BY
+            pgo.user_id,
+            pgo.gather_date,
+            pgo.dept_id,
+            pgo.total_score,
+            pgo.create_time,
+            u.user_name,
+            d.dept_name,
+            eparam.param_rank,
+            eparam.param_post
+        ORDER BY
+            pgo.user_id ASC,
+            u.number ASC,
+            pgo.gather_date ASC,
+            pgo.dept_id ASC
+        ) tb1
+        GROUP BY user_id
+    </select>
+
+    <select id="selectPerfStatisticsOverviewListAll" parameterType="PerfStatisticsOverview" resultMap="PerfStatisticsOverviewResult">
+        <include refid="selectPerfStatisticsOverviewVo"/>
+        <where>
+            <if test="deptId != null "> and pgo.dept_id = #{deptId}</if>
+            <if test="userId != null "> and pgo.user_id = #{userId}</if>
+            <if test="projectId != null "> and pgo.project_id = #{projectId}</if>
+            <if test="gatherDate != null  and gatherDate != ''"> and pgo.gather_date = #{gatherDate}</if>
+            <if test="totalScore != null "> and pgo.total_score = #{totalScore}</if>
+            <if test="gatherStatus != null "> and pgo.gather_status = #{gatherStatus}</if>
+            <if test="gatherId != null "> and pgo.gather_id = #{gatherId}</if>
+            <if test="auditId != null "> and pgo.audit_id = #{auditId}</if>
+            <if test="auditTime != null "> and pgo.audit_time = #{auditTime}</if>
+            <if test="userName != null and userName != ''"> and pgo.user_name like concat('%', #{userName}, '%')</if>
+            <if test="deptName != null and deptName != ''"> and pgo.dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="paramRank != null and paramRank != ''"> and pgo.param_rank = #{paramRank}</if>
+            <if test="paramPost != null and paramPost != ''"> and pgo.param_post = #{paramPost}</if>
+            <if test="postName != null and postName != ''"> and pgo.post_name like concat('%', #{postName}, '%')</if>
+        </where>
+        order by dept_id asc
+    </select>
+
+    <select id="selectPerfStatisticsOverviewByOverviewId" parameterType="Long" resultMap="PerfStatisticsOverviewResult">
+        <include refid="selectPerfStatisticsOverviewVo"/>
+        where overview_id = #{overviewId}
+    </select>
+        
+
+
+</mapper>
