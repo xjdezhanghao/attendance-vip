@@ -8,9 +8,11 @@ import com.attendance.framework.web.domain.AjaxResult;
 import com.attendance.framework.web.page.TableDataInfo;
 import com.attendance.project.performance.domain.PerfGatherDetail;
 import com.attendance.project.performance.domain.PerfGatherOverview;
+import com.attendance.project.performance.domain.PerfStatisticsOverview;
 import com.attendance.project.performance.domain.PerfUserParam;
 import com.attendance.project.performance.service.IPerfGatherDetailService;
 import com.attendance.project.performance.service.IPerfGatherOverviewService;
+import com.attendance.project.performance.service.IPerfStatisticsOverviewService;
 import com.attendance.project.performance.service.IPerfUserParamService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -38,6 +40,9 @@ public class PerfStatisticsController extends BaseController
     private String prefix = "performance/statistics";
 
     @Autowired
+    private IPerfStatisticsOverviewService perfStatisticsOverviewService;
+
+    @Autowired
     private IPerfGatherOverviewService perfGatherOverviewService;
 
     @Autowired
@@ -59,10 +64,10 @@ public class PerfStatisticsController extends BaseController
     @RequiresPermissions("perf:stat:view")
     @PostMapping("/list")
     @ResponseBody
-    public TableDataInfo list(PerfGatherOverview perfGatherOverview)
+    public TableDataInfo list(PerfStatisticsOverview perfStatisticsOverview)
     {
         startPage();
-        List<PerfGatherOverview> list = perfGatherOverviewService.selectPerfGatherOverviewList(perfGatherOverview);
+        List<PerfStatisticsOverview> list = perfStatisticsOverviewService.selectPerfStatisticsOverviewList(perfStatisticsOverview);
         return getDataTable(list);
     }
 
@@ -79,38 +84,17 @@ public class PerfStatisticsController extends BaseController
         ExcelUtil<PerfGatherOverview> util = new ExcelUtil<PerfGatherOverview>(PerfGatherOverview.class);
         return util.exportExcel(list, "绩效统计数据");
     }
-
+    
     /**
-     * 新增绩效统计
-     */
-    @GetMapping("/add")
-    public String add()
-    {
-        return prefix + "/add";
-    }
-
-    /**
-     * 新增保存绩效统计
-     */
-    @RequiresPermissions("perf:stat:add")
-    @Log(title = "绩效统计", businessType = BusinessType.INSERT)
-    @PostMapping("/add")
-    @ResponseBody
-    public AjaxResult addSave(PerfGatherOverview perfGatherOverview)
-    {
-        return toAjax(perfGatherOverviewService.insertPerfGatherOverview(perfGatherOverview));
-    }
-
-    /**
-     * 进入绩效采集详情页面 - 根据用户ID、部门ID、岗位ID、采集月份查询
+     * 进入绩效统计详情页面 - 根据用户ID、部门ID、岗位ID、统计月份查询
      */
     @RequiresPermissions("perf:stat:edit")
-    @GetMapping("/overviewGather")
-    public String overviewGather(@RequestParam Long userId,
+    @GetMapping("/overviewDetail")
+    public String overviewDetail(@RequestParam Long userId,
                                  @RequestParam String gatherDate,
                                  ModelMap mmap)
     {
-        // 根据用户ID和采集月份查找对应的overview记录
+        // 根据用户ID和统计月份查找对应的overview记录
         PerfGatherOverview queryParam = new PerfGatherOverview();
         queryParam.setUserId(userId);
         queryParam.setGatherDate(gatherDate);
