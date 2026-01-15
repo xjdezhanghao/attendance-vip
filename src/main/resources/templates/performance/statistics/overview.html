@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <th:block th:include="include :: header('绩效统计')" />
+    <th:block th:include="include :: layout-latest-css" />
+    <th:block th:include="include :: ztree-css" />
+    <th:block th:include="include :: datetimepicker-css" />
+    <th:block th:include="include :: select2-css" />
+    <style>
+        .date-picker {
+            width: 20px !important;
+        }
+        .date-picker .input-group-addon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .statistics-toolbar {
+            margin-bottom: 10px;
+        }
+        .statistics-user {
+            margin-top: 6px;
+            color: #666;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="ui-layout-west">
+    <div class="box box-main">
+        <div class="box-header">
+            <div class="box-title">
+                <i class="fa icon-grid"></i> 组织机构
+            </div>
+            <div class="box-tools pull-right">
+                <a type="button" class="btn btn-box-tool" href="#" onclick="dept()" title="管理部门"><i class="fa fa-edit"></i></a>
+                <button type="button" class="btn btn-box-tool" id="btnExpand" title="展开" style="display:none;"><i class="fa fa-chevron-up"></i></button>
+                <button type="button" class="btn btn-box-tool" id="btnCollapse" title="折叠"><i class="fa fa-chevron-down"></i></button>
+                <button type="button" class="btn btn-box-tool" id="btnRefresh" title="刷新部门"><i class="fa fa-refresh"></i></button>
+            </div>
+        </div>
+        <div class="ui-layout-content">
+            <div id="tree" class="ztree"></div>
+        </div>
+    </div>
+</div>
+
+<div class="ui-layout-center">
+    <div class="container-div">
+        <div class="row">
+            <div class="col-sm-12 search-collapse">
+                <form id="statistics-form">
+                    <input type="hidden" id="deptId" name="deptId" th:value="${deptId}">
+                    <input type="hidden" id="parentId" name="parentId">
+                    <input type="hidden" id="userId" name="userId" th:value="${userId}">
+                    <div class="select-list">
+                        <ul>
+                            <li style="display: flex; align-items: center;">
+                                <span style="margin-right: 5px;">开始日期：</span>
+                                <div class="input-group date">
+                                    <span class="date-picker input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input type="text" class="form-control" id="startDate" name="startDate"
+                                           th:value="${startDate}" placeholder="开始日期" style="width: 120px;">
+                                </div>
+                            </li>
+                            <li style="display: flex; align-items: center;">
+                                <span style="margin-right: 5px;">结束日期：</span>
+                                <div class="input-group date">
+                                    <span class="date-picker input-group-addon"><i class="fa fa-calendar"></i></span>
+                                    <input type="text" class="form-control" id="endDate" name="endDate"
+                                           th:value="${endDate}" placeholder="结束日期" style="width: 120px;">
+                                </div>
+                            </li>
+                            <li>
+                                员工姓名：<input type="text" id="userName" name="userName" th:value="${userName}"
+                                         th:readonly="${dailyMode}"/>
+                            </li>
+                            <li>
+                                岗位：<select name="postId" id="postIdSelect" class="form-control"
+                                            th:attr="data-value=${postId}">
+                                <option value="">请选择岗位</option>
+                            </select>
+                            </li>
+                            <li>
+                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                            </li>
+                        </ul>
+                    </div>
+                </form>
+            </div>
+
+            <div class="col-sm-12 statistics-toolbar" th:if="${dailyMode}">
+                <a class="btn btn-default btn-sm" onclick="returnOverview()"><i class="fa fa-reply"></i> 返回</a>
+                <span class="statistics-user" th:if="${userName}">
+                    当前人员：<span th:text="${userName}"></span>
+                </span>
+            </div>
+
+            <div class="col-sm-12 select-table table-striped">
+                <table id="bootstrap-table"></table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:include="include :: footer" />
+<th:block th:include="include :: layout-latest-js" />
+<th:block th:include="include :: ztree-js" />
+<th:block th:include="include :: datetimepicker-js" />
+<th:block th:include="include :: select2-js" />
+<script th:inline="javascript">
+    var prefix = ctx + "performance/statistics";
+    var dailyMode = [[${dailyMode}]];
+    var initialStartDate = '[[${startDate}]]';
+    var initialEndDate = '[[${endDate}]]';
+    var initialPageNum = [[${pageNum} == null ? 1 : ${pageNum}]];
+    var initialPageSize = [[${pageSize} == null ? 10 : ${pageSize}]];
+    var initialSortName = '[[${sortName}]]';
+    var initialSortOrder = '[[${sortOrder}]]';
+    var returnParams = '[[${returnParams}]]';
+</script>
+<script src="/performance/statistics/overview.js" th:src="@{/performance/statistics/overview.js}"></script>
+</body>
+</html>
