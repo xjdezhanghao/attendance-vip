@@ -34,7 +34,7 @@ public class PerfGatherOverview extends BaseEntity
     @Excel(name = "考核项目ID", readConverterExp = "关=联perf_ind_project")
     private Long projectId;
 
-    /** 采集月份（格式：YYYY-MM-DD） */
+    /** 采集日期（格式：YYYY-MM-DD） */
     @Excel(name = "采集日期", readConverterExp = "格式：YYYY-MM-DD")
     private String gatherDate;
 

@@ -228,12 +228,19 @@ public class PerfGatherOverviewController extends BaseController
             }
 
             // 更新每个overview的备注
+            boolean isFirst = true;
+            String gatherDate = null;
             for (Map.Entry<Long, String> entry : overallRemarks.entrySet()) {
                 Long overviewId = entry.getKey();
                 PerfGatherOverview overview = new PerfGatherOverview();
                 overview.setOverviewId(overviewId);
                 overview.setRemark(entry.getValue());
                 perfGatherOverviewService.updatePerfGatherOverview(overview);
+                if (isFirst) {
+                    PerfGatherOverview fstOverview = perfGatherOverviewService.selectPerfGatherOverviewByOverviewId(overviewId);
+                    gatherDate = fstOverview.getGatherDate();
+                    isFirst = false;
+                }
             }
 
             // 批量更新每个overview下的考核项
@@ -247,7 +254,7 @@ public class PerfGatherOverviewController extends BaseController
                 if (remarks == null) remarks = new HashMap<>();
                 if (imagePaths == null) imagePaths = new HashMap<>();
 
-                perfGatherOverviewService.updateScoresAndRemarks(overviewId, scores, remarks, imagePaths);
+                perfGatherOverviewService.updateScoresAndRemarks(overviewId, scores, remarks, imagePaths, gatherDate);
                 
                 // 计算并更新总分
                 BigDecimal totalScore = perfGatherOverviewService.calculateTotalScore(overviewId, scores);

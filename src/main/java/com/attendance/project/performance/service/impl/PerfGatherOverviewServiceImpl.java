@@ -205,7 +205,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
 
 
     @Override
-    public void updateScoresAndRemarks(Long overviewId, Map<Long, BigDecimal> scores, Map<Long, String> remarks, Map<Long, String> imagePaths) {
+    public void updateScoresAndRemarks(Long overviewId, Map<Long, BigDecimal> scores, Map<Long, String> remarks, Map<Long, String> imagePaths, String gatherDate) {
         // 删除现有的考核项详情
         PerfGatherDetail deleteParam = new PerfGatherDetail();
         deleteParam.setOverviewId(overviewId);
@@ -234,6 +234,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
             detail.setRuleDesc(baseDetail.getRuleDesc());
             detail.setScoreMin(baseDetail.getScoreMin());
             detail.setScoreMax(baseDetail.getScoreMax());
+            detail.setGatherDate(gatherDate);
 
             if ((imagePaths.get(itemId) == null || "".equals(imagePaths.get(itemId))) &&
                     (remarks.get(itemId) == null || "".equals(remarks.get(itemId))) &&
@@ -545,6 +546,11 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
      * @return 成功处理的记录数
      */
     private int processSheet(Sheet sheet, StringBuilder errorMsg) throws Exception {
+        //获取时间并校验
+        Row dateRow = sheet.getRow(1);
+        String dateStr = getCellStringValue(dateRow.getCell(0)).trim();
+        boolean isValidDate = false;
+
         // 从第4行开始读取数据（行索引从0开始，所以第4行是索引3）
         int dataStartRow = 3;
         int lastRowNum = sheet.getLastRowNum();
@@ -579,6 +585,16 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
             // I列（索引8）- scoreType
             String scoreType = getCellStringValue(row. getCell(8));
 
+            // 获取时间并校验
+            if (!isValidDate){
+                PerfGatherOverview checkOverview = perfGatherOverviewMapper.selectPerfGatherOverviewByOverviewId(overviewId);
+                if (dateStr.equals(checkOverview.getGatherDate())) {
+                    isValidDate = true;
+                } else {
+                    throw new Exception("采集日期填写有误");
+                }
+            }
+
             // 检查score和remark是否都为空，都为空则跳过
             if ((scoreStr == null || scoreStr.trim().isEmpty()) &&
                     (remark == null || remark.trim().isEmpty())) {
@@ -610,6 +626,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
             SheetGatherData gatherData = gatherDataMap.computeIfAbsent(overviewId, k -> new SheetGatherData());
             gatherData.setOverviewId(overviewId);
             gatherData.setProjectId(projectId);
+            gatherData.setGatherDate(dateStr);
 
             // 存储该行的detail信息
             DetailRow detailRow = new DetailRow();
@@ -647,6 +664,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
     void importGatherData(SheetGatherData gatherData) throws Exception {
         Long overviewId = gatherData. getOverviewId();
         Long projectId = gatherData.getProjectId();
+        String gatherDate = gatherData.getGatherDate();
 
         // 获取overview对象
         PerfGatherOverview overview = selectPerfGatherOverviewByOverviewId(overviewId);
@@ -695,6 +713,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
             detail.setScoreMin(baseDetail.getScoreMin());
             detail.setScoreMax(baseDetail.getScoreMax());
             detail.setScoreType(baseDetail.getScoreType());
+            detail.setGatherDate(gatherDate);
 
             // 设置导入的评分和备注
             if ((remarks.get(itemId) == null || "".equals(remarks.get(itemId))) &&
@@ -811,6 +830,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
         private String remark;
         private String scoreType;
         private Long categoryId;
+        private String gatherDate;
 
         public Long getItemId() { return itemId; }
         public void setItemId(Long itemId) { this.itemId = itemId; }
@@ -834,6 +854,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
     private static class SheetGatherData {
         private Long overviewId;
         private Long projectId;
+        private String gatherDate;
         private List<DetailRow> details = new ArrayList<>();
 
         public Long getOverviewId() { return overviewId; }
@@ -841,6 +862,14 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
 
         public Long getProjectId() { return projectId; }
         public void setProjectId(Long projectId) { this.projectId = projectId; }
+
+        public String getGatherDate() {
+            return gatherDate;
+        }
+
+        public void setGatherDate(String gatherDate) {
+            this.gatherDate = gatherDate;
+        }
 
         public List<DetailRow> getDetails() { return details; }
         public void addDetail(DetailRow detail) { this.details.add(detail); }

@@ -26,10 +26,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="weight"    column="weight"    />
 
         <result property="imagePath"    column="image_path"    />
+
+        <result property="gatherDate"    column="gather_date"    />
     </resultMap>
 
     <sql id="selectPerfGatherDetailVo">
-        select detail_id, overview_id, project_id, category_id, item_id, item_score, score_type, item_remark, is_related, data_source, create_time, update_time, image_path from perf_gather_detail
+        select detail_id, overview_id, project_id, category_id, item_id, item_score, score_type, item_remark, is_related, data_source, create_time, update_time, image_path, gather_date from perf_gather_detail
     </sql>
 
     <!-- 以item为基准查询出关联的考核category和采集detail -->
@@ -78,6 +80,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="imagePath != null">image_path,</if>
+            <if test="gatherDate != null">gather_date,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="overviewId != null">#{overviewId},</if>
@@ -92,6 +95,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">#{createTime},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="imagePath != null">#{imagePath},</if>
+            <if test="gatherDate != null">#{gatherDate},</if>
          </trim>
     </insert>
 
@@ -110,6 +114,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="imagePath != null">image_path = #{imagePath},</if>
+            <if test="gatherDate != null">gather_date = #{gatherDate},</if>
         </trim>
         where detail_id = #{detailId}
     </update>

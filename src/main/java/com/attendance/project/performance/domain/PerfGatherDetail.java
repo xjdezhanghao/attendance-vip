@@ -58,6 +58,9 @@ public class PerfGatherDetail extends BaseEntity
 
     private String imagePath;
 
+    /** 采集日期（格式：YYYY-MM-DD） */
+    private String gatherDate;
+
     //关联项
     private String categoryName;
 
@@ -162,6 +165,14 @@ public class PerfGatherDetail extends BaseEntity
 
     public void setImagePath(String imagePath) {
         this.imagePath = imagePath;
+    }
+
+    public String getGatherDate() {
+        return gatherDate;
+    }
+
+    public void setGatherDate(String gatherDate) {
+        this.gatherDate = gatherDate;
     }
 
     //关联项
