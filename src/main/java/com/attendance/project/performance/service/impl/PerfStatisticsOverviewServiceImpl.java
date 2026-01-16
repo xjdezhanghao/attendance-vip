@@ -45,6 +45,9 @@ public class PerfStatisticsOverviewServiceImpl implements IPerfStatisticsOvervie
     private PerfStatisticsOverviewMapper perfStatisticsOverviewMapper;
 
     @Autowired
+    private PerfStatisticsDetailMapper perfStatisticsDetailMapper;
+
+    @Autowired
     private PerfUserPostMapper perfUserPostMapper;
 
     @Autowired
@@ -63,5 +66,10 @@ public class PerfStatisticsOverviewServiceImpl implements IPerfStatisticsOvervie
     @Override
     public List<PerfStatisticsOverview> selectPerfStatisticsOverviewListAll(PerfStatisticsOverview perfStatisticsOverview) {
         return perfStatisticsOverviewMapper.selectPerfStatisticsOverviewListAll(perfStatisticsOverview);
+    }
+
+    @Override
+    public List<PerfStatisticsDetail> selectPerfStatisticsDetailList(PerfStatisticsDetail perfStatisticsDetail) {
+        return perfStatisticsDetailMapper.selectPerfStatisticsDetailList(perfStatisticsDetail);
     }
 }

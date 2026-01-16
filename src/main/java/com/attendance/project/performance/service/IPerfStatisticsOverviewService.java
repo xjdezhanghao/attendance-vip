@@ -1,5 +1,6 @@
 package com.attendance.project.performance.service;
 
+import com.attendance.project.performance.domain.PerfStatisticsDetail;
 import com.attendance.project.performance.domain.PerfStatisticsOverview;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,5 +35,6 @@ public interface IPerfStatisticsOverviewService
 
     public List<PerfStatisticsOverview> selectPerfStatisticsOverviewListAll(PerfStatisticsOverview perfStatisticsOverview);
 
+    public List<PerfStatisticsDetail> selectPerfStatisticsDetailList(PerfStatisticsDetail perfStatisticsDetail);
 
 }

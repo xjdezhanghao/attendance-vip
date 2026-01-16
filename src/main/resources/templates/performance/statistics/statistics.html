@@ -52,7 +52,7 @@
                                 <div class="input-group date">
                                     <span class="month-picker input-group-addon"><i class="fa fa-calendar"></i></span>
                                     <input type="text" class="form-control" id="startDate" name="startDate"
-                                           th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                                           th:value="${defaultStartDate}"
                                            placeholder="选择日期" style="width: 120px;">
                                 </div>
                             </li>
@@ -61,7 +61,7 @@
                                 <div class="input-group date">
                                     <span class="month-picker input-group-addon"><i class="fa fa-calendar"></i></span>
                                     <input type="text" class="form-control" id="endDate" name="endDate"
-                                           th:value="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+                                           th:value="${defaultEndDate}"
                                            placeholder="选择日期" style="width: 120px;">
                                 </div>
                             </li>
@@ -74,12 +74,19 @@
                             </select>
                             </li>
                             <li>
-                                <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
-                                <a class="btn btn-warning btn-rounded btn-sm" onclick="$.form.reset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                <a class="btn btn-primary btn-rounded btn-sm"  onclick="customSearch()"><i class="fa fa-search"></i>&nbsp;搜索</a>
+                                <a class="btn btn-warning btn-rounded btn-sm" onclick="customReset()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
                             </li>
                         </ul>
                     </div>
                 </form>
+            </div>
+
+            <!-- 在表格上方添加工具栏 -->
+            <div class="col-sm-12 mb-2">
+                <div id="toolbar" class="btn-group-sm" role="group">
+                    <!-- 返回按钮将动态添加到这里 -->
+                </div>
             </div>
 
             <div class="col-sm-12 select-table table-striped">
@@ -101,6 +108,15 @@
 
     var ranks = [[${@dict.getType('perf_rank_type')}]];
     var posts = [[${@dict.getType('perf_post_type')}]];
+
+    // 存储原始查询条件的字典
+    var originalSearchConditions = {};
+    // 返回按钮状态标志
+    var hasStoredConditions = false;
+    // 存储表格配置选项
+    var tableOptions = null;
+    // 内层表格URL
+    var url2 = prefix + "/list2";
 
     $(function() {
         // 初始化日期选择器
@@ -161,6 +177,13 @@
             removeUrl: prefix + "/remove",
             exportUrl: prefix + "/export",
             modalName: "绩效统计",
+            onLoadSuccess: function(data) {
+                // 表格加载成功后的回调
+                // 如果不是从onScoreClick触发的状态，则隐藏返回按钮
+                if(!hasStoredConditions) {
+                    hideReturnButton();
+                }
+            },
             columns: [{
                 checkbox: false,
                 visible: false
@@ -209,7 +232,8 @@
                     field: 'totalScore',
                     title: '考核得分',
                     formatter: function(value, row, index) {
-                        return '<span class="score-' + (value >= 100 ? 'high' : value >= 80 ? 'medium' : 'low') + '">' + value + '</span>';
+                        return '<span onclick="onScoreClick(' + JSON.stringify(row).replace(/"/g, '&quot;') + ')" style="cursor: pointer; color: #1a7bb9">' +
+                            value + '</span>';
                     }
                 },
                 /*{
@@ -226,7 +250,144 @@
                     }
                 }]
         };
+        // 保存表格选项
+        tableOptions = options;
         $.table.init(options);
+    }
+
+    // 处理得分列点击事件
+    function onScoreClick(rowData) {
+        if (hasStoredConditions) return;
+        // 保存当前的查询条件
+        saveCurrentSearchConditions();
+        // 构建查询参数 - 使用原始查询条件加上当前行的userId
+        var queryParams = {};
+        // 复制原始查询条件
+        for (var key in originalSearchConditions) {
+            if (originalSearchConditions.hasOwnProperty(key)) {
+                queryParams[key] = originalSearchConditions[key];
+            }
+        }
+        // 添加当前行的userId
+        queryParams['userId'] = rowData.userId;
+        // 发起新的查询请求
+        ajaxTable(queryParams, url2);
+        // 显示返回按钮
+        showReturnButton();
+    }
+
+    // 保存当前查询条件
+    function saveCurrentSearchConditions() {
+        // 获取当前表单中的所有值并存储到字典中
+        $("#user-form").find('input[name], select[name]').each(function() {
+            var fieldName = $(this).attr('name');
+            var fieldValue = $(this).val();
+            originalSearchConditions[fieldName] = fieldValue;
+        });
+        console.log('保存的查询条件:', originalSearchConditions);
+        // 设置标志为true
+        hasStoredConditions = true;
+    }
+    // 显示返回按钮
+    function showReturnButton() {
+        // 如果返回按钮不存在，则创建它
+        if ($("#returnBtn").length === 0) {
+            var returnButtonHtml = '<a id="returnBtn" class="btn btn-default btn-rounded btn-sm" style="display:none;" onclick="returnToOriginalSearch()"><i class="fa fa-arrow-left"></i>&nbsp;返回</a>';
+            // 将按钮插入到表格工具栏中
+            var toolbar = $("#toolbar");
+            if (toolbar.length === 0) {
+                // 如果没有toolbar div，创建一个
+                toolbar = $('<div id="toolbar" class="btn-group-sm mb-3" role="group"></div>');
+                $("#bootstrap-table").before(toolbar);
+            }
+            toolbar.prepend(returnButtonHtml);
+        }
+        // 显示按钮
+        $("#returnBtn").show();
+    }
+    // 隐藏返回按钮
+    function hideReturnButton() {
+        $("#returnBtn").hide();
+    }
+    // 返回到原始搜索条件
+    function returnToOriginalSearch() {
+        // 恢复原始查询条件
+        for (var fieldName in originalSearchConditions) {
+            if (originalSearchConditions.hasOwnProperty(fieldName)) {
+                $("[name='" + fieldName + "']").val(originalSearchConditions[fieldName]);
+            }
+        }
+        // 清空存储的条件
+        originalSearchConditions = {};
+        hasStoredConditions = false;
+        // 隐藏返回按钮
+        hideReturnButton();
+        // 使用原始查询条件重新发起搜索
+        var originalQueryParams = {};
+        $("#user-form").find('input[name], select[name]').each(function() {
+            var fieldName = $(this).attr('name');
+            var fieldValue = $(this).val();
+            if(fieldValue) { // 只添加非空值
+                originalQueryParams[fieldName] = fieldValue;
+            }
+        });
+        // 发起原始查询请求
+        ajaxTable(originalQueryParams, tableOptions.url);
+    }
+    // 重置查询条件存储状态
+    function resetSearchConditionStorage() {
+        if (hasStoredConditions) {
+            originalSearchConditions = {};
+            hasStoredConditions = false;
+            hideReturnButton();
+        }
+    }
+
+    // 替换原来的搜索按钮行为
+    function customSearch() {
+        resetSearchConditionStorage();
+        // 使用表单中的值发起查询
+        var queryParams = {};
+        $("#user-form").find('input[name], select[name]').each(function() {
+            var fieldName = $(this).attr('name');
+            var fieldValue = $(this).val();
+            if(fieldValue) { // 只添加非空值
+                queryParams[fieldName] = fieldValue;
+            }
+        });
+        ajaxTable(queryParams, tableOptions.url);
+    }
+
+    // 替换原来的重置按钮行为
+    function customReset() {
+        resetSearchConditionStorage();
+        $.form.reset();
+        ajaxTable({}, tableOptions.url);
+    }
+
+    function ajaxTable(queryParams, url) {
+        // 发起原始查询请求
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: queryParams,
+            success: function(result) {
+                if (result.code === 0) {
+                    // 准备表格数据
+                    var tableData = {
+                        total: result.total || result.rows.length,
+                        rows: result.rows
+                    };
+                    // 使用 load 方法加载数据，这会自动更新分页信息
+                    $('#bootstrap-table').bootstrapTable('load', tableData);
+                } else {
+                    alert('查询失败: ' + result.msg);
+                }
+            },
+            error: function() {
+                alert('查询失败，请检查网络连接');
+            }
+        });
     }
 
     function queryDeptTree()
@@ -269,8 +430,20 @@
     }
 
     function overviewDetail(userId,gatherDate,userName){
-        var url = prefix + "/overviewDetail?userId=" + userId + "&gatherDate=" + gatherDate;
-        $.modal.openTab("绩效采集："+userName, url);
+        var startDate, endDate;
+        // 检查gatherDate是否包含"-"
+        if (gatherDate && gatherDate.includes(" - ")) {
+            // 分割日期字符串
+            var dateParts = gatherDate.split(" - ");
+            startDate = dateParts[0];
+            endDate = dateParts[1];
+        } else {
+            startDate = gatherDate;
+            endDate = gatherDate;
+        }
+        // 构建URL参数
+        var url = prefix + "/overviewDetail?userId=" + userId + "&startDate=" + startDate + "&endDate=" + endDate;
+        $.modal.openTab("绩效采集：" + userName, url);
 
     }
 

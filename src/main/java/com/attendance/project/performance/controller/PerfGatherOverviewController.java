@@ -114,7 +114,7 @@ public class PerfGatherOverviewController extends BaseController
                                  @RequestParam String gatherDate,
                                  ModelMap mmap)
     {
-        // 根据用户ID和采集月份查找对应的overview记录
+        // 根据用户ID和采集日期查找对应的overview记录
         PerfGatherOverview queryParam = new PerfGatherOverview();
         queryParam.setUserId(userId);
         queryParam.setGatherDate(gatherDate);
@@ -228,23 +228,25 @@ public class PerfGatherOverviewController extends BaseController
             }
 
             // 更新每个overview的备注
-            boolean isFirst = true;
-            String gatherDate = null;
             for (Map.Entry<Long, String> entry : overallRemarks.entrySet()) {
                 Long overviewId = entry.getKey();
                 PerfGatherOverview overview = new PerfGatherOverview();
                 overview.setOverviewId(overviewId);
                 overview.setRemark(entry.getValue());
                 perfGatherOverviewService.updatePerfGatherOverview(overview);
-                if (isFirst) {
-                    PerfGatherOverview fstOverview = perfGatherOverviewService.selectPerfGatherOverviewByOverviewId(overviewId);
-                    gatherDate = fstOverview.getGatherDate();
-                    isFirst = false;
-                }
             }
 
+            boolean isFirst = true;
             // 批量更新每个overview下的考核项
             for (Long overviewId : allScores.keySet()) {
+                String gatherDate = null;
+                Long userId = null;
+                if(isFirst){
+                    PerfGatherOverview fstOverview = perfGatherOverviewService.selectPerfGatherOverviewByOverviewId(overviewId);
+                    gatherDate = fstOverview.getGatherDate();
+                    userId = fstOverview.getUserId();
+                    isFirst = false;
+                }
                 Map<Long, BigDecimal> scores = allScores.get(overviewId);
                 Map<Long, String> remarks = allRemarks.get(overviewId);
                 Map<Long, String> imagePaths = allImagePaths.get(overviewId);
@@ -254,7 +256,7 @@ public class PerfGatherOverviewController extends BaseController
                 if (remarks == null) remarks = new HashMap<>();
                 if (imagePaths == null) imagePaths = new HashMap<>();
 
-                perfGatherOverviewService.updateScoresAndRemarks(overviewId, scores, remarks, imagePaths, gatherDate);
+                perfGatherOverviewService.updateScoresAndRemarks(overviewId, scores, remarks, imagePaths, gatherDate, userId);
                 
                 // 计算并更新总分
                 BigDecimal totalScore = perfGatherOverviewService.calculateTotalScore(overviewId, scores);

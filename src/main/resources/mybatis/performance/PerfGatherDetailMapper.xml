@@ -10,6 +10,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="projectId"    column="project_id"    />
         <result property="categoryId"    column="category_id"    />
         <result property="itemId"    column="item_id"    />
+        <result property="userId"    column="user_id"    />
         <result property="itemScore"    column="item_score"    />
         <result property="scoreType"    column="score_Type"    />
         <result property="itemRemark"    column="item_remark"    />
@@ -31,7 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectPerfGatherDetailVo">
-        select detail_id, overview_id, project_id, category_id, item_id, item_score, score_type, item_remark, is_related, data_source, create_time, update_time, image_path, gather_date from perf_gather_detail
+        select detail_id, overview_id, project_id, category_id, item_id, user_id, item_score, score_type, item_remark, is_related, data_source, create_time, update_time, image_path, gather_date from perf_gather_detail
     </sql>
 
     <!-- 以item为基准查询出关联的考核category和采集detail -->
@@ -72,6 +73,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="projectId != null">project_id,</if>
             <if test="categoryId != null">category_id,</if>
             <if test="itemId != null">item_id,</if>
+            <if test="userId != null">user_id,</if>
             <if test="itemScore != null">item_score,</if>
             <if test="scoreType != null">score_type,</if>
             <if test="itemRemark != null">item_remark,</if>
@@ -87,6 +89,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="projectId != null">#{projectId},</if>
             <if test="categoryId != null">#{categoryId},</if>
             <if test="itemId != null">#{itemId},</if>
+            <if test="userId != null">#{userId},</if>
             <if test="itemScore != null">#{itemScore},</if>
             <if test="scoreType != null">#{scoreType},</if>
             <if test="itemRemark != null">#{itemRemark},</if>

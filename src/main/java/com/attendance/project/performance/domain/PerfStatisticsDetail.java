@@ -36,6 +36,8 @@ public class PerfStatisticsDetail extends BaseEntity
     @Excel(name = "考核小项ID")
     private Long itemId;
 
+    private Long userId;
+
     /** 小项得分 */
     @Excel(name = "小项得分")
     private BigDecimal itemScore;
@@ -75,6 +77,9 @@ public class PerfStatisticsDetail extends BaseEntity
     private BigDecimal scoreMin;
 
     private BigDecimal scoreMax;
+
+    private String startDate;
+    private String endDate;
 
     public void setDetailId(Long detailId)
     {
@@ -121,6 +126,15 @@ public class PerfStatisticsDetail extends BaseEntity
     {
         return itemId;
     }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     public void setItemScore(BigDecimal itemScore)
     {
         this.itemScore = itemScore;
@@ -240,6 +254,22 @@ public class PerfStatisticsDetail extends BaseEntity
         this.scoreMax = scoreMax;
     }
 
+    public String getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
+    }
+
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
@@ -248,6 +278,7 @@ public class PerfStatisticsDetail extends BaseEntity
             .append("projectId", getProjectId())
             .append("categoryId", getCategoryId())
             .append("itemId", getItemId())
+                .append("userId", getUserId())
             .append("itemScore", getItemScore())
             .append("scoreType", getScoreType())
             .append("itemRemark", getItemRemark())

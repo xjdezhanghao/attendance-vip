@@ -36,6 +36,8 @@ public class PerfGatherDetail extends BaseEntity
     @Excel(name = "考核小项ID")
     private Long itemId;
 
+    private Long userId;
+
     /** 小项得分 */
     @Excel(name = "小项得分")
     private BigDecimal itemScore;
@@ -121,6 +123,15 @@ public class PerfGatherDetail extends BaseEntity
     {
         return itemId;
     }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     public void setItemScore(BigDecimal itemScore)
     {
         this.itemScore = itemScore;
@@ -248,6 +259,7 @@ public class PerfGatherDetail extends BaseEntity
             .append("projectId", getProjectId())
             .append("categoryId", getCategoryId())
             .append("itemId", getItemId())
+                .append("userId", getUserId())
             .append("itemScore", getItemScore())
             .append("scoreType", getScoreType())
             .append("itemRemark", getItemRemark())

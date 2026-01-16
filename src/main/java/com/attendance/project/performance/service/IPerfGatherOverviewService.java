@@ -82,7 +82,7 @@ public interface IPerfGatherOverviewService
      * @param remarks 备注映射
      * @param imagePaths 图片路径映射
      */
-    public void updateScoresAndRemarks(Long overviewId, Map<Long, BigDecimal> scores, Map<Long, String> remarks, Map<Long, String> imagePaths, String gatherDate);
+    public void updateScoresAndRemarks(Long overviewId, Map<Long, BigDecimal> scores, Map<Long, String> remarks, Map<Long, String> imagePaths, String gatherDate, Long userId);
 
     /**
      * 生成绩效采集模板
