@@ -159,4 +159,9 @@ public class PerfStatisticsController extends BaseController
         return prefix + "/detail";
     }
 
+    @GetMapping("/charts")
+    public String charts(ModelMap mmap)
+    {
+        return prefix + "/charts";
+    }
 }
