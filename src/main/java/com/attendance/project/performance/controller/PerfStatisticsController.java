@@ -7,23 +7,19 @@ import com.attendance.framework.web.controller.BaseController;
 import com.attendance.framework.web.domain.AjaxResult;
 import com.attendance.framework.web.page.TableDataInfo;
 import com.attendance.project.performance.domain.*;
-import com.attendance.project.performance.service.IPerfGatherDetailService;
 import com.attendance.project.performance.service.IPerfGatherOverviewService;
 import com.attendance.project.performance.service.IPerfStatisticsOverviewService;
 import com.attendance.project.performance.service.IPerfUserParamService;
-import jakarta.servlet.http.HttpServletRequest;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,9 +40,6 @@ public class PerfStatisticsController extends BaseController
 
     @Autowired
     private IPerfGatherOverviewService perfGatherOverviewService;
-
-    @Autowired
-    private IPerfGatherDetailService perfGatherDetailService;
 
     @Autowired
     private IPerfUserParamService userParamService;
@@ -163,5 +156,17 @@ public class PerfStatisticsController extends BaseController
     public String charts(ModelMap mmap)
     {
         return prefix + "/charts";
+    }
+
+    @RequiresPermissions("perf:stat:view")
+    @GetMapping("/default")
+    @ResponseBody
+    public AjaxResult defaultStatistics(@RequestParam(required = false) String startDate,
+                                        @RequestParam(required = false) String endDate,
+                                        @RequestParam(required = false) Integer topN,
+                                        @RequestParam(required = false) String trendGranularity)
+    {
+        Map<String, Object> payload = perfStatisticsOverviewService.getDefaultStatistics(startDate, endDate, topN, trendGranularity);
+        return AjaxResult.success(payload);
     }
 }

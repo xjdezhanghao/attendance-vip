@@ -37,4 +37,6 @@ public interface IPerfStatisticsOverviewService
 
     public List<PerfStatisticsDetail> selectPerfStatisticsDetailList(PerfStatisticsDetail perfStatisticsDetail);
 
+    public Map<String, Object> getDefaultStatistics(String startDate, String endDate, Integer topN, String trendGranularity);
+
 }
