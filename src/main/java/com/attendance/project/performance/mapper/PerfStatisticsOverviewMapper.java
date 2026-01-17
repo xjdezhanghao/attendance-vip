@@ -2,7 +2,9 @@ package com.attendance.project.performance.mapper;
 
 import com.attendance.project.performance.domain.PerfStatisticsOverview;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 绩效统计Mapper接口
@@ -24,4 +26,16 @@ public interface PerfStatisticsOverviewMapper
     public List<PerfStatisticsOverview> selectPerfStatisticsOverviewListAll(PerfStatisticsOverview perfStatisticsOverview);
 
     public PerfStatisticsOverview selectPerfStatisticsOverviewByOverviewId(Long overviewId);
+
+    public BigDecimal selectCompanyAvgScore(Map<String, Object> params);
+
+    public List<Map<String, Object>> selectTopUsers(Map<String, Object> params);
+
+    public List<Map<String, Object>> selectCompanyTrend(Map<String, Object> params);
+
+    public List<Map<String, Object>> selectTopDeptAverages(Map<String, Object> params);
+
+    public List<Map<String, Object>> selectDeptTrend(Map<String, Object> params);
+
+    public List<Map<String, Object>> selectRadarScores(Map<String, Object> params);
 }
