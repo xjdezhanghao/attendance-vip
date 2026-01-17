@@ -68,5 +68,9 @@ public interface IPerfIndProjectService
      */
     PerfIndProject selectPerfIndProjectWithCategoriesAndItems(Long projectId);
 
+    /**
+     * 增量更新大类和小项（存在则修改，不存在则新增，多余则删除）
+     */
+    void updateCategoriesAndItemsIncrementally(PerfIndProject perfIndProject);
 
 }

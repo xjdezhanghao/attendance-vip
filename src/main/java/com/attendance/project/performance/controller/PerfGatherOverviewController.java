@@ -71,6 +71,22 @@ public class PerfGatherOverviewController extends BaseController
     }
 
     /**
+     * 手动触发生成考核采集记录
+     */
+    @RequiresPermissions("perf:gather:edit")
+    @Log(title = "生成考核采集记录", businessType = BusinessType.OTHER)
+    @GetMapping("/generateGatherRecords")
+    @ResponseBody
+    public AjaxResult generateGatherRecords() {
+        try {
+            perfGatherOverviewService.generateDateGatherRecords();
+            return AjaxResult.success("生成考核采集记录成功");
+        } catch (Exception e) {
+            return AjaxResult.error("生成考核采集记录失败: " + e.getMessage());
+        }
+    }
+
+    /**
      * 导出绩效采集主列表
      */
     @RequiresPermissions("perf:gather:export")

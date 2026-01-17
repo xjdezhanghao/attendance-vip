@@ -289,7 +289,9 @@
         $('#category-tbody tr').each(function(index) {
             var categoryIndex = index + 1;
             var category = {
+                categoryId: $(this).find("input[name='categoryId']").val(),
                 categoryName: $(this).find("input[name='categoryName']").val(),
+                projectId: projectId,
                 scoreType: $(this).find("select[name='scoreType']").val(),
                 weight: $(this).find("input[name='weight']").val(),
                 sort: $(this).find("input[name='sort']").val(), // 添加排序字段
@@ -376,7 +378,7 @@
             if (perfIndProject.categories && perfIndProject.categories.length > 0) {
                 $.each(perfIndProject.categories, function(index, category) {
                     // 添加分类行
-                    addCategoryWithValues(category.categoryName, category.scoreType, category.weight, category.sort);
+                    addCategoryWithValues(category.categoryId, category.categoryName, category.scoreType, category.weight, category.sort);
 
                     // 如果有小项数据，存储到对应分类
                     if (category.items && category.items.length > 0) {
@@ -388,7 +390,7 @@
     }
 
     // 带值添加分类
-    function addCategoryWithValues(categoryName, scoreType, weight, sort) {
+    function addCategoryWithValues(categoryId, categoryName, scoreType, weight, sort) {
         categoryIndex++;
         var html = `        <tr id="category-row-${categoryIndex}">
                 <td>${categoryIndex}</td>
@@ -400,9 +402,10 @@
                         <option value="3" ${scoreType == '3' ? 'selected' : ''}>不加减分</option>
                     </select>
                 </td>
-                <td><input type="number" class="form-control" name="weight" min="0" max="100" placeholder="权重" value="${weight || 1}" autocomplete="off"></td>
+                <td><input type="number" class="form-control" name="weight" min="0" max="100" placeholder="权重" value="${weight || 1}" autocomplete="off" readonly></td>
                 <td>
                     <input type="hidden" name="sort" value="${sort || categoryIndex}">
+                    <input type="hidden" name="categoryId" value="${categoryId || ''}">
                     <button type="button" class="btn btn-info btn-xs" onclick="configItems(${categoryIndex})">
                         <i class="fa fa-cog"></i> 配置小项
                     </button>

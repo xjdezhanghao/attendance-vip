@@ -131,10 +131,13 @@ public class PerfIndProjectController extends BaseController
         try {
             // 更新考核项目主
             perfIndProjectService.updatePerfIndProject(perfIndProject);
-            // 删除原有大类和小项
-            perfIndProjectService.deleteExistingCategoriesAndItems(perfIndProject.getProjectId());
-            // 保存新的大类和小项
-            perfIndProjectService.saveCategoriesAndItems(perfIndProject);
+//            // 删除原有大类和小项
+//            perfIndProjectService.deleteExistingCategoriesAndItems(perfIndProject.getProjectId());
+//            // 保存新的大类和小项
+//            perfIndProjectService.saveCategoriesAndItems(perfIndProject);
+
+            // 使用增量更新方式处理大类和小项
+            perfIndProjectService.updateCategoriesAndItemsIncrementally(perfIndProject);
 
             return AjaxResult.success();
         } catch (Exception e) {

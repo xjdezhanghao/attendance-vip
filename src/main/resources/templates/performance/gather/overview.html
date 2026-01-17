@@ -66,6 +66,7 @@
                             <li>
                                 <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                                 <a class="btn btn-warning btn-rounded btn-sm" onclick="resetForm()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
+                                <a class="btn btn-success btn-rounded btn-sm" onclick="generateOverview()"><i class="fa fa-plus"></i>&nbsp;生成</a>
                             </li>
                         </ul>
                     </div>
@@ -133,23 +134,17 @@ $(function() {
     queryDeptTree();
 });
 
-// 自动调用生成采集记录
-function generateGatherRecords() {
-    $.ajax({
-        url: ctx + "monitor/job/perfTask/generateGatherRecords",
-        type: "post",
-        success: function(result) {
-            console.log("采集记录生成完成");
-            // 可以根据返回结果决定是否显示消息给用户
-            if(result.code === 0) {
-                console.log(result.msg);
-                // 生成完成后刷新列表
+
+function generateOverview(){
+    $.modal.confirm("已经存在今日记录的情况下请不要重复生成，确认要生成今日绩效采集记录吗?", function() {
+        $.get(prefix + "/generateGatherRecords", function(result) {
+            if (result.code == web_status.SUCCESS) {
+                $.modal.msgSuccess(result.msg);
                 $.table.refresh();
+            } else {
+                $.modal.msgError(result.msg);
             }
-        },
-        error: function(xhr, status, error) {
-            console.log("采集记录生成可能已有任务在执行或出现错误: ", error);
-        }
+        });
     });
 }
 
@@ -300,7 +295,6 @@ function resetForm() {
 function overviewGather(userId,gatherDate,userName){
     var url = prefix + "/overviewGather?userId=" + userId + "&gatherDate=" + gatherDate;
     $.modal.openTab("绩效采集："+userName, url);
-
 }
 
 </script>

@@ -157,7 +157,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
 
         // 为每个用户生成采集记录（如果不存在）
         for (PerfUserParam user : users) {
-            // 检查是否已存在当月的采集记录
+            // 检查是否已存在当日的采集记录
             PerfGatherOverview checkRecord = new PerfGatherOverview();
             checkRecord.setUserId(user.getUserId());
             checkRecord.setProjectId(project.getProjectId());
