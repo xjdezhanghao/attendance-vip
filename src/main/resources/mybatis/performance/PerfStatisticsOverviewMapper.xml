@@ -153,6 +153,90 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectPerfStatisticsOverviewVo"/>
         where overview_id = #{overviewId}
     </select>
+
+    <select id="selectCompanyAvgScore" parameterType="java.util.Map" resultType="java.math.BigDecimal">
+        SELECT AVG(pgo.total_score) AS avg_score
+        FROM perf_gather_overview pgo
+        WHERE pgo.gather_date &gt;= #{startDate}
+          AND pgo.gather_date &lt;= #{endDate}
+    </select>
+
+    <select id="selectTopUsers" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT
+            pgo.user_id,
+            MAX(u.user_name) AS user_name,
+            MAX(pgo.dept_id) AS dept_id,
+            MAX(d.dept_name) AS dept_name,
+            SUM(pgo.total_score) AS score
+        FROM perf_gather_overview pgo
+        LEFT JOIN sys_user u ON pgo.user_id = u.user_id
+        LEFT JOIN sys_dept d ON pgo.dept_id = d.dept_id
+        WHERE pgo.gather_date &gt;= #{startDate}
+          AND pgo.gather_date &lt;= #{endDate}
+        GROUP BY pgo.user_id
+        ORDER BY score DESC, pgo.user_id ASC
+        LIMIT #{topN}
+    </select>
+
+    <select id="selectCompanyTrend" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT
+            pgo.gather_date,
+            AVG(pgo.total_score) AS avg_score
+        FROM perf_gather_overview pgo
+        WHERE pgo.gather_date &gt;= #{startDate}
+          AND pgo.gather_date &lt;= #{endDate}
+        GROUP BY pgo.gather_date
+        ORDER BY pgo.gather_date
+    </select>
+
+    <select id="selectTopDeptAverages" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT
+            pgo.dept_id,
+            MAX(d.dept_name) AS dept_name,
+            AVG(pgo.total_score) AS dept_avg
+        FROM perf_gather_overview pgo
+        LEFT JOIN sys_dept d ON pgo.dept_id = d.dept_id
+        WHERE pgo.gather_date &gt;= #{startDate}
+          AND pgo.gather_date &lt;= #{endDate}
+        GROUP BY pgo.dept_id
+        ORDER BY dept_avg DESC, pgo.dept_id ASC
+        LIMIT 5
+    </select>
+
+    <select id="selectDeptTrend" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT
+            pgo.dept_id,
+            pgo.gather_date,
+            AVG(pgo.total_score) AS avg_score
+        FROM perf_gather_overview pgo
+        WHERE pgo.gather_date &gt;= #{startDate}
+          AND pgo.gather_date &lt;= #{endDate}
+          AND pgo.dept_id IN
+        <foreach collection="deptIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+        GROUP BY pgo.dept_id, pgo.gather_date
+        ORDER BY pgo.dept_id, pgo.gather_date
+    </select>
+
+    <select id="selectRadarScores" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT
+            pgd.category_id,
+            MAX(c.category_name) AS category_name,
+            SUM(
+                CASE pgd.score_type
+                    WHEN 1 THEN IFNULL(pgd.item_score, 0)
+                    WHEN 2 THEN -IFNULL(pgd.item_score, 0)
+                    ELSE 0
+                END
+            ) AS score
+        FROM perf_gather_detail pgd
+        LEFT JOIN perf_ind_category c ON pgd.category_id = c.category_id
+        WHERE pgd.gather_date &gt;= #{startDate}
+          AND pgd.gather_date &lt;= #{endDate}
+        GROUP BY pgd.category_id
+        ORDER BY pgd.category_id
+    </select>
         
 
 
