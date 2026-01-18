@@ -147,7 +147,7 @@ public class PerfStatisticsOverviewServiceImpl implements IPerfStatisticsOvervie
         meta.put("endDate", end.toString());
         meta.put("topN", normalizedTopN);
         meta.put("baseIndex", 100);
-        meta.put("gauge", Map.of("min", 0, "max", 160, "bands", List.of(60, 80, 110, 150)));
+        meta.put("gauge", Map.of("min", 0, "max", 150, "bands", List.of(50, 75, 100, 125)));
 
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("meta", meta);

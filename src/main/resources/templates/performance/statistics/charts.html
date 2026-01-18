@@ -55,14 +55,14 @@
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
         <div class="col-sm-12">
-            <div class="dashboard-title">绩效统计图表 <span class="dashboard-subtitle">近30天｜全公司</span></div>
+            <div class="dashboard-title">绩效统计图表 <span class="dashboard-subtitle">近30天｜公司维度</span></div>
         </div>
     </div>
     <div class="row">
         <div class="col-md-4 col-sm-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>公司均值指数</h5>
+                    <h5>整体绩效指数</h5>
                 </div>
                 <div class="ibox-content">
                     <div id="echarts-gauge" class="chart-panel"></div>
@@ -79,7 +79,7 @@
         <div class="col-md-8 col-sm-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>个人Top10得分排行</h5>
+                    <h5>个人绩效TOP10</h5>
                 </div>
                 <div class="ibox-content">
                     <div id="echarts-top-users" class="chart-panel"></div>
@@ -91,7 +91,7 @@
         <div class="col-sm-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>公司均值 + 前五部门均值得分趋势</h5>
+                    <h5>绩效趋势</h5>
                 </div>
                 <div class="ibox-content">
                     <div id="echarts-trend" class="chart-panel chart-panel--large"></div>
@@ -103,7 +103,7 @@
         <div class="col-sm-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>公司整体绩效能力画像</h5>
+                    <h5>整体绩效画像</h5>
                 </div>
                 <div class="ibox-content">
                     <div id="echarts-radar" class="chart-panel"></div>
@@ -156,9 +156,9 @@
         }
 
         function renderGauge(data, meta) {
-            var bands = (meta && meta.gauge && meta.gauge.bands) ? meta.gauge.bands : [60, 80, 110, 150];
+            var bands = (meta && meta.gauge && meta.gauge.bands) ? meta.gauge.bands : [50, 75, 100, 125];
             var min = (meta && meta.gauge) ? meta.gauge.min : 0;
-            var max = (meta && meta.gauge) ? meta.gauge.max : 160;
+            var max = (meta && meta.gauge) ? meta.gauge.max : 150;
             var colors = [
                 [bands[0] / max, "#ed5565"],
                 [bands[1] / max, "#f8ac59"],
@@ -195,7 +195,8 @@
         function renderTopUsers(topUsers) {
             var names = [];
             var scores = [];
-            (topUsers || []).forEach(function (item) {
+            var reversedTopUsers = (topUsers || []).slice().reverse();
+            (reversedTopUsers || []).forEach(function (item) {
                 names.push(item.userName + "｜" + item.deptName);
                 scores.push(item.score);
             });
@@ -290,7 +291,7 @@
                 updateMomDelta(payload.gauge.momDelta || 0, payload.gauge.momDeltaPct);
             })
             .fail(function () {
-                renderGauge({ companyAvgScore: 0 }, { gauge: { min: 0, max: 160, bands: [60, 80, 110, 150] } });
+                renderGauge({ companyAvgScore: 0 }, { gauge: { min: 0, max: 150, bands: [50, 75, 100, 125] } });
                 renderTopUsers([]);
                 renderTrend({ dates: [], companyAvg: [], topDepts: [] });
                 renderRadar({ categories: [], values: [] });

@@ -177,7 +177,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectCompanyAvgScore" parameterType="java.util.Map" resultType="java.math.BigDecimal">
-        SELECT AVG(pgo.total_score) AS avg_score
+        SELECT AVG(100 + pgo.total_score) AS avg_score
         FROM perf_gather_overview pgo
         WHERE pgo.gather_date &gt;= #{startDate}
           AND pgo.gather_date &lt;= #{endDate}
@@ -189,7 +189,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             MAX(u.user_name) AS user_name,
             MAX(pgo.dept_id) AS dept_id,
             MAX(d.dept_name) AS dept_name,
-            SUM(pgo.total_score) AS score
+            SUM(100 + pgo.total_score) AS score
         FROM perf_gather_overview pgo
         LEFT JOIN sys_user u ON pgo.user_id = u.user_id
         LEFT JOIN sys_dept d ON pgo.dept_id = d.dept_id
@@ -203,7 +203,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectCompanyTrend" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT
             pgo.gather_date,
-            AVG(pgo.total_score) AS avg_score
+            AVG(100 + pgo.total_score) AS avg_score
         FROM perf_gather_overview pgo
         WHERE pgo.gather_date &gt;= #{startDate}
           AND pgo.gather_date &lt;= #{endDate}
@@ -215,7 +215,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         SELECT
             pgo.dept_id,
             MAX(d.dept_name) AS dept_name,
-            AVG(pgo.total_score) AS dept_avg
+            AVG(100 + pgo.total_score) AS dept_avg
         FROM perf_gather_overview pgo
         LEFT JOIN sys_dept d ON pgo.dept_id = d.dept_id
         WHERE pgo.gather_date &gt;= #{startDate}
@@ -229,7 +229,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         SELECT
             pgo.dept_id,
             pgo.gather_date,
-            AVG(pgo.total_score) AS avg_score
+            AVG(100 + pgo.total_score) AS avg_score
         FROM perf_gather_overview pgo
         WHERE pgo.gather_date &gt;= #{startDate}
           AND pgo.gather_date &lt;= #{endDate}
@@ -243,21 +243,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectRadarScores" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT
-            pgd.category_id,
-            MAX(c.category_name) AS category_name,
+            MAX(pgd.category_id) AS category_id,
+            c.category_name AS category_name,
             SUM(
                 CASE pgd.score_type
                     WHEN 1 THEN IFNULL(pgd.item_score, 0)
                     WHEN 2 THEN -IFNULL(pgd.item_score, 0)
                     ELSE 0
                 END
-            ) AS score
+            ) AS score,
+            MAX(c.sort) AS sort
         FROM perf_gather_detail pgd
         LEFT JOIN perf_ind_category c ON pgd.category_id = c.category_id
         WHERE pgd.gather_date &gt;= #{startDate}
           AND pgd.gather_date &lt;= #{endDate}
-        GROUP BY pgd.category_id
-        ORDER BY pgd.category_id
+          AND c.category_name IS NOT NULL
+        GROUP BY c.category_name
+        ORDER BY sort ASC
     </select>
         
 
