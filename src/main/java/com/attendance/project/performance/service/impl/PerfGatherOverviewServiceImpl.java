@@ -796,7 +796,14 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
             case STRING:
                 return cell.getStringCellValue();
             case NUMERIC:
-                return String.valueOf((long) cell.getNumericCellValue());
+                double value = cell.getNumericCellValue();
+                // 如果是整数值，显示为整数；否则保留小数点后位数
+                if (value == (long) value) {
+                    return String.valueOf((long) value);
+                } else {
+                    // 使用DecimalFormat控制小数位数，或直接使用toString()
+                    return String.valueOf(value);
+                }
             case BOOLEAN:
                 return String.valueOf(cell.getBooleanCellValue());
             default:

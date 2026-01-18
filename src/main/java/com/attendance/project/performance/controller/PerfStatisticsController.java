@@ -85,7 +85,7 @@ public class PerfStatisticsController extends BaseController
     public TableDataInfo list2(PerfStatisticsOverview perfStatisticsOverview)
     {
         startPage();
-        List<PerfStatisticsOverview> list = perfStatisticsOverviewService.selectPerfStatisticsOverviewListAll(perfStatisticsOverview);
+        List<PerfStatisticsOverview> list = perfStatisticsOverviewService.selectPerfStatisticsOverviewListAllDate(perfStatisticsOverview);
         return getDataTable(list);
     }
 

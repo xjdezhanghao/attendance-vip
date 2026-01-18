@@ -253,10 +253,10 @@ public class PerfGatherOverviewController extends BaseController
             }
 
             boolean isFirst = true;
+            String gatherDate = null;
+            Long userId = null;
             // 批量更新每个overview下的考核项
             for (Long overviewId : allScores.keySet()) {
-                String gatherDate = null;
-                Long userId = null;
                 if(isFirst){
                     PerfGatherOverview fstOverview = perfGatherOverviewService.selectPerfGatherOverviewByOverviewId(overviewId);
                     gatherDate = fstOverview.getGatherDate();

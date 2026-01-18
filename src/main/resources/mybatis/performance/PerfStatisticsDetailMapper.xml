@@ -55,11 +55,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             item_id,
             MAX(project_id) project_id,
             SUM(
-            CASE score_type
-                WHEN 1 THEN IFNULL(item_score, 0)
-                WHEN 2 THEN IFNULL(-item_score, 0)
-                ELSE 0
-            END
+                /*CASE score_type
+                    WHEN 1 THEN IFNULL(item_score, 0)
+                    WHEN 2 THEN IFNULL(-item_score, 0)
+                    ELSE 0
+                END*/
+                item_score
             ) AS item_score, MAX(image_path) image_path,
             GROUP_CONCAT(
                 DISTINCT NULLIF(TRIM(item_remark), '')

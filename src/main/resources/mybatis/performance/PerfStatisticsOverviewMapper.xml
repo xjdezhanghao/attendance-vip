@@ -132,7 +132,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         vp.post_name post_name, u.user_name user_name, d.dept_name dept_name
         FROM
         (
-            SELECT project_id, MAX(overview_id) overview_id, MAX(dept_id) dept_id, MAX(user_id) user_id, MAX(gather_date) gather_date, SUM(total_score) total_score, MAX(remark) remark
+            SELECT project_id, MAX(gather_date) gather_date, MAX(overview_id) overview_id, MAX(dept_id) dept_id, MAX(user_id) user_id, SUM(total_score) total_score, MAX(remark) remark
             FROM perf_gather_overview
             <where>
                 <if test="startDate != null  and startDate != ''"> and gather_date &gt;= #{startDate}</if>
@@ -142,6 +142,28 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </where>
             GROUP BY
             project_id
+        ) pgo
+        left join perf_ind_project pip on pgo.project_id = pip.project_id
+        LEFT JOIN sys_user u ON pgo.user_id = u.user_id
+        left join sys_dept d on pgo.dept_id = d.dept_id
+        left join vip_post vp on pip.post_id = vp.post_id
+    </select>
+
+    <select id="selectPerfStatisticsOverviewListAllDate" parameterType="PerfStatisticsOverview" resultMap="PerfStatisticsOverviewResult">
+        SELECT pgo.overview_id, pgo.dept_id, pgo.user_id, pgo.project_id, pgo.gather_date, pgo.total_score, pgo.remark,
+        vp.post_name post_name, u.user_name user_name, d.dept_name dept_name
+        FROM
+        (
+        SELECT gather_date, MAX(project_id) project_id, MAX(overview_id) overview_id, MAX(dept_id) dept_id, MAX(user_id) user_id, SUM(total_score) total_score, MAX(remark) remark
+        FROM perf_gather_overview
+        <where>
+            <if test="startDate != null  and startDate != ''"> and gather_date &gt;= #{startDate}</if>
+            <if test="endDate != null  and endDate != ''"> and gather_date &lt;= #{endDate}</if>
+            <if test="gatherDate != null  and gatherDate != ''"> and gather_date = #{gatherDate}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+        </where>
+        GROUP BY
+        gather_date
         ) pgo
         left join perf_ind_project pip on pgo.project_id = pip.project_id
         LEFT JOIN sys_user u ON pgo.user_id = u.user_id

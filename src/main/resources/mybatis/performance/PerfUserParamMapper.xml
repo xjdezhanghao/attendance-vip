@@ -45,7 +45,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="postName != null  and postName != ''"> and p.post_name like concat('%', #{postName}, '%')</if>
         </where>
         group by u.user_id, u.user_name, u.login_name, u.dept_id, d.dept_name, ep1.param_rank, ep1.param_post
-        order by d.dept_id asc, u.number asc, u.user_id asc
+        order by u.number asc, d.dept_id asc
     </select>
 
     <select id="selectPerfUserParamListOnly" parameterType="PerfUserParam" resultMap="PerfUserParamResult">

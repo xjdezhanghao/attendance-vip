@@ -61,6 +61,11 @@ public class PerfStatisticsOverviewServiceImpl implements IPerfStatisticsOvervie
     }
 
     @Override
+    public List<PerfStatisticsOverview> selectPerfStatisticsOverviewListAllDate(PerfStatisticsOverview perfStatisticsOverview) {
+        return perfStatisticsOverviewMapper.selectPerfStatisticsOverviewListAllDate(perfStatisticsOverview);
+    }
+
+    @Override
     public List<PerfStatisticsDetail> selectPerfStatisticsDetailList(PerfStatisticsDetail perfStatisticsDetail) {
         return perfStatisticsDetailMapper.selectPerfStatisticsDetailList(perfStatisticsDetail);
     }

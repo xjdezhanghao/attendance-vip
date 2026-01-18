@@ -277,7 +277,8 @@
         row.append('<td><label>' + item.itemName + '</label></td>');
         row.append('<td>' + (item.ruleDesc || '') + '</td>');
         row.append('<td>' + item.scoreMin + ' - ' + item.scoreMax + '</td>');
-        row.append('<td>' + (item.itemScore || '') + '</td>');
+        var scoreCell = $('<td name="score_' + item.itemId + '">' + (item.itemScore || '') + '</td>');
+        row.append(scoreCell);
         row.append('<td>' + (item.itemRemark || '') + '</td>');
 
         <!-- 在表格行中的图片列部分修改 -->
@@ -311,10 +312,8 @@
   // 计算总分
   function calculateTotalScore(formId) {
     let total = 0;
-    
-    $('#' + formId + ' .score-input').each(function() {
-      let score = parseFloat($(this).val()) || 0;
-      
+    $('#' + formId + ' td[name^="score_"]').each(function() {
+      let score = parseFloat($(this).text()) || 0;
       // 获取当前输入框所在的分类容器
       var categorySection = $(this).closest('.category-section');
       var scoreType = categorySection.data('score-type');
@@ -330,6 +329,7 @@
       }
       // scoreType为2时不加不减
     });
+    console.info('总分：' + total)
 
     var overviewId = $('#' + formId).find('input[name="overviewId"]').val();
     $('#totalScore_' + overviewId).text(total.toFixed(1));
@@ -347,8 +347,8 @@
       var scoreType = $(this).data('score-type');
 
       // 计算当前分类下所有得分
-      $(this).find('.score-input').each(function() {
-        var score = parseFloat($(this).val()) || 0;
+      $(this).find('td[name^="score_"]').each(function() {
+        var score = parseFloat($(this).text()) || 0;
         
         // 根据scoreType决定加减分
         // 0表示不加减分，1表示加分，2表示减分

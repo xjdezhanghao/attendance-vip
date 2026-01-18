@@ -89,12 +89,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="paramPost != null and paramPost != ''"> and eparam.param_post = #{paramPost}</if>
             <if test="postName != null and postName != ''"> and vp.post_name like concat('%', #{postName}, '%')</if>
             <if test="postId != null and postId != ''"> and vp.post_id = #{postId}</if>
-
             ${params.dataScope}
         </where>
         group by pgo.user_id, pgo.gather_date, pgo.dept_id, pgo.total_score, pgo.create_time,
             u.user_name, d.dept_name, eparam.param_rank, eparam.param_post
-        order by pgo.user_id asc, u.number asc, pgo.dept_id asc
+        order by u.number asc, pgo.dept_id asc
     </select>
 
     <select id="selectPerfGatherOverviewListAll" parameterType="PerfGatherOverview" resultMap="PerfGatherOverviewResult">

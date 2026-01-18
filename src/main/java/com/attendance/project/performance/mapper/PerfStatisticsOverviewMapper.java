@@ -25,6 +25,8 @@ public interface PerfStatisticsOverviewMapper
 
     public List<PerfStatisticsOverview> selectPerfStatisticsOverviewListAll(PerfStatisticsOverview perfStatisticsOverview);
 
+    public List<PerfStatisticsOverview> selectPerfStatisticsOverviewListAllDate(PerfStatisticsOverview perfStatisticsOverview);
+
     public PerfStatisticsOverview selectPerfStatisticsOverviewByOverviewId(Long overviewId);
 
     public BigDecimal selectCompanyAvgScore(Map<String, Object> params);
