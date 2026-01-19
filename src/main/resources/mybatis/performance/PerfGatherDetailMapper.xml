@@ -50,13 +50,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         pgd.item_score, pgd.image_path, pgd.item_remark
         from perf_ind_item pit left join perf_ind_category pic on pit.category_id = pic.category_id
         left join
-        (select item_id, item_score, image_path, item_remark from perf_gather_detail <where><if test="overviewId != null "> and overview_id = #{overviewId}</if></where>) pgd on pit.item_id = pgd.item_id
+        (select item_id, item_score, image_path, item_remark from perf_gather_detail
+            <where>
+                <if test="overviewId != null "> and overview_id = #{overviewId}</if>
+                <if test="gatherDate != null and gatherDate != ''"> and gather_date = #{gatherDate}</if>
+                <if test="userId != null and userId != ''"> and user_id = #{userId}</if>
+            </where>) pgd on pit.item_id = pgd.item_id
         <where>
             <if test="projectId != null "> and pic.project_id = #{projectId}</if>
             <if test="categoryId != null "> and pic.category_id = #{categoryId}</if>
             <if test="itemId != null "> and pit.item_id = #{itemId}</if>
-            <if test="scoreType != null  and scoreType != ''"> and pic.score_type = #{scoreType}</if>
-            <if test="isRelated != null  and isRelated != ''"> and pit.is_related = #{isRelated}</if>
+            <if test="scoreType != null and scoreType != ''"> and pic.score_type = #{scoreType}</if>
+            <if test="isRelated != null and isRelated != ''"> and pit.is_related = #{isRelated}</if>
         </where>
         order by pic.project_id asc, pic.sort asc, pit.sort asc
     </select>

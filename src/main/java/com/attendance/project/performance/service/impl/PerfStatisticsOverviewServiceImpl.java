@@ -260,15 +260,46 @@ public class PerfStatisticsOverviewServiceImpl implements IPerfStatisticsOvervie
     }
 
     private List<Double> buildRadarValues(List<Map<String, Object>> radarRows) {
+        // 先找到所有score中的最大值
+        BigDecimal maxValue = BigDecimal.ZERO;
+        for (Map<String, Object> row : radarRows) {
+            Object score = row.get("score");
+            BigDecimal decimalScore;
+            if (score instanceof BigDecimal) {
+                decimalScore = (BigDecimal) score;
+            } else if (score instanceof Number) {
+                decimalScore = new BigDecimal(((Number) score).doubleValue());
+            } else {
+                continue;
+            }
+            if (decimalScore.compareTo(maxValue) > 0) {
+                maxValue = decimalScore;
+            }
+        }
+
         List<Double> values = new ArrayList<>();
         for (Map<String, Object> row : radarRows) {
             Object score = row.get("score");
+            BigDecimal decimalScore;
             if (score instanceof BigDecimal) {
-                values.add(((BigDecimal) score).setScale(2, RoundingMode.HALF_UP).doubleValue());
+                decimalScore = (BigDecimal) score;
             } else if (score instanceof Number) {
-                values.add(((Number) score).doubleValue());
+                decimalScore = new BigDecimal(((Number) score).doubleValue());
             } else {
                 values.add(null);
+                continue;
+            }
+
+            // 如果分数为负数，则与最大值相加
+            if (decimalScore.compareTo(BigDecimal.ZERO) < 0) {
+                BigDecimal newValue = maxValue.add(decimalScore); // 相当于 max + 负数（即 max - abs(负数)）
+                if (newValue.compareTo(BigDecimal.ZERO) < 0) {
+                    newValue = BigDecimal.ZERO; // 如果结果小于零则按0处理
+                }
+                values.add(newValue.setScale(2, RoundingMode.HALF_UP).doubleValue());
+            } else {
+                // 正数保持原值
+                values.add(decimalScore.setScale(2, RoundingMode.HALF_UP).doubleValue());
             }
         }
         return values;

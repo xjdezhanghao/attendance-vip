@@ -133,10 +133,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
 
     @Override
     @Transactional
-    public void generateDateGatherRecords() {
-        // 获取当前月份
-        String currentDate = DateUtils.dateTimeNow("yyyy-MM-DD");
-
+    public void generateDateGatherRecords(String currentDate) {
         // 查询生效中的考核项目
         PerfIndProject projectQuery = new PerfIndProject();
         List<PerfIndProject> activeProjects = perfIndProjectMapper. selectPerfIndProjectList(projectQuery);
@@ -218,6 +215,8 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
         // 查询该项目的所有考核项基础信息
         PerfGatherDetail baseParam = new PerfGatherDetail();
         baseParam.setProjectId(projectId);
+        baseParam.setGatherDate(overview.getGatherDate());
+        baseParam.setUserId(overview.getUserId());
         List<PerfGatherDetail> baseDetails = perfGatherDetailMapper.selectPerfGatherDetailList(baseParam);
 
         // 重新插入考核项详情
@@ -669,7 +668,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
      */
     @Transactional
     void importGatherData(SheetGatherData gatherData) throws Exception {
-        Long overviewId = gatherData. getOverviewId();
+        Long overviewId = gatherData.getOverviewId();
         Long projectId = gatherData.getProjectId();
         String gatherDate = gatherData.getGatherDate();
 
@@ -703,6 +702,8 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
         // 查询该项目的所有考核项基础信息
         PerfGatherDetail baseParam = new PerfGatherDetail();
         baseParam.setProjectId(projectId);
+        baseParam.setGatherDate(gatherDate);
+        baseParam.setUserId(overview.getUserId());
         List<PerfGatherDetail> baseDetails = perfGatherDetailMapper. selectPerfGatherDetailList(baseParam);
 
         // 重新插入考核项详情

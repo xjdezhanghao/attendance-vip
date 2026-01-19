@@ -1,5 +1,6 @@
 package com.attendance.project.monitor.job.task;
 
+import com.attendance.common.utils.DateUtils;
 import com.attendance.project.atdform.atdstatisticform.domain.AtdHoliday;
 import com.attendance.project.atdform.atdstatisticform.domain.AtdPlan;
 import com.attendance.project.atdform.atdstatisticform.domain.AtdStatisticForm;
@@ -38,7 +39,9 @@ public class PerfTask
     //@Scheduled(cron = "0 0 12,0 * * ?")
     public void generateGatherRecords() {
         System.out.println("开始生成当日考核采集记录");
-        perfGatherOverviewService.generateDateGatherRecords();
+        // 获取当前日期
+        String currentDate = DateUtils.dateTimeNow("yyyy-MM-DD");
+        perfGatherOverviewService.generateDateGatherRecords(currentDate);
         System.out.println("当日考核采集记录生成完成");
     }
 
@@ -47,7 +50,9 @@ public class PerfTask
      */
     public void callGenerateGatherRecords() {
         System.out.println("开始生成当日考核采集记录");
-        perfGatherOverviewService.generateDateGatherRecords();
+        // 获取当前日期
+        String currentDate = DateUtils.dateTimeNow("yyyy-MM-DD");
+        perfGatherOverviewService.generateDateGatherRecords(currentDate);
         System.out.println("当日考核采集记录生成完成");
     }
 

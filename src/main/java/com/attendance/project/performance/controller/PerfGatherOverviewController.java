@@ -77,9 +77,9 @@ public class PerfGatherOverviewController extends BaseController
     @Log(title = "生成考核采集记录", businessType = BusinessType.OTHER)
     @GetMapping("/generateGatherRecords")
     @ResponseBody
-    public AjaxResult generateGatherRecords() {
+    public AjaxResult generateGatherRecords(@RequestParam("gatherDate") String gatherDate) {
         try {
-            perfGatherOverviewService.generateDateGatherRecords();
+            perfGatherOverviewService.generateDateGatherRecords(gatherDate);
             return AjaxResult.success("生成考核采集记录成功");
         } catch (Exception e) {
             return AjaxResult.error("生成考核采集记录失败: " + e.getMessage());
@@ -147,6 +147,7 @@ public class PerfGatherOverviewController extends BaseController
             PerfGatherDetail detailParam = new PerfGatherDetail();
             detailParam.setProjectId(overview.getProjectId());
             detailParam.setOverviewId(overview.getOverviewId());
+            detailParam.setGatherDate(gatherDate);
             List<PerfGatherDetail> details = perfGatherDetailService.selectPerfGatherDetailList(detailParam);
             gatherDetailsList.add(details);
         }

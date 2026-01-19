@@ -73,7 +73,7 @@ public interface IPerfGatherOverviewService
     /**
      * 生成每日考核采集记录
      */
-    void generateDateGatherRecords();
+    void generateDateGatherRecords(String currentDate);
 
     /**
      * 批量更新考核项的评分、备注和图片路径

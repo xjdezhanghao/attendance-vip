@@ -136,8 +136,9 @@ $(function() {
 
 
 function generateOverview(){
+    var gatherDate = $("#gatherDate").val();
     $.modal.confirm("已经存在今日记录的情况下请不要重复生成，确认要生成今日绩效采集记录吗?", function() {
-        $.get(prefix + "/generateGatherRecords", function(result) {
+        $.get(prefix + "/generateGatherRecords?gatherDate=" + gatherDate, function(result) {
             if (result.code == web_status.SUCCESS) {
                 $.modal.msgSuccess(result.msg);
                 $.table.refresh();
