@@ -1,5 +1,6 @@
 package com.attendance.project.performance.mapper;
 
+import com.attendance.framework.aspectj.lang.annotation.DataScope;
 import com.attendance.project.performance.domain.PerfUserParam;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public interface PerfUserParamMapper
      * @param perfUserParam 用户参数
      * @return 用户参数集合
      */
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<PerfUserParam> selectPerfUserParamList(PerfUserParam perfUserParam);
 
     public List<PerfUserParam> selectPerfUserParamListOnly(PerfUserParam perfUserParam);

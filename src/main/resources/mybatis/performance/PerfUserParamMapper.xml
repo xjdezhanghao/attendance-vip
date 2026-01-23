@@ -43,6 +43,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
              d.parent_id = #{deptId} or d.ancestors like concat('%', #{deptId},',%'))</if>
             <if test="postId != null "> and ep2.post_id = #{postId}</if>
             <if test="postName != null  and postName != ''"> and p.post_name like concat('%', #{postName}, '%')</if>
+            ${params.dataScope}
         </where>
         group by u.user_id, u.user_name, u.login_name, u.dept_id, d.dept_name, ep1.param_rank, ep1.param_post
         order by u.number asc, d.dept_id asc
