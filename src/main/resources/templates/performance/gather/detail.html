@@ -171,7 +171,7 @@
 
             <div class="row mt20">
               <div class="col-sm-12 text-center">
-                <button type="button" class="btn btn-primary" th:onclick="|saveDetails(${overview.overviewId})|">保存</button>
+                <button id="saveBtn" type="button" class="btn btn-primary" th:onclick="|saveDetails(${overview.overviewId})|">保存</button>
                 <button type="button" class="btn btn-default" onclick="closeItem()">关闭</button>
               </div>
             </div>
@@ -184,8 +184,10 @@
 
 <th:block th:include="include :: footer" />
 
-<script>
+<script th:inline="javascript">
   var prefix = ctx + "performance/gather";
+  var editFlag = [[${@permission.hasPermi('perf:gather:edit')}]];
+  if (editFlag === 'hidden') $("#saveBtn").hide();
 
   $(document).ready(function() {
     // 为每个标签页初始化内容和分数计算

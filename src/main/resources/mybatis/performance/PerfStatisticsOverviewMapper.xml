@@ -51,7 +51,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             max( user_name ) user_name,
             max( dept_name ) dept_name,
             max( post_name ) post_name,
-            sum( total_score ) total_score
+            sum( total_score ) total_score,
+            max( number ) number
         FROM
             (
             SELECT
@@ -61,6 +62,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             pgo.total_score,
             pgo.create_time,
             u.user_name,
+            u.number,
             d.dept_name,
             eparam.param_rank,
             eparam.param_post,
@@ -125,6 +127,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             pgo.dept_id ASC
         ) tb1
         GROUP BY user_id
+        ORDER BY number ASC
     </select>
 
     <select id="selectPerfStatisticsOverviewListAll" parameterType="PerfStatisticsOverview" resultMap="PerfStatisticsOverviewResult">

@@ -136,7 +136,8 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
     public void generateDateGatherRecords(String currentDate) {
         // 查询生效中的考核项目
         PerfIndProject projectQuery = new PerfIndProject();
-        List<PerfIndProject> activeProjects = perfIndProjectMapper. selectPerfIndProjectList(projectQuery);
+        projectQuery.setDelFlag("0");
+        List<PerfIndProject> activeProjects = perfIndProjectMapper.selectPerfIndProjectList(projectQuery);
 
         // 为每个考核项目生成对应的采集记录
         for (PerfIndProject project : activeProjects) {

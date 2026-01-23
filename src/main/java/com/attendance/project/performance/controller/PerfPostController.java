@@ -39,7 +39,7 @@ public class PerfPostController extends BaseController
         return prefix + "/post";
     }
 
-    @RequiresPermissions("perf:post:list")
+    //@RequiresPermissions("perf:post:list")
     @PostMapping("/list")
     @ResponseBody
     public TableDataInfo list(PerfPost post)
@@ -56,7 +56,7 @@ public class PerfPostController extends BaseController
         return prefix + "/post2";
     }
 
-    @RequiresPermissions("perf:post:list")
+    //@RequiresPermissions("perf:post:list")
     @GetMapping("/list2")
     @ResponseBody
     public TableDataInfo list2()

@@ -66,7 +66,7 @@
                             <li>
                                 <a class="btn btn-primary btn-rounded btn-sm" onclick="$.table.search()"><i class="fa fa-search"></i>&nbsp;搜索</a>
                                 <a class="btn btn-warning btn-rounded btn-sm" onclick="resetForm()"><i class="fa fa-refresh"></i>&nbsp;重置</a>
-                                <a class="btn btn-success btn-rounded btn-sm" onclick="generateOverview()"><i class="fa fa-plus"></i>&nbsp;生成</a>
+                                <a id="generateBtn" class="btn btn-success btn-rounded btn-sm" onclick="generateOverview()"><i class="fa fa-plus"></i>&nbsp;生成</a>
                             </li>
                         </ul>
                     </div>
@@ -102,6 +102,11 @@ var prefix = ctx + "performance/gather";
 
 var ranks = [[${@dict.getType('perf_rank_type')}]];
 var posts = [[${@dict.getType('perf_post_type')}]];
+
+if (editFlag === 'hidden') {
+    $("#toolbar").hide();
+    $("#generateBtn").hide();
+}
 
 $(function() {
     // 初始化月份选择器

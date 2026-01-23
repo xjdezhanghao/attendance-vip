@@ -1,5 +1,6 @@
 package com.attendance.project.performance.mapper;
 
+import com.attendance.framework.aspectj.lang.annotation.DataScope;
 import com.attendance.project.performance.domain.PerfStatisticsOverview;
 
 import java.math.BigDecimal;
@@ -21,6 +22,7 @@ public interface PerfStatisticsOverviewMapper
      * @param perfStatisticsOverview 绩效统计主
      * @return 绩效统计主集合
      */
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<PerfStatisticsOverview> selectPerfStatisticsOverviewList(PerfStatisticsOverview perfStatisticsOverview);
 
     public List<PerfStatisticsOverview> selectPerfStatisticsOverviewListAll(PerfStatisticsOverview perfStatisticsOverview);

@@ -1,6 +1,8 @@
 package com.attendance.project.performance.mapper;
 
 import java.util.List;
+
+import com.attendance.framework.aspectj.lang.annotation.DataScope;
 import com.attendance.project.performance.domain.PerfGatherOverview;
 
 /**
@@ -25,6 +27,7 @@ public interface PerfGatherOverviewMapper
      * @param perfGatherOverview 绩效采集主
      * @return 绩效采集主集合
      */
+    @DataScope(deptAlias = "d", userAlias = "u")
     public List<PerfGatherOverview> selectPerfGatherOverviewList(PerfGatherOverview perfGatherOverview);
 
     public List<PerfGatherOverview> selectPerfGatherOverviewListAll(PerfGatherOverview perfGatherOverview);

@@ -110,7 +110,7 @@ public class PerfIndProjectController extends BaseController
     /**
      * 修改考核项目主
      */
-    @RequiresPermissions("perf:ind:edit")
+    @RequiresPermissions("perf:ind:view")
     @GetMapping("/edit/{projectId}")
     public String edit(@PathVariable("projectId") Long projectId, ModelMap mmap)
     {

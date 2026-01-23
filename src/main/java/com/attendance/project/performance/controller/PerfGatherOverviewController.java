@@ -124,7 +124,7 @@ public class PerfGatherOverviewController extends BaseController
     /**
      * 进入绩效采集详情页面 - 根据用户ID、部门ID、岗位ID、采集月份查询
      */
-    @RequiresPermissions("perf:gather:edit")
+    @RequiresPermissions("perf:gather:view")
     @GetMapping("/overviewGather")
     public String overviewGather(@RequestParam Long userId,
                                  @RequestParam String gatherDate,

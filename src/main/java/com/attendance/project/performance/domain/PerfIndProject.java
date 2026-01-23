@@ -44,6 +44,8 @@ public class PerfIndProject extends BaseEntity
 
     private String postName;
 
+    private String delFlag;
+
     /** 大类列表 */
     private List<PerfIndCategory> categories;
 
@@ -124,6 +126,14 @@ public class PerfIndProject extends BaseEntity
 
     public void setPostName(String postName) {
         this.postName = postName;
+    }
+
+    public String getDelFlag() {
+        return delFlag;
+    }
+
+    public void setDelFlag(String delFlag) {
+        this.delFlag = delFlag;
     }
 
     @Override
