@@ -204,6 +204,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         LIMIT #{topN}
     </select>
 
+    <select id="selectTopWorkHours" parameterType="java.util.Map" resultType="java.util.HashMap">
+        SELECT
+            t.userid AS user_id,
+            MAX(u.user_name) AS user_name,
+            MAX(d.dept_name) AS dept_name,
+            SUM(TIMESTAMPDIFF(SECOND, t.start_time, t.end_time)) AS work_seconds
+        FROM (
+            SELECT
+                userid,
+                DATE(atdtime) AS work_date,
+                MIN(CASE WHEN atdstatus = '1' THEN atdtime END) AS start_time,
+                MAX(CASE WHEN atdstatus = '2' THEN atdtime END) AS end_time
+            FROM atd_record
+            WHERE atdtime &gt;= #{startDate}
+              AND atdtime &lt;= #{endDate}
+            GROUP BY userid, DATE(atdtime)
+        ) t
+        LEFT JOIN sys_user u ON t.userid = u.user_id
+        LEFT JOIN sys_dept d ON u.dept_id = d.dept_id
+        WHERE t.start_time IS NOT NULL
+          AND t.end_time IS NOT NULL
+          AND u.del_flag = 0
+        GROUP BY t.userid
+        ORDER BY work_seconds DESC, t.userid ASC
+        LIMIT #{topN}
+    </select>
+
     <select id="selectCompanyTrend" parameterType="java.util.Map" resultType="java.util.HashMap">
         SELECT
             pgo.gather_date,
