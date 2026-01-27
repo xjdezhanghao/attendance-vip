@@ -35,6 +35,8 @@ public interface PerfStatisticsOverviewMapper
 
     public List<Map<String, Object>> selectTopUsers(Map<String, Object> params);
 
+    public List<Map<String, Object>> selectTopWorkHours(Map<String, Object> params);
+
     public List<Map<String, Object>> selectCompanyTrend(Map<String, Object> params);
 
     public List<Map<String, Object>> selectTopDeptAverages(Map<String, Object> params);

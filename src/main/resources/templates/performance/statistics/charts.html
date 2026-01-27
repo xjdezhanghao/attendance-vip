@@ -2,6 +2,7 @@
 <html lang="zh" xmlns:th="http://www.thymeleaf.org" xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
     <th:block th:include="include :: header('绩效统计图表')" />
+    <th:block th:include="include :: datetimepicker-css" />
     <style>
         .dashboard-title {
             font-size: 16px;
@@ -49,30 +50,57 @@
         .kpi-delta--flat {
             color: #8b97a5;
         }
+        .chart-filter {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .chart-filter .input-group {
+            width: 140px;
+        }
+        .chart-filter__sep {
+            color: #8b97a5;
+            font-size: 12px;
+        }
+        .chart-filter__btn {
+            padding: 2px 8px;
+        }
+        .ibox-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
     </style>
 </head>
 <body class="gray-bg">
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
         <div class="col-sm-12">
-            <div class="dashboard-title">绩效统计图表 <span class="dashboard-subtitle">近30天｜公司维度</span></div>
+            <div class="dashboard-title">绩效统计图表 <span class="dashboard-subtitle" id="dashboard-range">近30天｜公司维度</span></div>
         </div>
     </div>
     <div class="row">
         <div class="col-md-4 col-sm-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
-                    <h5>整体绩效指数</h5>
+                    <h5>上班时长TOP10</h5>
+                    <div class="chart-filter" data-section="work-hours">
+                        <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input type="text" class="form-control chart-date" id="work-hours-start" placeholder="开始日期">
+                        </div>
+                        <span class="chart-filter__sep">至</span>
+                        <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input type="text" class="form-control chart-date" id="work-hours-end" placeholder="结束日期">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-xs chart-filter__btn" data-target="work-hours">筛选</button>
+                    </div>
                 </div>
                 <div class="ibox-content">
-                    <div id="echarts-gauge" class="chart-panel"></div>
-                    <!--<div class="kpi-card" style="margin-top: 12px;">
-                        <div>
-                            <h6>较上周期</h6>
-                            <div class="kpi-value" id="mom-delta">&#45;&#45;</div>
-                        </div>
-                        <div class="kpi-delta kpi-delta&#45;&#45;flat" id="mom-delta-pct">&#45;&#45;</div>
-                    </div>-->
+                    <div id="echarts-work-hours" class="chart-panel"></div>
                 </div>
             </div>
         </div>
@@ -80,6 +108,18 @@
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>个人绩效TOP10</h5>
+                    <div class="chart-filter" data-section="top-users">
+                        <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input type="text" class="form-control chart-date" id="top-users-start" placeholder="开始日期">
+                        </div>
+                        <span class="chart-filter__sep">至</span>
+                        <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input type="text" class="form-control chart-date" id="top-users-end" placeholder="结束日期">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-xs chart-filter__btn" data-target="top-users">筛选</button>
+                    </div>
                 </div>
                 <div class="ibox-content">
                     <div id="echarts-top-users" class="chart-panel"></div>
@@ -92,6 +132,18 @@
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>绩效趋势</h5>
+                    <div class="chart-filter" data-section="trend">
+                        <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input type="text" class="form-control chart-date" id="trend-start" placeholder="开始日期">
+                        </div>
+                        <span class="chart-filter__sep">至</span>
+                        <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input type="text" class="form-control chart-date" id="trend-end" placeholder="结束日期">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-xs chart-filter__btn" data-target="trend">筛选</button>
+                    </div>
                 </div>
                 <div class="ibox-content">
                     <div id="echarts-trend" class="chart-panel chart-panel--large"></div>
@@ -104,6 +156,18 @@
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>整体绩效画像</h5>
+                    <div class="chart-filter" data-section="radar">
+                        <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input type="text" class="form-control chart-date" id="radar-start" placeholder="开始日期">
+                        </div>
+                        <span class="chart-filter__sep">至</span>
+                        <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input type="text" class="form-control chart-date" id="radar-end" placeholder="结束日期">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-xs chart-filter__btn" data-target="radar">筛选</button>
+                    </div>
                 </div>
                 <div class="ibox-content">
                     <div id="echarts-radar" class="chart-panel"></div>
@@ -114,16 +178,23 @@
 </div>
 <th:block th:include="include :: footer" />
 <th:block th:include="include :: echarts-js" />
+<th:block th:include="include :: datetimepicker-js" />
 <script type="text/javascript">
     $(function () {
         var prefix = ctx + "performance/statistics";
-        var gaugeChart = echarts.init(document.getElementById("echarts-gauge"));
+        var workHoursChart = echarts.init(document.getElementById("echarts-work-hours"));
         var topUsersChart = echarts.init(document.getElementById("echarts-top-users"));
         var trendChart = echarts.init(document.getElementById("echarts-trend"));
         var radarChart = echarts.init(document.getElementById("echarts-radar"));
+        var defaultRange = buildDefaultRange();
+        var sectionDates = {
+            "work-hours": { start: defaultRange.start, end: defaultRange.end },
+            "top-users": { start: defaultRange.start, end: defaultRange.end },
+            "trend": { start: defaultRange.start, end: defaultRange.end },
+            "radar": { start: defaultRange.start, end: defaultRange.end }
+        };
 
-        function setLoading(isLoading) {
-            var charts = [gaugeChart, topUsersChart, trendChart, radarChart];
+        function setLoading(charts, isLoading) {
             charts.forEach(function (chart) {
                 if (isLoading) {
                     chart.showLoading();
@@ -133,61 +204,65 @@
             });
         }
 
-        function formatDelta(value) {
-            if (value === null || value === undefined) {
-                return "--";
-            }
-            var fixed = Number(value).toFixed(2);
-            return (value > 0 ? "+" : "") + fixed;
+        function buildDefaultRange() {
+            var end = new Date();
+            var start = new Date();
+            start.setDate(end.getDate() - 29);
+            return { start: formatDate(start), end: formatDate(end) };
         }
 
-        function updateMomDelta(delta, deltaPct) {
-            var $delta = $("#mom-delta");
-            var $deltaPct = $("#mom-delta-pct");
-            var className = "kpi-delta--flat";
-            if (delta > 0) {
-                className = "kpi-delta--up";
-            } else if (delta < 0) {
-                className = "kpi-delta--down";
-            }
-            $delta.text(formatDelta(delta));
-            $deltaPct.text(deltaPct === null ? "--" : formatDelta(deltaPct) + "%");
-            $deltaPct.removeClass("kpi-delta--up kpi-delta--down kpi-delta--flat").addClass(className);
+        function formatDate(date) {
+            var year = date.getFullYear();
+            var month = (date.getMonth() + 1).toString().padStart(2, "0");
+            var day = date.getDate().toString().padStart(2, "0");
+            return year + "-" + month + "-" + day;
         }
 
-        function renderGauge(data, meta) {
-            var bands = (meta && meta.gauge && meta.gauge.bands) ? meta.gauge.bands : [50, 75, 100, 125];
-            var min = (meta && meta.gauge) ? meta.gauge.min : 0;
-            var max = (meta && meta.gauge) ? meta.gauge.max : 150;
-            var colors = [
-                [bands[0] / max, "#ed5565"],
-                [bands[1] / max, "#f8ac59"],
-                [bands[2] / max, "#1c84c6"],
-                [bands[3] / max, "#1ab394"],
-                [1, "#23c6c8"]
-            ];
-            gaugeChart.setOption({
-                tooltip: { formatter: "{a} <br/>{c}" },
-                series: [{
-                    name: "公司均值指数",
-                    type: "gauge",
-                    min: min,
-                    max: max,
-                    axisLine: {
-                        lineStyle: {
-                            width: 12,
-                            color: colors
+        function updateDashboardRange(startDate, endDate) {
+            $("#dashboard-range").text(startDate + " 至 " + endDate + "｜公司维度");
+        }
+
+        function renderWorkHours(topUsers) {
+            var names = [];
+            var hours = [];
+            var reversedTopUsers = (topUsers || []).slice().reverse();
+            (reversedTopUsers || []).forEach(function (item) {
+                var deptName = item.deptName || "";
+                names.push(item.userName + (deptName ? "｜" + deptName : ""));
+                hours.push(item.workHours);
+            });
+            workHoursChart.setOption({
+                tooltip: {
+                    trigger: "axis",
+                    axisPointer: { type: "shadow" },
+                    formatter: function (params) {
+                        var point = params[0];
+                        if (!point) {
+                            return "";
                         }
-                    },
-                    splitLine: { length: 12 },
-                    axisTick: { length: 8 },
-                    detail: {
-                        fontSize: 20,
+                        return point.name + "<br/>上班时长：" + point.value + " 小时";
+                    }
+                },
+                grid: { left: 120, right: 30, top: 20, bottom: 20 },
+                xAxis: {
+                    type: "value",
+                    axisLabel: { formatter: "{value}h" }
+                },
+                yAxis: {
+                    type: "category",
+                    data: names,
+                    axisLabel: {
                         formatter: function (value) {
-                            return value.toFixed(1);
+                            return value.length > 16 ? value.slice(0, 16) + "..." : value;
                         }
-                    },
-                    data: [{ value: data.companyAvgScore || 0, name: "指数" }]
+                    }
+                },
+                series: [{
+                    name: "上班时长",
+                    type: "bar",
+                    barMaxWidth: 18,
+                    itemStyle: { color: "#23c6c8" },
+                    data: hours
                 }]
             });
         }
@@ -280,29 +355,88 @@
             });
         }
 
-        setLoading(true);
-        $.get(prefix + "/default")
-            .done(function (response) {
-                var payload = response.data || {};
-                renderGauge(payload.gauge || {}, payload.meta || {});
-                renderTopUsers(payload.topUsers || []);
-                renderTrend(payload.trend || { dates: [], companyAvg: [], topDepts: [] });
-                renderRadar(payload.radar || { categories: [], values: [] });
-                updateMomDelta(payload.gauge.momDelta || 0, payload.gauge.momDeltaPct);
-            })
-            .fail(function () {
-                renderGauge({ companyAvgScore: 0 }, { gauge: { min: 0, max: 150, bands: [50, 75, 100, 125] } });
-                renderTopUsers([]);
-                renderTrend({ dates: [], companyAvg: [], topDepts: [] });
-                renderRadar({ categories: [], values: [] });
-                updateMomDelta(0, null);
-            })
-            .always(function () {
-                setLoading(false);
+        function fetchStatistics(sectionKey) {
+            var range = sectionDates[sectionKey];
+            if (!range) {
+                return;
+            }
+            var targetCharts = [];
+            if (sectionKey === "work-hours") {
+                targetCharts = [workHoursChart];
+            } else if (sectionKey === "top-users") {
+                targetCharts = [topUsersChart];
+            } else if (sectionKey === "trend") {
+                targetCharts = [trendChart];
+            } else if (sectionKey === "radar") {
+                targetCharts = [radarChart];
+            }
+            setLoading(targetCharts, true);
+            $.get(prefix + "/default", { startDate: range.start, endDate: range.end })
+                .done(function (response) {
+                    var payload = response.data || {};
+                    if (sectionKey === "work-hours") {
+                        renderWorkHours(payload.workHoursTop || []);
+                        updateDashboardRange(range.start, range.end);
+                    } else if (sectionKey === "top-users") {
+                        renderTopUsers(payload.topUsers || []);
+                    } else if (sectionKey === "trend") {
+                        renderTrend(payload.trend || { dates: [], companyAvg: [], topDepts: [] });
+                    } else if (sectionKey === "radar") {
+                        renderRadar(payload.radar || { categories: [], values: [] });
+                    }
+                })
+                .fail(function () {
+                    if (sectionKey === "work-hours") {
+                        renderWorkHours([]);
+                    } else if (sectionKey === "top-users") {
+                        renderTopUsers([]);
+                    } else if (sectionKey === "trend") {
+                        renderTrend({ dates: [], companyAvg: [], topDepts: [] });
+                    } else if (sectionKey === "radar") {
+                        renderRadar({ categories: [], values: [] });
+                    }
+                })
+                .always(function () {
+                    setLoading(targetCharts, false);
+                });
+        }
+
+        function initDatePickers() {
+            $(".chart-filter").each(function () {
+                var section = $(this).data("section");
+                var startId = "#" + section + "-start";
+                var endId = "#" + section + "-end";
+                $(startId).val(sectionDates[section].start);
+                $(endId).val(sectionDates[section].end);
             });
+            $(".chart-date").datetimepicker({
+                format: "yyyy-mm-dd",
+                minView: "month",
+                autoclose: true
+            });
+        }
+
+        function bindFilters() {
+            $(".chart-filter__btn").on("click", function () {
+                var section = $(this).data("target");
+                var startValue = $("#" + section + "-start").val();
+                var endValue = $("#" + section + "-end").val();
+                if (startValue && endValue) {
+                    sectionDates[section] = { start: startValue, end: endValue };
+                    fetchStatistics(section);
+                }
+            });
+        }
+
+        initDatePickers();
+        bindFilters();
+        fetchStatistics("work-hours");
+        fetchStatistics("top-users");
+        fetchStatistics("trend");
+        fetchStatistics("radar");
 
         $(window).on("resize", function () {
-            gaugeChart.resize();
+            workHoursChart.resize();
             topUsersChart.resize();
             trendChart.resize();
             radarChart.resize();

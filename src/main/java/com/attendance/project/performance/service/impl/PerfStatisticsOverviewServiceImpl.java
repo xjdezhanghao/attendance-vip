@@ -106,6 +106,7 @@ public class PerfStatisticsOverviewServiceImpl implements IPerfStatisticsOvervie
                 .divide(prevAvg, 2, RoundingMode.HALF_UP);
 
         List<Map<String, Object>> topUsers = buildTopUsers(perfStatisticsOverviewMapper.selectTopUsers(baseParams));
+        List<Map<String, Object>> workHoursTop = buildTopWorkHours(perfStatisticsOverviewMapper.selectTopWorkHours(baseParams));
         List<Map<String, Object>> companyTrend = perfStatisticsOverviewMapper.selectCompanyTrend(baseParams);
         List<Map<String, Object>> topDeptAverages = perfStatisticsOverviewMapper.selectTopDeptAverages(baseParams);
 
@@ -153,6 +154,7 @@ public class PerfStatisticsOverviewServiceImpl implements IPerfStatisticsOvervie
         response.put("meta", meta);
         response.put("gauge", gauge);
         response.put("topUsers", topUsers);
+        response.put("workHoursTop", workHoursTop);
         response.put("trend", trend);
         response.put("radar", radar);
         return response;
@@ -317,5 +319,23 @@ public class PerfStatisticsOverviewServiceImpl implements IPerfStatisticsOvervie
             topUsers.add(user);
         }
         return topUsers;
+    }
+
+    private List<Map<String, Object>> buildTopWorkHours(List<Map<String, Object>> rows) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        for (Map<String, Object> row : rows) {
+            Map<String, Object> user = new LinkedHashMap<>();
+            user.put("userId", row.get("user_id"));
+            user.put("userName", row.get("user_name"));
+            user.put("deptName", row.get("dept_name"));
+            Object secondsObj = row.get("work_seconds");
+            double hours = 0;
+            if (secondsObj instanceof Number) {
+                hours = ((Number) secondsObj).doubleValue() / 3600d;
+            }
+            user.put("workHours", BigDecimal.valueOf(hours).setScale(2, RoundingMode.HALF_UP).doubleValue());
+            result.add(user);
+        }
+        return result;
     }
 }
