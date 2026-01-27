@@ -162,14 +162,13 @@ public class AtdStatisticFormController extends BaseController {
             //初始化字符串
             String dult1 = id + "," + name + "," + "上班";
             String dult2 = id + "," + " " + "," + "下班";
-            //初始化出勤、迟到、早退天数
-            int atdTotal = 0;///当天有打卡数据的，有2条或1条的，出勤加1/当天有打卡数据的，按姓名去重求和，纯备注不算 *倒班后未排班即0+倒班不记录
-            int chidaoTotal = 0;//atdstatus为1的和+上下班数据对中只有下班打卡的（未备注）
-            int zaotuiTotal = 0;//atdstatus为2的和+上下班数据对中只有上班打卡的（未备注）
             //核实出勤、迟到、早退
             int hsatdTotal = 0;///当天有考勤数据并且备注为null或者备注包括'忘"‘差’
             int hschidaoTotal = 0;//迟到无备注+只有下班有一条数据的（包含只有下班一个备注的和只有一个下班打卡数据）
             int hszaotuiTotal = 0;//早退无备注+只有上班有一条数据的（包含只有上班一个备注的和只有一个上班打卡数据）
+
+            int shijiaTotal = 0;
+            int kuanggongTotal = 0;
 
             /*findAtdPlan.setUserId(id.longValue());
             int yingchuqin = atdPlanService.selectAtdPlanCount(findAtdPlan);*/
@@ -180,20 +179,6 @@ public class AtdStatisticFormController extends BaseController {
                 String aTime = "," + "/";//下午
 
                 //1、计算出勤
-                //1、当天有打卡数据的，计算出勤加1（去掉没打卡有备注的，即atdStatus=0的数据）
-                List<AtdStatisticForm> dataList11 = dataList.stream()
-                        // 首先过滤出满足条件的元素
-                        .filter(item -> item.getTime().equals(time) && name.equals(item.getUsername())&& !"0".equals(item.getAtdstatus()))
-                        // 使用Collectors.toMap来基于username去重，保留第一次出现的元素
-                        .collect(Collectors.toMap(
-                                AtdStatisticForm::getUsername, // 作为键的函数
-                                item -> item, // 作为值的函数
-                                (existing, replacement) -> existing // 如果键冲突，保留现有的元素
-                        ))
-                        // 将Map的值转换回List
-                        .values()
-                        .stream()
-                        .collect(Collectors.toList());
                 List<AtdStatisticForm> dataList20 = dataList.stream() //前一天倒班第二天未安排的状态0数据不算出勤 desc
                         // 首先过滤出满足条件的元素
                         .filter(item -> item.getTime().equals(time) && name.equals(item.getUsername())&& "0".equals(item.getAtdstatus()) && "倒班".equals(item.getAtddesc()))
@@ -207,32 +192,13 @@ public class AtdStatisticFormController extends BaseController {
                         .values()
                         .stream()
                         .collect(Collectors.toList());
-                List<AtdPlan> planList11 = planList.stream()
-                        // 首先过滤出满足条件的元素
-                        .filter(item -> item.getPlanDate().equals(time) && name.equals(item.getUserName())&& !"0".equals(item.getEnable()))
-                        // 使用Collectors.toMap来基于username去重，保留第一次出现的元素
-                        .collect(Collectors.toMap(
-                                AtdPlan::getUserName, // 作为键的函数
-                                item -> item, // 作为值的函数
-                                (existing, replacement) -> existing // 如果键冲突，保留现有的元素
-                        ))
-                        // 将Map的值转换回List
-                        .values()
-                        .stream()
-                        .collect(Collectors.toList());
-
-
-                if( dataList11.size()!=0 && dataList20.size() <= 0){
-                    atdTotal = atdTotal+1;
-                }
                 //2、核实出勤
-
                 List<AtdStatisticForm> dataList12 = dataList.stream()
                         // 首先过滤掉null元素
                         .filter(Objects::nonNull)
                         // 然后根据条件过滤
                         .filter(item -> item.getTime().equals(time) && name.equals(item.getUsername()) &&
-                                ((item.getAtddesckj() == null || (item.getAtddesckj().contains(":") || item.getAtddesckj().contains("：") || item.getAtddesckj().contains("忘") || item.getAtddesckj().contains("差")))||(
+                                ((item.getAtddesckj() == null || (item.getAtddesckj().contains(":") || item.getAtddesckj().contains("：") || item.getAtddesckj().contains("忘") || item.getAtddesckj().contains("差") || item.getAtddesckj().contains("迟到") || item.getAtddesckj().contains("早退")))||(
                                         !"0".equals(item.getAtdstatus())
                                 )))
                         // 使用Collectors.toMap来基于username去重，保留第一次出现的元素
@@ -250,24 +216,10 @@ public class AtdStatisticFormController extends BaseController {
                     hsatdTotal= hsatdTotal+1;
                 }
 
-                //3、计算一天只有一个打卡数据的，匹配每个人上下班数据(去掉没打卡有备注的数据库状态为atdstatus=0)
-                List<AtdStatisticForm> dataList0 =  dataList.stream()
-                        .filter(item->item.getTime().equals(time) && name.equals(item.getUsername())&&(!("0".equals(item.getAtdstatus())) || "倒班".equals(item.getAtddesc())))
-                        .distinct()
-                        .collect(Collectors.toList());
-
-                //上下班数据中只有一个下班打卡的，迟到加1
-                if(dataList0.size()==1 &&"2".equals(dataList0.get(0).getAtdtag())){
-                    chidaoTotal +=1;
-                }
-                //上下班数据中只有一个上班打卡的,核实早退加1
-                if(dataList0.size()==1 &&"1".equals(dataList0.get(0).getAtdtag())){
-                    zaotuiTotal +=1;
-                }
-                //4、核实迟到：迟到无备注+只有下班有数据（含只有下班备注的）
+                //4、核实迟到：迟到无备注或有迟到备注+只有下班有数据（含只有下班备注的）
                 //4.1迟到无备注
                 List<AtdStatisticForm> dataList4 =  dataList.stream()
-                        .filter(item->item.getTime().equals(time) && name.equals(item.getUsername())&&("1".equals(item.getAtdstatus()))&&(item.getAtddesckj() == null ))
+                        .filter(item->item.getTime().equals(time) && name.equals(item.getUsername())&&(("1".equals(item.getAtdstatus()))&&(item.getAtddesckj() == null)||(item.getAtddesckj()!= null)&&(item.getAtddesckj().contains("迟到"))))
                         .distinct()
                         .collect(Collectors.toList());
 
@@ -279,29 +231,44 @@ public class AtdStatisticFormController extends BaseController {
                         .filter(item->item.getTime().equals(time) && name.equals(item.getUsername()))
                         .distinct()
                         .collect(Collectors.toList());
-                if(dataList41.size()==1 &&"2".equals(dataList41.get(0).getAtdtag())){
+                if(dataList41.size()==1 &&"2".equals(dataList41.get(0).getAtdtag()) && ((dataList41.get(0).getAtddesckj() == null) || (dataList41.get(0).getAtddesckj() != null) && !dataList41.get(0).getAtddesckj().contains("事假") && !dataList41.get(0).getAtddesckj().contains("旷工") && !dataList41.get(0).getAtddesckj().contains("迟到"))){
                     hschidaoTotal +=1;
                 }
 
 
-                //5、核实早退：早退无备注+只有上班有数据（含只有上班有备注的）
+                //5、核实早退：早退无备注或有早退备注+只有上班有数据（含只有上班有备注的）
                 //5.1早退无备注
                 List<AtdStatisticForm> dataList5 =  dataList.stream()
-                        .filter(item->item.getTime().equals(time) && name.equals(item.getUsername())&&("2".equals(item.getAtdstatus()))&&(item.getAtddesckj() == null ))
+                        .filter(item->item.getTime().equals(time) && name.equals(item.getUsername())&&(("2".equals(item.getAtdstatus()))&&(item.getAtddesckj() == null) || (item.getAtddesckj() != null)&&(item.getAtddesckj().contains("早退"))))
                         .distinct()
                         .collect(Collectors.toList());
 
                 hszaotuiTotal =hszaotuiTotal+dataList5.size();
 
 
-                //4.2只有下班有数据（含只有下班备注的）
+                //5.2只有下班有数据（含只有下班备注的）
                 List<AtdStatisticForm> dataList51 =  dataList.stream()
                         .filter(item->item.getTime().equals(time) && name.equals(item.getUsername()))
                         .distinct()
                         .collect(Collectors.toList());
-                if(dataList51.size()==1 &&"1".equals(dataList51.get(0).getAtdtag())){
+                if(dataList51.size()==1 &&"1".equals(dataList51.get(0).getAtdtag()) && ((dataList51.get(0).getAtddesckj() == null) || (dataList51.get(0).getAtddesckj() != null) && !dataList51.get(0).getAtddesckj().contains("事假") && !dataList51.get(0).getAtddesckj().contains("旷工") && !dataList51.get(0).getAtddesckj().contains("早退"))){
                     hszaotuiTotal +=1;
                 }
+
+                List<AtdStatisticForm> dataList6 =  dataList.stream()
+                        .filter(item->item.getTime().equals(time) && name.equals(item.getUsername())&&((item.getAtddesckj() != null)&&(item.getAtddesckj().contains("事假"))))
+                        .distinct()
+                        .collect(Collectors.toList());
+
+                shijiaTotal =shijiaTotal+dataList6.size();
+
+                List<AtdStatisticForm> dataList7 =  dataList.stream()
+                        .filter(item->item.getTime().equals(time) && name.equals(item.getUsername())&&((item.getAtddesckj() != null)&&(item.getAtddesckj().contains("旷工"))))
+                        .distinct()
+                        .collect(Collectors.toList());
+
+                kuanggongTotal =kuanggongTotal+dataList7.size();
+
 
                 //遍历数据库数据SS
                 for (AtdStatisticForm data : dataList) {
@@ -320,11 +287,7 @@ public class AtdStatisticFormController extends BaseController {
                         } else {
                             eTime = "," + s[1].substring(0, 5) + ";" + atdStatus + ";" + atddesc;
                         }
-                        //迟到chidaoTotal：atdstatus为1的和+上下班数据对中只有下班打卡的（未备注）
-                        if ("1".equals(atdStatus)) {
-                            chidaoTotal = chidaoTotal + 1;//迟到
 
-                        }
                     }
                     //下班
                     if (name.equals(data.getUsername()) && time.equals(data.getTime()) && "2".equals(data.getAtdtag())) {
@@ -336,11 +299,6 @@ public class AtdStatisticFormController extends BaseController {
 
                         //早退zaotuiTotal：atdstatus为2的和+上下班数据对中只有上班打卡的（未备注）
 
-                        if ("2".equals(atdStatus)) {
-                            zaotuiTotal = zaotuiTotal + 1;//早退
-
-                        }
-
                     }
 
                 }
@@ -348,7 +306,7 @@ public class AtdStatisticFormController extends BaseController {
                 dult2 = dult2 + aTime;
 
             }
-            dult1 = dult1 + "," + atdTotal + "," + chidaoTotal + "," + zaotuiTotal + "," + hsatdTotal + "," + hschidaoTotal + "," + hszaotuiTotal;
+            dult1 = dult1 + "," + hsatdTotal + "," + hschidaoTotal + "," + hszaotuiTotal + "," + shijiaTotal + "," + kuanggongTotal + "," + " ";
             //dult1 = dult1 + "," + atdTotal + "," + chidaoTotal + "," + zaotuiTotal+ "," +" " + "," + " " + "," +" ";
             dult2 = dult2 + "," + " " + "," + " " + "," + " " + "," + " " + "," + " " + "," + " ";
             //考勤绩效
@@ -410,9 +368,9 @@ public class AtdStatisticFormController extends BaseController {
         headList.add("出勤");
         headList.add("迟到");
         headList.add("早退");
-        headList.add("核实出勤");
-        headList.add("核实迟到");
-        headList.add("核实早退");
+        headList.add("事假");
+        headList.add("旷工");
+        headList.add("其他");
         /*headList.add("考勤等级");
         headList.add("应出勤");*/
         OutputStream out = null;

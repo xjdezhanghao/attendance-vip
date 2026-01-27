@@ -81,6 +81,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         left join vip_employee_post epost on pgo.user_id = epost.user_id
         left join vip_post vp on epost.post_id = vp.post_id
         <where>
+            u.del_flag = 0
             <if test="userName != null and userName != ''"> and u.user_name like concat('%', #{userName}, '%')</if>
             <if test="deptId != null "> and (d.dept_id = #{deptId} or
                 d.parent_id = #{deptId} or d.ancestors like concat('%', #{deptId},',%'))</if>
