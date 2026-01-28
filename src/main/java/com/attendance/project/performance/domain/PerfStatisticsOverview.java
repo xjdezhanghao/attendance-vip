@@ -23,52 +23,55 @@ public class PerfStatisticsOverview extends BaseEntity
     private Long overviewId;
 
     /** 组织架构ID（关联sys_dept） */
-    @Excel(name = "组织架构ID", readConverterExp = "关=联sys_dept")
+    //@Excel(name = "组织架构ID", readConverterExp = "关=联sys_dept")
     private Long deptId;
 
     /** 员工ID（关联sys_user） */
-    @Excel(name = "员工ID", readConverterExp = "关=联sys_user")
+    //@Excel(name = "员工ID", readConverterExp = "关=联sys_user")
     private Long userId;
 
     /** 考核项目ID（关联perf_ind_project） */
-    @Excel(name = "考核项目ID", readConverterExp = "关=联perf_ind_project")
+    //@Excel(name = "考核项目ID", readConverterExp = "关=联perf_ind_project")
     private Long projectId;
 
     /** 统计日期（格式：YYYY-MM-DD） */
-    @Excel(name = "统计日期", readConverterExp = "格式：YYYY-MM-DD")
+    @Excel(name = "统计日期")
     private String gatherDate;
 
-    /** 考核总分 */
-    @Excel(name = "考核总分")
-    private BigDecimal totalScore;
-
     /** 统计状态：0未统计 1统计中 2已提交 3已审核 */
-    @Excel(name = "统计状态：0未统计 1统计中 2已提交 3已审核")
+    //@Excel(name = "统计状态：0未统计 1统计中 2已提交 3已审核")
     private Integer gatherStatus;
 
     /** 统计人ID（关联sys_user） */
-    @Excel(name = "统计人ID", readConverterExp = "关=联sys_user")
+    //@Excel(name = "统计人ID", readConverterExp = "关=联sys_user")
     private Long gatherId;
 
     /** 审核人ID（关联sys_user） */
-    @Excel(name = "审核人ID", readConverterExp = "关=联sys_user")
+    //@Excel(name = "审核人ID", readConverterExp = "关=联sys_user")
     private Long auditId;
 
     /** 审核时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "审核时间", width = 30, dateFormat = "yyyy-MM-dd")
+    //@Excel(name = "审核时间", width = 30, dateFormat = "yyyy-MM-dd")
     private Date auditTime;
 
     // 关联表字段
+    @Excel(name = "姓名")
     private String userName;
+    @Excel(name = "科室")
     private String deptName;
     private String paramRank;
     private String paramPost;
+    @Excel(name = "岗位")
     private String postName;
     private Long postId;
 
     private String startDate;
     private String endDate;
+
+    /** 考核总分 */
+    @Excel(name = "考核总分")
+    private BigDecimal totalScore;
 
     public void setOverviewId(Long overviewId)
     {

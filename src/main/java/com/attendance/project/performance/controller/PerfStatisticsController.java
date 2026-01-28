@@ -16,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
@@ -96,10 +97,15 @@ public class PerfStatisticsController extends BaseController
     @Log(title = "绩效统计", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ResponseBody
-    public AjaxResult export(PerfGatherOverview perfGatherOverview)
+    public AjaxResult export(PerfStatisticsOverview perfStatisticsOverview)
     {
-        List<PerfGatherOverview> list = perfGatherOverviewService.selectPerfGatherOverviewList(perfGatherOverview);
-        ExcelUtil<PerfGatherOverview> util = new ExcelUtil<PerfGatherOverview>(PerfGatherOverview.class);
+        List<PerfStatisticsOverview> list = perfStatisticsOverviewService.selectPerfStatisticsOverviewList(perfStatisticsOverview);
+        for (PerfStatisticsOverview item : list) {
+            if (item.getTotalScore() != null) {
+                item.setTotalScore(item.getTotalScore().add(new BigDecimal("100")));
+            }
+        }
+        ExcelUtil<PerfStatisticsOverview> util = new ExcelUtil<PerfStatisticsOverview>(PerfStatisticsOverview.class);
         return util.exportExcel(list, "绩效统计数据");
     }
     

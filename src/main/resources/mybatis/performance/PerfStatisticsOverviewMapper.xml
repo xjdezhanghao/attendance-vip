@@ -193,7 +193,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             MAX(u.user_name) AS user_name,
             MAX(pgo.dept_id) AS dept_id,
             MAX(d.dept_name) AS dept_name,
-            SUM(100 + pgo.total_score) AS score
+            SUM(pgo.total_score) + 100 AS score
         FROM perf_gather_overview pgo
         LEFT JOIN sys_user u ON pgo.user_id = u.user_id
         LEFT JOIN sys_dept d ON pgo.dept_id = d.dept_id

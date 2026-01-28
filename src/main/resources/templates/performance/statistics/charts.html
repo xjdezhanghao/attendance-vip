@@ -78,33 +78,11 @@
 <div class="wrapper wrapper-content animated fadeInRight">
     <div class="row">
         <div class="col-sm-12">
-            <div class="dashboard-title">绩效统计图表 <span class="dashboard-subtitle" id="dashboard-range">近30天｜公司维度</span></div>
+            <div class="dashboard-title">绩效统计图表 <span class="dashboard-subtitle" id="dashboard-range">公司维度</span></div>
         </div>
     </div>
     <div class="row">
-        <div class="col-md-4 col-sm-12">
-            <div class="ibox float-e-margins">
-                <div class="ibox-title">
-                    <h5>上班时长TOP10</h5>
-                    <div class="chart-filter" data-section="work-hours">
-                        <div class="input-group date">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                            <input type="text" class="form-control chart-date" id="work-hours-start" placeholder="开始日期">
-                        </div>
-                        <span class="chart-filter__sep">至</span>
-                        <div class="input-group date">
-                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                            <input type="text" class="form-control chart-date" id="work-hours-end" placeholder="结束日期">
-                        </div>
-                        <button type="button" class="btn btn-primary btn-xs chart-filter__btn" data-target="work-hours">筛选</button>
-                    </div>
-                </div>
-                <div class="ibox-content">
-                    <div id="echarts-work-hours" class="chart-panel"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-8 col-sm-12">
+        <div class="col-md-6 col-sm-12">
             <div class="ibox float-e-margins">
                 <div class="ibox-title">
                     <h5>个人绩效TOP10</h5>
@@ -123,6 +101,28 @@
                 </div>
                 <div class="ibox-content">
                     <div id="echarts-top-users" class="chart-panel"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>出勤时长TOP10</h5>
+                    <div class="chart-filter" data-section="work-hours">
+                        <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input type="text" class="form-control chart-date" id="work-hours-start" placeholder="开始日期">
+                        </div>
+                        <span class="chart-filter__sep">至</span>
+                        <div class="input-group date">
+                            <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                            <input type="text" class="form-control chart-date" id="work-hours-end" placeholder="结束日期">
+                        </div>
+                        <button type="button" class="btn btn-primary btn-xs chart-filter__btn" data-target="work-hours">筛选</button>
+                    </div>
+                </div>
+                <div class="ibox-content">
+                    <div id="echarts-work-hours" class="chart-panel"></div>
                 </div>
             </div>
         </div>
@@ -219,7 +219,7 @@
         }
 
         function updateDashboardRange(startDate, endDate) {
-            $("#dashboard-range").text(startDate + " 至 " + endDate + "｜公司维度");
+            //$("#dashboard-range").text(startDate + " 至 " + endDate + "｜公司维度");
         }
 
         function renderWorkHours(topUsers) {
@@ -295,7 +295,7 @@
                     }
                 },
                 series: [{
-                    name: "得分",
+                    name: "分值",
                     type: "bar",
                     barMaxWidth: 18,
                     itemStyle: { color: "#1c84c6" },

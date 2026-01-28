@@ -73,9 +73,9 @@ public class AtdRecordServiceImpl implements IAtdRecordService
         calendar.setTime(tmpDate);
         calendar.set(Calendar.MILLISECOND, 0);
         tmpDate = calendar.getTime();
-        tmpDate.setHours(8);tmpDate.setMinutes(31);
+        tmpDate.setHours(8);tmpDate.setMinutes(41);
         Long startTime = tmpDate.getTime();
-        tmpDate.setHours(16);tmpDate.setMinutes(9);
+        tmpDate.setHours(16);tmpDate.setMinutes(0);
         Long endTime = tmpDate.getTime();
         tmpDate.setHours(8);tmpDate.setMinutes(30);
         Long endTime2 = tmpDate.getTime();

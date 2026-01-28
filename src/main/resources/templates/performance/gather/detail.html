@@ -269,7 +269,7 @@
 
       // 创建表格
       var table = $('<table class="item-table" data-category-id="' + category.id + '"></table>');
-      var thead = $('<thead><tr><th width="5%">名称</th><th width="45%">说明</th><th width="8%">单项分值</th><th width="6%">得分</th><th width="26%">备注</th><th width="10%">图片</th></tr></thead>');
+      var thead = $('<thead><tr><th width="5%">名称</th><th width="45%">说明</th><th width="8%">单项分值</th><th width="6%">分值</th><th width="26%">备注</th><th width="10%">图片</th></tr></thead>');
       var tbody = $('<tbody></tbody>');
 
       // 添加表格行
@@ -282,7 +282,7 @@
         row.append('<td>' + item.scoreMin + ' - ' + item.scoreMax + '</td>');
 
         var scoreCell = $('<td></td>');
-        var scoreInput = $('<input type="text" class="form-control score-input" name="score_' + item.itemId + '" data-item-id="' + item.itemId + '" data-category-id="' + item.categoryId + '" data-overview-id="' + overviewId + '" placeholder="分数" value="' + (item.itemScore || '') + '"/>');
+        var scoreInput = $('<input type="text" class="form-control score-input" name="score_' + item.itemId + '" data-item-id="' + item.itemId + '" data-category-id="' + item.categoryId + '" data-overview-id="' + overviewId + '" placeholder="分值" value="' + (item.itemScore || '') + '"/>');
         scoreCell.append(scoreInput);
         row.append(scoreCell);
 

@@ -328,7 +328,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
         XSSFRow headerRow = sheet.createRow(2);
         headerRow.setHeightInPoints(20);
 
-        String[] headers = {"类别", "项目", "得分", "备注", "itemId", "overviewId", "categoryId", "projectId", "scoreType"};
+        String[] headers = {"类别", "项目", "分值", "备注", "itemId", "overviewId", "categoryId", "projectId", "scoreType"};
         for (int i = 0; i < headers.length; i++) {
             XSSFCell headerCell = headerRow.createCell(i);
             headerCell.setCellStyle(headerStyle);
@@ -623,7 +623,7 @@ public class PerfGatherOverviewServiceImpl implements IPerfGatherOverviewService
                 try {
                     score = new BigDecimal(scoreStr. trim());
                 } catch (NumberFormatException e) {
-                    errorMsg.append("第").append(rowIndex + 1).append("行：分数格式错误;");
+                    errorMsg.append("第").append(rowIndex + 1).append("行：分值格式错误;");
                     continue;
                 }
             }

@@ -238,7 +238,7 @@ function queryUserList() {
             },
             {
                 field: 'totalScore',
-                title: '考核得分',
+                title: '考核分值',
                 formatter: function(value, row, index) {
                     return '<span class="score-' + (value >= 100 ? 'high' : value >= 80 ? 'medium' : 'low') + '">' + value + '</span>';
                 }
