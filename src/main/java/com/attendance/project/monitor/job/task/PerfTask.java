@@ -12,6 +12,8 @@ import com.attendance.project.business.service.IAtdRecordService;
 import com.attendance.project.monitor.server.domain.Sys;
 import com.attendance.project.performance.service.IPerfGatherOverviewService;
 import com.attendance.project.system.config.service.IConfigService;
+import org.apache.shiro.mgt.SecurityManager;
+import org.apache.shiro.util.ThreadContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -31,6 +33,9 @@ import java.util.List;
 public class PerfTask
 {
     @Autowired
+    private SecurityManager securityManager;
+
+    @Autowired
     private IPerfGatherOverviewService perfGatherOverviewService;
 
     /**
@@ -38,11 +43,17 @@ public class PerfTask
      */
     //@Scheduled(cron = "0 0 12,0 * * ?")
     public void generateGatherRecords() {
+        ThreadContext.bind(securityManager);
         System.out.println("开始生成当日考核采集记录");
         // 获取当前日期
         String currentDate = DateUtils.dateTimeNow("yyyy-MM-DD");
-        perfGatherOverviewService.generateDateGatherRecords(currentDate);
-        System.out.println("当日考核采集记录生成完成");
+        try {
+            perfGatherOverviewService.generateDateGatherRecords(currentDate);
+            System.out.println("当日考核采集记录生成完成");
+        } finally {
+            ThreadContext.unbindSecurityManager();
+            ThreadContext.unbindSubject();
+        }
     }
 
     /**
